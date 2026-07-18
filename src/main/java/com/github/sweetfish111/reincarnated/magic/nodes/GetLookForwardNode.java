@@ -1,0 +1,35 @@
+package com.github.sweetfish111.reincarnated.magic.nodes;
+
+import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+
+public class GetLookForwardNode extends AbstractMagicNode{
+
+    @Override
+    public void execute(MagicContext context) {
+    }
+
+    @Override
+    public Object getOutputData(int portIndex, MagicContext context) {
+        if(portIndex == 0){
+            Object distanceData = pullData(0, context);
+            double maxDistance = distanceData instanceof Number num ? num.doubleValue() : 16.0;
+
+            Vec3 eyePos = context.getCaster().getEyePosition();
+            Vec3 lookVec = context.getCaster().getLookAngle();
+            Vec3 endPos = eyePos.add(lookVec.scale(maxDistance));
+
+            BlockHitResult blockHit = context.getCaster().level().clip(new ClipContext(eyePos, endPos, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, context.getCaster()));
+
+            if(blockHit.getType() == HitResult.Type.BLOCK){
+                return blockHit.getBlockPos();
+            }
+            return endPos;
+        }
+        return null;
+    }
+}

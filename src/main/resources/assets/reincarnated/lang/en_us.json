@@ -1,0 +1,13 @@
+{
+  "itemGroup.reincarnated": "Example Mod Tab",
+  "block.reincarnated.example_block": "Example Block",
+  "item.reincarnated.example_item": "Example Item",
+
+  "reincarnated.configuration.title": "reincarnated Configs",
+  "reincarnated.configuration.section.reincarnated.common.toml": "reincarnated Configs",
+  "reincarnated.configuration.section.reincarnated.common.toml.title": "reincarnated Configs",
+  "reincarnated.configuration.items": "Item List",
+  "reincarnated.configuration.logDirtBlock": "Log Dirt Block",
+  "reincarnated.configuration.magicNumberIntroduction": "Magic Number Text",
+  "reincarnated.configuration.magicNumber": "Magic Number"
+}

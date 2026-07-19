@@ -1,15 +1,11 @@
 package com.github.sweetfish111.reincarnated.client.screen;
 
-import com.github.sweetfish111.reincarnated.circuit.ContentWidgetType;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.circuit.PortDataType;
 import com.github.sweetfish111.reincarnated.network.SaveCircuitPayload;
-import com.github.sweetfish111.reincarnated.circuit.ContentWidgetType;
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
@@ -34,22 +30,15 @@ public class MagicEditorScreen extends Screen {
 
     private DraggableNodeWidget activeNode = null;
 
-    private DraggableNodeWidget contextMenuTarget = null;
-
     private static final Logger LOGGER = LogUtils.getLogger();
 
     //コンストラクタ
     public MagicEditorScreen() {super(Component.literal("魔法編集"));}
     public MagicEditorScreen(CompoundTag initialData){
         this();
-        LOGGER.info("画面に届いたデータ" + (initialData != null ? initialData.toString() : "null"));
         if(initialData != null && !initialData.isEmpty()){
             this.circuit.loadFromNBT(initialData);
-            LOGGER.info("サーバーから届いたデータをキャンバスに復元した！");
-        }else{
-            LOGGER.info("データが空だったので、真っ白なキャンバスを用意した！");
         }
-
         for(MagiculeCircuit.NodeData nodeData : this.circuit.getNodes()){
             DraggableNodeWidget nodeWidget = new DraggableNodeWidget(
               this,
@@ -62,18 +51,14 @@ public class MagicEditorScreen extends Screen {
             this.nodeWidgets.add(nodeWidget);
             this.addRenderableWidget(nodeWidget);
             if(nodeWidget.getContentWidget() != null){
-                if(nodeWidget.getContentWidget() instanceof INodeNumberInput){
-                    INodeNumberInput numInput = (INodeNumberInput) nodeWidget.getContentWidget();
+                if(nodeWidget.getContentWidget() instanceof INodeNumberInput numInput){
                     this.addRenderableWidget(numInput.getEditBox());
                 }
             }
         }
     }
 
-    //ゲッター
-    public List<DraggableNodeWidget> getNodeWidgets(){return nodeWidgets;}
     public MagiculeCircuit getCircuit(){return this.circuit;}
-    public NodePaletteWidget getPalette(){return this.palette;}
 
     //初期化
     @Override
@@ -93,13 +78,8 @@ public class MagicEditorScreen extends Screen {
                             LOGGER.info("ポートの型が違うため接続できません");
                             return;
                         }
-                        if(sourcePort.getDataType() != PortDataType.EXEC){
-                            this.circuit.addWire(sourceNode.getId(), sourcePort.getIndex(), targetNode.getId(),targetPort.getIndex(),true);
-                        }else{
-                            this.circuit.addWire(sourceNode.getId(), sourcePort.getIndex(), targetNode.getId(),targetPort.getIndex(),false);
-                        }
+                        this.circuit.addWire(sourceNode.getId(), sourcePort.getIndex(), targetNode.getId(),targetPort.getIndex(), sourcePort.getDataType() != PortDataType.EXEC);
 
-                        LOGGER.info("繋がった" + sourceNode.getType() + "->" + targetNode.getType());
                         return;
                     }
                 }
@@ -242,7 +222,6 @@ public class MagicEditorScreen extends Screen {
             net.minecraft.client.Minecraft.getInstance().getConnection().send(payload);
         }
 
-        LOGGER.info("手紙の投函完了。NBTデータ:" + savedData.toString());
         super.onClose();
     }
 
@@ -252,15 +231,6 @@ public class MagicEditorScreen extends Screen {
             if (node.getContentWidget() != null && node.keyPressed(event)) {
                 return true;
             }
-        }
-        if(event.hasControlDown() && event.key() == 86){
-            double mx = Minecraft.getInstance().mouseHandler.xpos() * (double)Minecraft.getInstance().getWindow().getGuiScaledWidth() / (double)Minecraft.getInstance().getWindow().getWidth();
-            double my = Minecraft.getInstance().mouseHandler.ypos() * (double)Minecraft.getInstance().getWindow().getGuiScaledHeight() / (double)Minecraft.getInstance().getWindow().getHeight();
-            double canvasX = this.camera.getCanvasX(mx);
-            double canvasY = this.camera.getCanvasY(my);
-
-            spawnNodeWithParam(palette.getContextMenuTarget().getType(), canvasX, canvasY, contextMenuTarget.getContentWidget().getCurrentvalue());
-            return true;
         }
         return super.keyPressed(event);
     }
@@ -280,12 +250,10 @@ public class MagicEditorScreen extends Screen {
         this.nodeWidgets.remove(node);
         this.removeWidget(node);
         this.circuit.removeNodeAndWires(node.getId());
-        if(node.getContentWidget() != null && node.getContentWidget() instanceof INodeNumberInput){
-            INodeNumberInput numberInput = (INodeNumberInput) node.getContentWidget();
+        if(node.getContentWidget() != null && node.getContentWidget() instanceof INodeNumberInput numberInput){
             this.removeWidget(numberInput.getEditBox());
         }
         this.removeWidget(node.getContentWidget());
-        LOGGER.info("削除しました" + node.getType().displayName);
     }
 
     //画面に新しいノードを誕生させる

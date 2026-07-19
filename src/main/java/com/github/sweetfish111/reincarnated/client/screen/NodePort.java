@@ -55,4 +55,8 @@ public class NodePort {
         return mouseX >= getX() && mouseX <= getX() + size &&
                 mouseY >= getY() && mouseY <= getY() + size;
     }
+
+    public void rightClicked(DraggableNodeWidget node, NodePort port){
+        parentNode.getParentScreen().getCircuit().removeWiresByPort(node.getId(), port.getType(), port.getIndex());
+    }
 }

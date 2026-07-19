@@ -133,9 +133,7 @@ public class DraggableNodeWidget extends AbstractWidget {
 
     public boolean handleCanvasClick(MouseButtonEvent sourceEvent, double canvasX, double canvasY, int button){
         if(this.contentWidget != null){
-            MouseButtonInfo mouseInfo = new MouseButtonInfo(0,0);
-            MouseButtonEvent mouseButtonEvent = new MouseButtonEvent(canvasX, canvasY, mouseInfo);
-            if(this.contentWidget.mouseClicked(mouseButtonEvent, false)){
+            if(this.contentWidget.mouseClicked(sourceEvent, false)){
                 this.contentWidget.setFocused(true);
                 return true;
             }else{
@@ -145,7 +143,7 @@ public class DraggableNodeWidget extends AbstractWidget {
         for(NodePort port : this.inputPorts){
             if(port.isMouseOver(canvasX, canvasY)){
                 if(button == 1){
-                    this.parentScreen.onPortRightClicked(this, port);
+                    port.rightClicked(this, port);
                     return true;
                 }else if(button == 0){
                     this.draggingPort = port;
@@ -159,7 +157,7 @@ public class DraggableNodeWidget extends AbstractWidget {
         for(NodePort port : this.outputPorts){
             if(port.isMouseOver(canvasX, canvasY)){
                 if(button == 1){
-                    this.parentScreen.onPortRightClicked(this, port);
+                    port.rightClicked(this, port);
                     return true;
                 }else if(button == 0){
                     this.draggingPort = port;
@@ -173,6 +171,8 @@ public class DraggableNodeWidget extends AbstractWidget {
             this.isDragging = true;
             this.dragOffsetX = canvasX - this.getX();
             this.dragOffsetY = canvasY - this.getY();
+            return true;
+        }else if(button == 1 && this.isMouseOver(canvasX, canvasY)){
             return true;
         }
 

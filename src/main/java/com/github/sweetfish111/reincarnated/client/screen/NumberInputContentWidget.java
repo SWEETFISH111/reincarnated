@@ -56,6 +56,7 @@ public class NumberInputContentWidget extends AbstractContentWidget implements I
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        super.mouseClicked(event, doubleClick);
         return this.editBox.mouseClicked(event, doubleClick);
     }
 

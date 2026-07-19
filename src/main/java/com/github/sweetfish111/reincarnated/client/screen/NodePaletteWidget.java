@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public class NodePaletteWidget {
+    private enum ContextMenuFacts{DELETE, COPY};
     private final MagicEditorScreen paretScreen;
     private boolean isOpen = false;
     private int screenX = 0;
@@ -57,30 +58,34 @@ public class NodePaletteWidget {
 
     public boolean mouseClicked(double mouseX, double mouseY, int button){
         if(!this.isOpen) return false;
-
-        if(this.contextMenuTarget != null){
-            if(mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= screenY && mouseY <= screenY + menuHeight){
-                int index = (int)((mouseY - screenY) / ITEM_HEIGHT);
-                if(index == 0){
-                    this.paretScreen.deleteNode(this.contextMenuTarget);
-                    return true;
-                }else if(index == 1){
-                    this.paretScreen.copyNode(this.contextMenuTarget);
-                    return true;
+        if(button == 0){
+            if(this.contextMenuTarget != null){
+                if(mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= screenY && mouseY <= screenY + menuHeight){
+                    int index = (int)((mouseY - screenY) / ITEM_HEIGHT);
+                    if(index == 0){
+                        this.paretScreen.deleteNode(this.contextMenuTarget);
+                        close();
+                        return true;
+                    }else if(index == 1){
+                        this.paretScreen.copyNode(this.contextMenuTarget);
+                        close();
+                        return true;
+                    }
                 }
-            }
-        }else{
-            if (mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= screenY && mouseY <= screenY + menuHeight){
-                int index = (int)((mouseY - screenY) / 20);
-                if (index >= 0 && index < MagiculeNodeType.values().length){
-                    MagiculeNodeType selectedType = MagiculeNodeType.values()[index];
-                    this.paretScreen.spawnNode(selectedType, this.spawnCanvasX, this.spawnCanvasY);
+            }else{
+                if (mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= screenY && mouseY <= screenY + menuHeight){
+                    int index = (int)((mouseY - screenY) / ITEM_HEIGHT);
+                    if (index >= 0 && index < MagiculeNodeType.values().length){
+                        MagiculeNodeType selectedType = MagiculeNodeType.values()[index];
+                        this.paretScreen.spawnNode(selectedType, this.spawnCanvasX, this.spawnCanvasY);
+                        return true;
+                    }
                 }
             }
         }
 
         this.isOpen = false;
-        return true;
+        return false;
     }
 
     public void render(GuiGraphicsExtractor guiGraphicsExtractor, int mouseX, int mouseY){
@@ -89,21 +94,23 @@ public class NodePaletteWidget {
         guiGraphicsExtractor.fill(screenX, screenY, screenX + MENU_WIDTH, screenY + menuHeight, 0xDD000000);
         guiGraphicsExtractor.outline(screenX, screenY, MENU_WIDTH, menuHeight, 0xFFFFFFFF);
 
-        int i = 0;
         if(contextMenuTarget != null){
-            for(i = 0; i <= 1; i++){
+            int i = 0;
+            for(ContextMenuFacts fact : ContextMenuFacts.values()){
                 int itemY = screenY + (i * ITEM_HEIGHT);
-                int color = (mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= itemY && mouseY <= itemY + 20) ? 0xFFFFFF00 : 0xFFFFFFFF;
+                int color = (mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= itemY && mouseY <= itemY + ITEM_HEIGHT) ? 0xFFFFFF00 : 0xFFFFFFFF;
 
-                guiGraphicsExtractor.centeredText(Minecraft.getInstance().font, "delete", screenX + 30, screenY + 6, color);
+                guiGraphicsExtractor.centeredText(Minecraft.getInstance().font, fact.toString() , screenX + 30, itemY + ITEM_HEIGHT / 4, color);
+                i++;
             }
         }else{
+            int i = 0;
             for(MagiculeNodeType type : MagiculeNodeType.values()){
                 int itemY = screenY + (i * ITEM_HEIGHT);
                 //item上にカーソルがあるかによって色を変更
-                int color = (mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= itemY && mouseY <= itemY + 20) ? 0xFFFFFF00 : 0xFFFFFFFF;
+                int color = (mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= itemY && mouseY <= itemY + ITEM_HEIGHT) ? 0xFFFFFF00 : 0xFFFFFFFF;
 
-                guiGraphicsExtractor.centeredText(Minecraft.getInstance().font, type.displayName, screenX + 30, itemY + 6, color);
+                guiGraphicsExtractor.centeredText(Minecraft.getInstance().font, type.displayName, screenX + 30, itemY + ITEM_HEIGHT / 4, color);
                 i++;
             }
         }

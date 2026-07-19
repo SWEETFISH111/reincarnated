@@ -73,6 +73,7 @@ public class MagicEditorScreen extends Screen {
     //ゲッター
     public List<DraggableNodeWidget> getNodeWidgets(){return nodeWidgets;}
     public MagiculeCircuit getCircuit(){return this.circuit;}
+    public NodePaletteWidget getPalette(){return this.palette;}
 
     //初期化
     @Override
@@ -106,11 +107,6 @@ public class MagicEditorScreen extends Screen {
         }
     }
 
-    //ポートが右クリックされたとき接続を解除
-    public void onPortRightClicked(DraggableNodeWidget node, NodePort port){
-        this.circuit.removeWiresByPort(node.getId(), port.getType(), port.getIndex());
-    }
-
     //レンダリングメソッド
     @Override
     public void extractRenderState(GuiGraphicsExtractor guiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
@@ -141,29 +137,20 @@ public class MagicEditorScreen extends Screen {
         this.palette.render(guiGraphicsExtractor, mouseX, mouseY);
     }
 
-    //何もない空間が右クリックされたとき新規ノードパレットを開く
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        //ズーム未適用座標
         double rawX = event.x();
         double rawY = event.y();
-
-        //nodeを右クリしたとき
-        if(this.contextMenuTarget != null){
-            palette.mouseClicked(event.x(), event.y(), event.button());
-        }
-
-        //何もないところで右クリ
-        if(this.palette.isOpen()){
-            return this.palette.mouseClicked(event.x(), event.y(), event.button());
-        }
-
         //ズーム適応座標
         double canvasX = this.camera.getCanvasX(event.x());
         double canvasY = this.camera.getCanvasY(event.y());
-
         //選択中のノード
         this.activeNode = null;
-
+        //パレットのクリック判定
+        if(palette.isOpen()){
+            palette.mouseClicked(rawX, rawY, event.button());
+        }
         //ノードのクリック＆右クリック判定
         for(DraggableNodeWidget node : this.nodeWidgets){
 
@@ -172,17 +159,11 @@ public class MagicEditorScreen extends Screen {
                 if(node.getContentWidget() instanceof NumberInputContentWidget numWidget){
                     numWidget.mouseClicked(event, false);
                 }
-                return true;
-            }
-            if(canvasX >= node.getX() && canvasX <= node.getX() + node.getWidth() &&
-                canvasY >= node.getY() && canvasY <= node.getY() + node.getHeight()){
-
-                //nodeを右クリック
                 if(event.button() == 1){
-                    palette.openContextMenu((int)event.x(), (int)event.y(), node);
-                    palette.mouseClicked(rawX, rawY, event.button());
+                    palette.openContextMenu((int)rawX, (int)rawY, node);
                     return true;
                 }
+                return true;
             }
         }
 
@@ -196,7 +177,11 @@ public class MagicEditorScreen extends Screen {
     }
 
     public void copyNode(DraggableNodeWidget node){
-        spawnNodeWithParam(node.getType(), node.getX(), node.getY(), ((IContentWidget)node.getContentWidget()).getCurrentvalue());
+        if(node.getContentWidget() != null){
+            spawnNodeWithParam(node.getType(), node.getX() + 10, node.getY() + 10, node.getContentWidget().getCurrentvalue());
+        }else{
+            spawnNode(node.getType(), node.getX() + 10, node.getY() + 10);
+        }
     }
 
     //何もない空間がドラッグされたらキャンバス内を移動する

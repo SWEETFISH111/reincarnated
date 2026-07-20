@@ -1,8 +1,8 @@
 package com.github.sweetfish111.reincarnated.magic.nodes;
 
-import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -10,9 +10,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.Optional;
 
 public class SummonLightningNode extends AbstractMagicNode {
 
@@ -20,7 +19,7 @@ public class SummonLightningNode extends AbstractMagicNode {
     public void execute(MagicContext context) {
         System.out.println("[kaminari] zikkou no nami ga toutatu! hidari no pin kara zahyou wo pull");
 
-        BlockPos targetPos = pullBlockPos(1, context);
+        Vec3 targetPos = pullVector3(1, context);
         System.out.println("[kaminari] shutoku sita zahyou:" + targetPos);
 
         // 2. 引っ張ってきた座標に雷を落とす！
@@ -34,8 +33,7 @@ public class SummonLightningNode extends AbstractMagicNode {
                 Entity entity = entityType.create(serverLevel, EntitySpawnReason.COMMAND);
 
                 if(entity instanceof LightningBolt lightning){
-                    Vec3 pos = Vec3.atBottomCenterOf(targetPos);
-                    lightning.setPos(pos);
+                    lightning.setPos(targetPos);
                     serverLevel.addFreshEntity(lightning);
                 }
             }
@@ -45,7 +43,7 @@ public class SummonLightningNode extends AbstractMagicNode {
         }
 
         // 3. もし右側にさらに別の魔法（爆発など）が繋がっていれば、処理を続ける（Push）
-        pushExecute(0, context);
+        pushExecute(context);
     }
 
     @Override

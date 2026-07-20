@@ -7,7 +7,13 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.UUID;
+
 public class GetLookForwardNode extends AbstractMagicNode{
+
+    public GetLookForwardNode(UUID nodeId) {
+        super(nodeId);
+    }
 
     @Override
     public void execute(MagicContext context) {
@@ -23,10 +29,13 @@ public class GetLookForwardNode extends AbstractMagicNode{
             Vec3 lookVec = context.getCaster().getLookAngle();
             Vec3 endPos = eyePos.add(lookVec.scale(maxDistance));
 
-            BlockHitResult blockHit = context.getCaster().level().clip(new ClipContext(eyePos, endPos, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, context.getCaster()));
-
-            if(blockHit.getType() == HitResult.Type.BLOCK){
-                return blockHit.getBlockPos();
+            if(context.getCircuit().getNodeParam(this.id, "value", false) instanceof Boolean b){
+                BlockHitResult blockHit = context.getCaster().level().clip(new ClipContext(eyePos, endPos, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, context.getCaster()));
+                if(blockHit.getType() == HitResult.Type.BLOCK && b){
+                    System.out.println("inner1");
+                    return blockHit.getBlockPos();
+                }
+                System.out.println("outer1");
             }
             return endPos;
         }

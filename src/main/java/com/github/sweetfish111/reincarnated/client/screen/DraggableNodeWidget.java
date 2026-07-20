@@ -6,18 +6,15 @@ import java.util.UUID;
 
 import com.github.sweetfish111.reincarnated.circuit.ContentWidgetType;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
-import java.util.Optional;
-import net.minecraft.Optionull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 
 public class DraggableNodeWidget extends AbstractWidget {
     private final UUID id;
@@ -43,13 +40,26 @@ public class DraggableNodeWidget extends AbstractWidget {
         this.type = type;
         this.id = id;
         if(this.type.getContent() != ContentWidgetType.NONE){
-            if(this.type.getContent() == ContentWidgetType.NUMBER_INPUT){
-                this.contentWidget = new NumberInputContentWidget(
-                        Minecraft.getInstance().font,
-                        x + 10, y + 24, 60, 12,
-                        Component.literal("数値入力"),
-                        this
-                );
+            switch (this.type.getContent()){
+                case ContentWidgetType.NUMBER_INPUT:
+                    this.contentWidget = new NumberInputContentWidget(
+                            Minecraft.getInstance().font,
+                            x + 10, y + 24, 60, 12,
+                            Component.literal("数値入力"),
+                            this
+                    );
+                    break;
+
+                case ContentWidgetType.SWITCH:
+                    this.contentWidget = new SwitchContentWidget(
+                            x + 50, y + 20, 25, 12,
+                            Component.literal("無効").withColor(TextColor.RED),
+                            this
+                    );
+                    break;
+
+                default:
+                    break;
             }
         }
 
@@ -133,7 +143,7 @@ public class DraggableNodeWidget extends AbstractWidget {
 
     public boolean handleCanvasClick(MouseButtonEvent sourceEvent, double canvasX, double canvasY, int button){
         if(this.contentWidget != null){
-            if(this.contentWidget.mouseClicked(sourceEvent, false)){
+            if(this.contentWidget.handleMouseClicked((int)canvasX, (int)canvasY, sourceEvent.button(), sourceEvent.modifiers())){
                 this.contentWidget.setFocused(true);
                 return true;
             }else{

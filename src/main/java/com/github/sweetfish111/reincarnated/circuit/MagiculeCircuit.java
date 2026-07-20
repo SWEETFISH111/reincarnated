@@ -1,22 +1,26 @@
 package com.github.sweetfish111.reincarnated.circuit;
 
-import com.github.sweetfish111.reincarnated.client.screen.NodePaletteWidget;
 import com.github.sweetfish111.reincarnated.client.screen.NodePort;
+import net.minecraft.nbt.ByteTag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 
 import java.util.*;
-
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import org.w3c.dom.Node;
 
 public class MagiculeCircuit {
     private final List<NodeData> nodes = new ArrayList<>();
     private final List<WireData> wires = new ArrayList<>();
-    private final Map<UUID, Map<String, Double>> nodeParameters = new HashMap<>();
+    private final Map<UUID, Map<String, Object>> nodeParameters = new HashMap<>();
 
     public void addNode(NodeData node){
         this.nodes.add(node);
     }
+
     public void addWire(UUID sorceNodeId, int sourcePortIndex, UUID targetNodeId, int targetPortIndex, boolean isDataFlow){
         this.wires.removeIf(wire ->
                 wire.targetId.equals(targetNodeId) && wire.targetPortIndex == targetPortIndex
@@ -27,49 +31,55 @@ public class MagiculeCircuit {
         this.wires.add(new WireData(sorceNodeId, sourcePortIndex, targetNodeId, targetPortIndex, isDataFlow));
     }
 
-    //セッター
-    public void setNodeParam(UUID nodeId, String key, double value){
+    // セッター
+    public void setNodeParam(UUID nodeId, String key, Object value){
         nodeParameters.computeIfAbsent(nodeId, k -> new HashMap<>()).put(key, value);
     }
 
-    //ゲッター
-    public List<NodeData> getNodes(){return this.nodes;}
-    public List<WireData> getWires(){return this.wires;}
-    public double getNodeParam(UUID nodeId, String key, double defaultValue){
+    // ゲッター
+    public List<NodeData> getNodes(){ return this.nodes; }
+    public List<WireData> getWires(){ return this.wires; }
+
+    public Object getNodeParam(UUID nodeId, String key, Object defaultValue){
         if(nodeParameters.containsKey(nodeId)){
             return nodeParameters.get(nodeId).getOrDefault(key, defaultValue);
         }
         return defaultValue;
     }
 
-    //消す系
+    // 消す系
     public void removeWiresByPort(UUID nodeId, NodePort.Type portType, int portIndex){
         this.wires.removeIf(wire ->
-                        (portType == NodePort.Type.OUTPUT && wire.sourceId.equals(nodeId) && wire.sourcePortIndex == portIndex) ||
-                                (portType == NodePort.Type.INPUT && wire.targetId.equals(nodeId) && wire.targetPortIndex == portIndex));
+                (portType == NodePort.Type.OUTPUT && wire.sourceId.equals(nodeId) && wire.sourcePortIndex == portIndex) ||
+                        (portType == NodePort.Type.INPUT && wire.targetId.equals(nodeId) && wire.targetPortIndex == portIndex));
     }
+
     public void removeNodeAndWires(UUID nodeId){
         this.nodes.removeIf(node -> node.id.equals(nodeId));
         this.wires.removeIf(wire -> wire.sourceId.equals(nodeId) || wire.targetId.equals(nodeId));
+        this.nodeParameters.remove(nodeId);
     }
 
-    //セーブ安堵ロード
+    // セーブ＆ロード
     public CompoundTag saveToNBT(){
-        CompoundTag tag = new CompoundTag(); //nodes + wiresのNBT
+        CompoundTag tag = new CompoundTag(); // nodes + wiresのNBT
 
-        ListTag nodesTag = new ListTag(); //nodesのNBT
+        ListTag nodesTag = new ListTag(); // nodesのNBT
         for(NodeData node : this.nodes){
-            CompoundTag nTag = new CompoundTag(); //node一つ分のNBT
+            CompoundTag nTag = new CompoundTag(); // node一つ分のNBT
             nTag.putString("Id", node.id.toString());
             nTag.putString("Type", node.type.getId());
             nTag.putInt("X", node.x);
             nTag.putInt("Y", node.y);
 
-            Map<String, Double> params = this.nodeParameters.get(node.id);
+            Map<String, Object> params = this.nodeParameters.get(node.id);
             if(params != null && !params.isEmpty()){
                 CompoundTag paramsTag = new CompoundTag();
-                for(Map.Entry<String, Double> entry : params.entrySet()){
-                    paramsTag.putDouble(entry.getKey(), entry.getValue());
+                for(Map.Entry<String, Object> entry : params.entrySet()){
+                    Tag convertedTag = toNbtTag(entry.getValue());
+                    if (convertedTag != null) {
+                        paramsTag.put(entry.getKey(), convertedTag);
+                    }
                 }
                 nTag.put("Parameters", paramsTag);
             }
@@ -78,23 +88,25 @@ public class MagiculeCircuit {
         }
         tag.put("Nodes", nodesTag);
 
-        ListTag wiresTag = new ListTag(); //wiresのNBT
+        ListTag wiresTag = new ListTag(); // wiresのNBT
         for(WireData wire : this.wires){
-            CompoundTag wTag = new CompoundTag(); //wire一つ分のNBT
+            CompoundTag wTag = new CompoundTag(); // wire一つ分のNBT
             wTag.putString("SourceId", wire.sourceId.toString());
-            wTag.putInt("SourcePort",wire.sourcePortIndex);
+            wTag.putInt("SourcePort", wire.sourcePortIndex);
             wTag.putString("TargetId", wire.targetId.toString());
             wTag.putInt("TargetPort", wire.targetPortIndex);
-            wTag.putBoolean("IsDataFlow",wire.isDataFlow);
+            wTag.putBoolean("IsDataFlow", wire.isDataFlow);
             wiresTag.add(wTag);
         }
-        tag.put("Wires",wiresTag);
+        tag.put("Wires", wiresTag);
 
         return tag;
     }
+
     public void loadFromNBT(CompoundTag tag){
         this.nodes.clear();
         this.wires.clear();
+        this.nodeParameters.clear();
 
         Optional<ListTag> nodesTag = tag.getList("Nodes");
         if(nodesTag.isPresent()){
@@ -116,13 +128,14 @@ public class MagiculeCircuit {
                         ));
                     }
 
-                    if (nTag.get().contains("Parameters")) {
-                        CompoundTag paramsTag = nTag.get().getCompoundOrEmpty("Parameters");
-                        Map<String, Double> params = new java.util.HashMap<>();
+                    if (n.contains("Parameters")) {
+                        CompoundTag paramsTag = n.getCompoundOrEmpty("Parameters");
+                        Map<String, Object> params = new HashMap<>();
                         for (String key : paramsTag.keySet()) {
-                            Optional optValue = paramsTag.getDouble(key);
-                            if(!optValue.isEmpty()) {
-                                params.put(key, (Double) optValue.get());
+                            Tag rawTag = paramsTag.get(key);
+                            Object val = fromNbtTag(rawTag);
+                            if (val != null) {
+                                params.put(key, val);
                             }
                         }
                         this.nodeParameters.put(UUID.fromString(id), params);
@@ -158,9 +171,41 @@ public class MagiculeCircuit {
         }
     }
 
+    // JavaのObject -> NBT Tagへの変換
+    private Tag toNbtTag(Object value) {
+        if (value == null) return null;
+        return switch (value) {
+            case Boolean b -> ByteTag.valueOf(b); // BooleanはByte(1/0)に変換
+            case Double d -> DoubleTag.valueOf(d);
+            case Integer i -> IntTag.valueOf(i);
+            case Float f -> FloatTag.valueOf(f);
+            case String s -> StringTag.valueOf(s);
+            case Tag t -> t;
+            default -> null;
+        };
+    }
+
+    // NBT Tag -> JavaのObjectへの復元
+    private Object fromNbtTag(Tag tag) {
+        if (tag == null) return null;
+        if (tag instanceof ByteTag byteTag) {
+            System.out.println(byteTag.byteValue());
+            return byteTag.byteValue() != 0; // Byte(1/0)をBooleanへ戻す
+        } else if (tag instanceof DoubleTag doubleTag) {
+            return doubleTag.doubleValue();
+        } else if (tag instanceof IntTag intTag) {
+            return intTag.intValue();
+        } else if (tag instanceof FloatTag floatTag) {
+            return floatTag.floatValue();
+        } else if (tag instanceof StringTag stringTag) {
+            return stringTag.toString();
+        }
+        return null;
+    }
+
     /*
     ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-    　　　　　　内部データクラス
+          内部データクラス
     ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
      */
 
@@ -176,12 +221,6 @@ public class MagiculeCircuit {
             this.y = y;
         }
     }
-
-    /*
-    ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-    　　　　　　内部データクラス
-    ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-     */
 
     public static class WireData {
         public final UUID sourceId;

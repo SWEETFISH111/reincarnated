@@ -6,7 +6,7 @@ public class EventKeyOneNode extends AbstractMagicNode{
     @Override
     public void execute(MagicContext context) {
         System.out.println("kiten node kidou! migi no zikkoupinn he shori wo push");
-        pushExecute(0, context);
+        pushExecute(context);
     }
 
     @Override

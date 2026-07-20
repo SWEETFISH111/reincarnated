@@ -9,9 +9,9 @@ import net.minecraft.world.level.Level;
 public class ExplosionNode extends AbstractMagicNode{
     @Override
     public void execute(MagicContext context) {
-        BlockPos targetPos = pullBlockPos(1, context);
+        BlockPos targetPos = BlockPos.containing(pullVector3(1, context));
 
-        if(targetPos != null && context.getCaster().level() instanceof ServerLevel serverLevel){
+        if(context.getCaster().level() instanceof ServerLevel serverLevel){
             float explosionPower = 4.0f;
             serverLevel.explode(
                     context.getCaster(),
@@ -20,6 +20,7 @@ public class ExplosionNode extends AbstractMagicNode{
                     Level.ExplosionInteraction.TNT
             );
         }
+        pushExecute(context);
     }
 
     @Override

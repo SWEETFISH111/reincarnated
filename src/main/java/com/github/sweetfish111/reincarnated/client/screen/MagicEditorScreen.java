@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.client.screen;
 
+import com.github.sweetfish111.reincarnated.circuit.ContentWidgetType;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.circuit.PortDataType;
@@ -49,11 +50,9 @@ public class MagicEditorScreen extends Screen {
               80
             );
             this.nodeWidgets.add(nodeWidget);
-            this.addRenderableWidget(nodeWidget);
+            addRenderableWidget(nodeWidget);
             if(nodeWidget.getContentWidget() != null){
-                if(nodeWidget.getContentWidget() instanceof INodeNumberInput numInput){
-                    this.addRenderableWidget(numInput.getEditBox());
-                }
+                addRenderableWidget(nodeWidget.getContentWidget());
             }
         }
     }
@@ -158,7 +157,7 @@ public class MagicEditorScreen extends Screen {
 
     public void copyNode(DraggableNodeWidget node){
         if(node.getContentWidget() != null){
-            spawnNodeWithParam(node.getType(), node.getX() + 10, node.getY() + 10, node.getContentWidget().getCurrentvalue());
+            spawnNodeWithParam(node.getType(), node.getX() + 10, node.getY() + 10, node.getContentWidget().getCurrentValue());
         }else{
             spawnNode(node.getType(), node.getX() + 10, node.getY() + 10);
         }
@@ -250,17 +249,17 @@ public class MagicEditorScreen extends Screen {
         this.nodeWidgets.remove(node);
         this.removeWidget(node);
         this.circuit.removeNodeAndWires(node.getId());
-        if(node.getContentWidget() != null && node.getContentWidget() instanceof INodeNumberInput numberInput){
-            this.removeWidget(numberInput.getEditBox());
+        if(node.getContentWidget() != null){
+            this.removeWidget(node.getContentWidget());
         }
-        this.removeWidget(node.getContentWidget());
     }
 
     //画面に新しいノードを誕生させる
     public void spawnNode(MagiculeNodeType type, double canvasX, double canvasY){
-        spawnNodeWithParam(type, canvasX, canvasY, 0.0);
+        Object initialVal = (type.getContent() == ContentWidgetType.SWITCH) ? false : 0.0;
+        spawnNodeWithParam(type, canvasX, canvasY, initialVal);
     }
-    public void spawnNodeWithParam(MagiculeNodeType type, double canvasX, double canvasY, double initialValue) {
+    public void spawnNodeWithParam(MagiculeNodeType type, double canvasX, double canvasY, Object initialValue) {
         UUID newId = UUID.randomUUID();
 
         this.circuit.addNode(new MagiculeCircuit.NodeData(newId, type, (int) canvasX, (int) canvasY));
@@ -268,13 +267,9 @@ public class MagicEditorScreen extends Screen {
 
         DraggableNodeWidget newNode = new DraggableNodeWidget(this, newId, type, (int) canvasX, (int) canvasY, 80);
         this.nodeWidgets.add(newNode);
-        this.addRenderableWidget(newNode);
-        if (newNode.getContentWidget() != null) {
-            if (newNode.getContentWidget() instanceof NumberInputContentWidget numWidget) {
-                this.addRenderableWidget(numWidget.getEditBox());
-            } else {
-                this.addRenderableWidget(newNode.getContentWidget());
-            }
+        addRenderableWidget(newNode);
+        if(newNode.getContentWidget() != null){
+            addRenderableWidget(newNode.getContentWidget());
         }
     }
 

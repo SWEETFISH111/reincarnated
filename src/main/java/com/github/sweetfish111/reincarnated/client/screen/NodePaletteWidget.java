@@ -78,6 +78,7 @@ public class NodePaletteWidget {
                     if (index >= 0 && index < MagiculeNodeType.values().length){
                         MagiculeNodeType selectedType = MagiculeNodeType.values()[index];
                         this.paretScreen.spawnNode(selectedType, this.spawnCanvasX, this.spawnCanvasY);
+                        close();
                         return true;
                     }
                 }

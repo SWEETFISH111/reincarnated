@@ -18,7 +18,6 @@ public class GetLookTargetNode extends AbstractMagicNode{
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context){
-       System.out.println("[sisen] zahyou wo youkyuusareta");
         if(portIndex == 0){
             Player player = context.getCaster();
             double maxDistance = 80.0D;
@@ -50,13 +49,11 @@ public class GetLookTargetNode extends AbstractMagicNode{
                 }
             }
 
-            if(closestEntityHit != null && closestEntityHit.getEntity() != null){
-                return closestEntityHit.getEntity().blockPosition();
-            }else if(blockHit.getType() == HitResult.Type.BLOCK){
-                return blockHit.getBlockPos();
+            if(closestEntityHit != null){
+                return closestEntityHit.getEntity();
             }
         }
-        System.out.println("[sisen] nani mo nakatta");
+
         return null;
     }
 }

@@ -2,6 +2,7 @@ package com.github.sweetfish111.reincarnated.magic.nodes;
 
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
@@ -35,50 +36,30 @@ public abstract class AbstractMagicNode implements MagicNode{
     protected Object pullData(int myInputPortIndex, MagicContext context){
         DataLink link = dataInputs.get(myInputPortIndex);
         if(link != null){
-            return link.sourcceNode().getOutputData(link.sourcePortIndex(), context);
+            return link.sourceNode().getOutputData(link.sourcePortIndex(), context);
         }
         return null;
     }
     protected Vec3 pullVector3(int myInputPortIndex, MagicContext context){
         Object rawData = pullData(myInputPortIndex, context);
-        if(rawData == null){
-            return Vec3.ZERO;
-        }
-        if(rawData instanceof Vec3 vec){
-            return vec;
-        }
-        if(rawData instanceof BlockPos pos){
-            return Vec3.atBottomCenterOf(pos);
-        }
-        return null;
+        return switch (rawData) {
+            case null -> Vec3.ZERO;
+            case Vec3 vec -> vec;
+            case BlockPos pos -> Vec3.atBottomCenterOf(pos);
+            default -> null;
+        };
     }
-
-    protected net.minecraft.core.BlockPos pullBlockPos(int myInputPortIndex, MagicContext context) {
+    protected Entity pullEntity(int myInputPortIndex, MagicContext context){
         Object rawData = pullData(myInputPortIndex, context);
-        if (rawData == null) {
-            return net.minecraft.core.BlockPos.ZERO;
-        }
-
-        // 1. もし最初から BlockPos 型ならそのままキャスト
-        if (rawData instanceof net.minecraft.core.BlockPos pos) {
-            return pos;
-        }
-
-        // 2. 【ここが解決のキモ】もし Vec3 型なら、四捨五入（または切り捨て）して BlockPos に変換！
-        if (rawData instanceof net.minecraft.world.phys.Vec3 vec) {
-            return net.minecraft.core.BlockPos.containing(vec.x, vec.y, vec.z);
-            // 💡 マイクラの標準メソッド。vec.x などを BlockPos に安全に丸めてくれます
-        }
-
-        return net.minecraft.core.BlockPos.ZERO;
+        return (Entity) rawData;
     }
 
-    protected  void pushExecute(int myOuputPortIndex, MagicContext context){
-        MagicNode nextNode = executeOutputs.get(myOuputPortIndex);
+    protected  void pushExecute(MagicContext context){
+        MagicNode nextNode = executeOutputs.get(0);
         if(nextNode != null){
             nextNode.execute(context);
         }
     }
 
-    protected record DataLink(MagicNode sourcceNode, int sourcePortIndex){}
+    protected record DataLink(MagicNode sourceNode, int sourcePortIndex){}
 }

@@ -12,23 +12,15 @@ import java.util.UUID;
 
 public class MagicCompiler {
     public static void compileAndExecute(MagiculeCircuit circuit, ServerPlayer caster, String triggerType){
-        System.out.println("compiler on. trigger:"+ triggerType);
-
         Map<UUID, MagicNode> instancedNodes = new HashMap<>();
         for (MagiculeCircuit.NodeData data : circuit.getNodes()){
-            System.out.println("compiler node test:" + data.type.getId());
-
             MagicNode actualNode = createNodeInstance(data.type.getId(), data.id);
             if(actualNode != null){
                 instancedNodes.put(data.id, actualNode);
             }
         }
 
-        System.out.println("compiler node test finished. start wire fase");
-
         for (MagiculeCircuit.WireData wire : circuit.getWires()){
-            System.out.println("compiler wire test:" + wire.sourceId + "->" + wire.targetId);
-
             MagicNode sourceNode = instancedNodes.get(wire.sourceId);
             MagicNode targetNode = instancedNodes.get(wire.targetId);
             if(sourceNode != null && targetNode != null){
@@ -36,18 +28,13 @@ public class MagicCompiler {
             }
         }
 
-        System.out.println("compiler wire fase finished. start hakka fase");
-
         MagicContext context = new MagicContext(caster, circuit);
-        boolean isFired = false;
 
         for (MagiculeCircuit.NodeData data : circuit.getNodes()){
             if(data.type.getId().equals(triggerType)){
                 MagicNode startNode = instancedNodes.get(data.id);
                 if(startNode != null){
-                    System.out.println("start node" + triggerType + "found");
                     startNode.execute(context);
-                    isFired = true;
                     break;
                 }
             }
@@ -64,8 +51,9 @@ public class MagicCompiler {
             case "explosion":return new ExplosionNode();
             case "caster_pos":return new CasterPosNode();
             case "offset":return new OffsetNode();
-            case "get_look_forward":return new GetLookForwardNode();
+            case "get_look_forward":return new GetLookForwardNode(nodeId);
             case "number":return new NumberNode(nodeId);
+            case "combers_target_pos":return new CombersTargetPos();
             default : return null;
         }
     }

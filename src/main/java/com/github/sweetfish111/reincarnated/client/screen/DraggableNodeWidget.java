@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.github.sweetfish111.reincarnated.circuit.ContentWidgetType;
-import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
+import com.github.sweetfish111.reincarnated.circuit.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -33,12 +32,19 @@ public class DraggableNodeWidget extends AbstractWidget {
     private int currentMouseX = 0;
     private int currentMouseY = 0;
 
+
     //コンストラクタ
     public DraggableNodeWidget(MagicEditorScreen screen,UUID id, MagiculeNodeType type, int x, int y, int width){
         super(x, y, width, 0, Component.literal(type.displayName));
         this.parentScreen = screen;
         this.type = type;
         this.id = id;
+        boolean savedValue = false;
+        Object param = this.parentScreen.getCircuit().getNodeParam(this.id, "value", false);
+        if (param instanceof Boolean b) {
+            savedValue = b;
+        }
+
         if(this.type.getContent() != ContentWidgetType.NONE){
             switch (this.type.getContent()){
                 case ContentWidgetType.NUMBER_INPUT:
@@ -49,30 +55,19 @@ public class DraggableNodeWidget extends AbstractWidget {
                             this
                     );
                     break;
-
+                case MODE_SELECT:
                 case ContentWidgetType.SWITCH:
                     this.contentWidget = new SwitchContentWidget(
                             x + 50, y + 20, 25, 12,
-                            Component.literal("無効").withColor(TextColor.RED),
+                            savedValue ? Component.literal("有効").withColor(TextColor.GREEN) : Component.literal("無効").withColor(TextColor.RED),
                             this
                     );
                     break;
-
                 default:
                     break;
             }
         }
-
-        int maxPorts = Math.max(type.inputs.length, type.outputs.length);
-        this.height = 20 + (maxPorts * 15) + 5;
-
-        for(int i = 0; i < type.inputs.length; i++){
-            this.inputPorts.add(new NodePort(this, NodePort.Type.INPUT, i, type.inputs[i]));
-        }
-        for(int i = 0; i < type.outputs.length; i++){
-            this.outputPorts.add(new NodePort(this, NodePort.Type.OUTPUT, i, type.outputs[i]));
-        }
-
+        setupPorts();
     }
 
     //ゲッター
@@ -99,6 +94,43 @@ public class DraggableNodeWidget extends AbstractWidget {
         }
     }
 
+    public boolean isModeActive() {
+        if (this.contentWidget instanceof SwitchContentWidget switchWidget) {
+            Object val = switchWidget.getCurrentValue();
+            if (val instanceof Boolean b) {
+                return b;
+            }
+        }
+        return false;
+    }
+
+    public void setupPorts(){
+        for(NodePort port : this.inputPorts){
+            if(port != null) port.rightClicked(this, port);
+        }
+        for(NodePort port : this.outputPorts){
+            if(port != null) port.rightClicked(this, port);
+        }
+        inputPorts.clear();
+        outputPorts.clear();
+
+        PortDataType[] targetInputs;
+        if (isModeActive()) {
+            targetInputs = (type.anotherInputs != null) ? type.anotherInputs : type.inputs;
+        } else {
+            targetInputs = type.inputs;
+        }
+        int maxPorts = Math.max(targetInputs.length, type.outputs.length);
+        this.height = 20 + (maxPorts * 15) + 5;
+
+        for(int i = 0; i < targetInputs.length; i++){
+            this.inputPorts.add(new NodePort(this, NodePort.Type.INPUT, i, targetInputs[i]));
+        }
+        for(int i = 0; i < type.outputs.length; i++){
+            this.outputPorts.add(new NodePort(this, NodePort.Type.OUTPUT, i, type.outputs[i]));
+        }
+    }
+
     @Override
     protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
         if(this.draggingPort != null){
@@ -113,9 +145,12 @@ public class DraggableNodeWidget extends AbstractWidget {
         int textY = getY() + 6;
         guiGraphicsExtractor.centeredText(Minecraft.getInstance().font, getMessage(), textX, textY, 0xFFFFFFFF);
 
-        for(NodePort port : this.inputPorts) port.render(guiGraphicsExtractor, mouseX, mouseY);
-        for(NodePort port : this.outputPorts) port.render(guiGraphicsExtractor, mouseX, mouseY);
-
+        for(NodePort port : this.inputPorts) {
+            if(port != null) port.render(guiGraphicsExtractor, mouseX, mouseY);
+        }
+        for(NodePort port : this.outputPorts) {
+            if(port != null) port.render(guiGraphicsExtractor, mouseX, mouseY);
+        }
         if(this.contentWidget != null){
             this.contentWidget.extractRenderState(guiGraphicsExtractor, mouseX, mouseY, partialTick);
         }
@@ -145,11 +180,40 @@ public class DraggableNodeWidget extends AbstractWidget {
         if(this.contentWidget != null){
             if(this.contentWidget.handleMouseClicked((int)canvasX, (int)canvasY, sourceEvent.button(), sourceEvent.modifiers())){
                 this.contentWidget.setFocused(true);
+                if(this.type.getContent() == ContentWidgetType.MODE_SELECT){
+                    this.draggingPort = null;
+                    boolean currentState = isModeActive();
+
+                    this.parentScreen.getCircuit().setNodeParam(this.getId(), "value", currentState);
+
+                    this.parentScreen.getCircuit().removeWiresByNode(this.getId());
+                    setupPorts();
+                    this.parentScreen.getCircuit().addNode(new MagiculeCircuit.NodeData(
+                            this.getId(), this.getType(), this.getX(), this.getY()
+                    ));
+                }
+
                 return true;
             }else{
                 this.contentWidget.setFocused(false);
             }
         }
+
+        portClicked((int)canvasX, (int)canvasY, button);
+
+        if(button == 0 && this.isMouseOver(canvasX, canvasY)){
+            this.isDragging = true;
+            this.dragOffsetX = canvasX - this.getX();
+            this.dragOffsetY = canvasY - this.getY();
+            return true;
+        }else if(button == 1 && this.isMouseOver(canvasX, canvasY)){
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean portClicked(int canvasX, int canvasY, int button){
         for(NodePort port : this.inputPorts){
             if(port.isMouseOver(canvasX, canvasY)){
                 if(button == 1){
@@ -158,8 +222,8 @@ public class DraggableNodeWidget extends AbstractWidget {
                 }else if(button == 0){
                     this.draggingPort = port;
 
-                    this.currentMouseX = (int)canvasX;
-                    this.currentMouseY = (int)canvasY;
+                    this.currentMouseX = canvasX;
+                    this.currentMouseY = canvasY;
                     return true;
                 }
             }
@@ -177,15 +241,6 @@ public class DraggableNodeWidget extends AbstractWidget {
                 }
             }
         }
-        if(button == 0 && this.isMouseOver(canvasX, canvasY)){
-            this.isDragging = true;
-            this.dragOffsetX = canvasX - this.getX();
-            this.dragOffsetY = canvasY - this.getY();
-            return true;
-        }else if(button == 1 && this.isMouseOver(canvasX, canvasY)){
-            return true;
-        }
-
         return false;
     }
 

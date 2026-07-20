@@ -101,11 +101,14 @@ public class MagicEditorScreen extends Screen {
         for(MagiculeCircuit.WireData wire : this.circuit.getWires()){
             DraggableNodeWidget source = findNodeById(wire.sourceId);
             DraggableNodeWidget target = findNodeById(wire.targetId);
-            if(source != null && target != null){
-                NodePort outPort = source.getOutputPorts().get(wire.sourcePortIndex);
-                NodePort inPort = target.getInputPorts().get(wire.targetPortIndex);
-                boolean isDataFlow = (outPort.getDataType() != PortDataType.EXEC);
-                drawMagiculeWire(guiGraphicsExtractor, outPort.getX() + 3, outPort.getY() + 3, inPort.getX() + 3, inPort.getY() + 3, isDataFlow);
+            if(source != null && target != null) {
+                if (wire.sourcePortIndex >= 0 && wire.sourcePortIndex < source.getOutputPorts().size() &&
+                        wire.targetPortIndex >= 0 && wire.targetPortIndex < target.getInputPorts().size()) {
+                    NodePort outPort = source.getOutputPorts().get(wire.sourcePortIndex);
+                    NodePort inPort = target.getInputPorts().get(wire.targetPortIndex);
+                    boolean isDataFlow = (outPort.getDataType() != PortDataType.EXEC);
+                    drawMagiculeWire(guiGraphicsExtractor, outPort.getX() + 3, outPort.getY() + 3, inPort.getX() + 3, inPort.getY() + 3, isDataFlow);
+                }
             }
         }
         //ノード描画
@@ -135,10 +138,10 @@ public class MagicEditorScreen extends Screen {
 
             if(node.handleCanvasClick(event, canvasX, canvasY, event.button())){
                 this.activeNode = node;
-                if(node.getContentWidget() instanceof NumberInputContentWidget numWidget){
-                    numWidget.mouseClicked(event, false);
-                }
                 if(event.button() == 1){
+                    if(node.portClicked((int)canvasX, (int)canvasY, event.button())){
+                        return true;
+                    }
                     palette.openContextMenu((int)rawX, (int)rawY, node);
                     return true;
                 }

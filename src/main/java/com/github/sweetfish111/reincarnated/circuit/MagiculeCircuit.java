@@ -54,6 +54,10 @@ public class MagiculeCircuit {
                         (portType == NodePort.Type.INPUT && wire.targetId.equals(nodeId) && wire.targetPortIndex == portIndex));
     }
 
+    public void removeWiresByNode(UUID nodeId){
+        this.wires.removeIf(wire -> wire.sourceId.equals(nodeId) || wire.targetId.equals(nodeId));
+    }
+
     public void removeNodeAndWires(UUID nodeId){
         this.nodes.removeIf(node -> node.id.equals(nodeId));
         this.wires.removeIf(wire -> wire.sourceId.equals(nodeId) || wire.targetId.equals(nodeId));

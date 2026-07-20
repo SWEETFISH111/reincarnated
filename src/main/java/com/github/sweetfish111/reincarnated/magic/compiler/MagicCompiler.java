@@ -1,7 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.compiler;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
-import com.github.sweetfish111.reincarnated.circuit.PortDataType;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.*;
 import net.minecraft.server.level.ServerPlayer;
@@ -49,11 +48,12 @@ public class MagicCompiler {
             case "lightning":return new SummonLightningNode();
             case "get_look_target":return new GetLookTargetNode();
             case "explosion":return new ExplosionNode();
-            case "caster_pos":return new CasterPosNode();
+            case "caster_pos":return new ReturnCaster();
             case "offset":return new OffsetNode();
             case "get_look_forward":return new GetLookForwardNode(nodeId);
             case "number":return new NumberNode(nodeId);
             case "combers_target_pos":return new CombersTargetPos();
+            case "combers_look_direction":return new CombersLookDirection();
             default : return null;
         }
     }

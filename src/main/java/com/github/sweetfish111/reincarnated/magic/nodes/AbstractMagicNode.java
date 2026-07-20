@@ -53,6 +53,10 @@ public abstract class AbstractMagicNode implements MagicNode{
         Object rawData = pullData(myInputPortIndex, context);
         return (Entity) rawData;
     }
+    protected double pullDouble(int myInputPortIndex, MagicContext context){
+        Object rawData = pullData(myInputPortIndex, context);
+        return (Double) rawData;
+    }
 
     protected  void pushExecute(MagicContext context){
         MagicNode nextNode = executeOutputs.get(0);

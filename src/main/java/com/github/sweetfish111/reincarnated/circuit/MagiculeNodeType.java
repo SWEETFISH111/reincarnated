@@ -17,13 +17,15 @@ public enum MagiculeNodeType {
             new PortDataType[]{},
             new PortDataType[]{PortDataType.ENTITY}
     ),
-    CASTER_POS("caster_pos", "発動者の位置",
+    CASTER_POS("caster_pos", "発動者",
             new PortDataType[]{},
-            new PortDataType[]{PortDataType.VECTORE}
+            new PortDataType[]{PortDataType.ENTITY}
     ),
-    OFFSET("offset", "相対座標",
+    OFFSET("offset", "オフセット",
             new PortDataType[]{PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
-            new PortDataType[]{PortDataType.VECTORE}
+            new PortDataType[]{PortDataType.VECTORE},
+            ContentWidgetType.MODE_SELECT,
+            new PortDataType[]{PortDataType.VECTORE,PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER}
     ),
     GET_LOOK_FORWARD("get_look_forward", "視線の方向",
             new PortDataType[]{PortDataType.NUMBER},
@@ -38,12 +40,17 @@ public enum MagiculeNodeType {
     COMBERS_TARGET_POS("combers_target_pos", "座標変換",
             new PortDataType[]{PortDataType.ENTITY},
             new PortDataType[]{PortDataType.VECTORE}
+    ),
+    COMBERS_LOOK_DIRECTION("combers_look_direction", "向き",
+            new PortDataType[]{PortDataType.ENTITY},
+            new PortDataType[]{PortDataType.VECTORE}
     );
 
     private final String id;
     public final String displayName;
     private ContentWidgetType content;
     public final PortDataType[] inputs;
+    public PortDataType[] anotherInputs;
     public final PortDataType[] outputs;
 
     MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs){
@@ -56,6 +63,11 @@ public enum MagiculeNodeType {
     MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs, ContentWidgetType content){
         this(id, displayName, inputs, outputs);
         this.content = content;
+    }
+
+    MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs, ContentWidgetType content, PortDataType[] anotherInputs){
+        this(id, displayName, inputs, outputs, content);
+        this.anotherInputs = anotherInputs;
     }
 
     public String getId(){

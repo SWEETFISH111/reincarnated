@@ -198,8 +198,13 @@ public class MagicEditorScreen extends Screen {
 
     //スクロールはズームインとズームアウト
     @Override
-    public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
-        this.camera.zoomAt(x, y, scrollY);
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (this.palette.isOpen()) {
+            if (this.palette.mouseScrolled(mouseX, mouseY, scrollY)) {
+                return true;
+            }
+        }
+        this.camera.zoomAt(mouseX, mouseY, scrollY);
         return true;
     }
 

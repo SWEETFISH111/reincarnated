@@ -3,16 +3,24 @@ package com.github.sweetfish111.reincarnated.magic.nodes;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.UUID;
+
 public class OffsetNode extends AbstractMagicNode{
+    public OffsetNode(UUID id){
+        super(id);
+    }
+
     @Override
     public void execute(MagicContext context) {
     }
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        Object rawParam = context.getCircuit().getNodeParam(this.id, "value", "【データが存在しません】");
+        System.out.println("★ [OffsetNode Check] rawParam = " + rawParam + " (Node ID: " + this.id + ")");
 
         boolean isModeActive = false;
-        Object param = context.getCircuit().getNodeParam(this.id, "value", false);
+        Object param = context.getCircuit().getNodeParam(this.id, "value", true);
         if(param instanceof Boolean b){
             isModeActive = b;
         }

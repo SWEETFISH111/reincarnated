@@ -49,7 +49,7 @@ public class MagicCompiler {
             case "get_look_target":return new GetLookTargetNode();
             case "explosion":return new ExplosionNode();
             case "caster_pos":return new ReturnCaster();
-            case "offset":return new OffsetNode();
+            case "offset":return new OffsetNode(nodeId);
             case "get_look_forward":return new GetLookForwardNode(nodeId);
             case "number":return new NumberNode(nodeId);
             case "combers_target_pos":return new CombersTargetPos();

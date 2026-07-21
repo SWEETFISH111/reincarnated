@@ -54,6 +54,9 @@ public class MagicCompiler {
             case "number":return new NumberNode(nodeId);
             case "combers_target_pos":return new CombersTargetPos();
             case "combers_look_direction":return new CombersLookDirection();
+            case "if":return new IfNode(nodeId);
+            case "boolean":return new BooleanNode(nodeId);
+            case "repeat":return new RepeatNode(nodeId);
             default : return null;
         }
     }

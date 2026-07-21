@@ -10,7 +10,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC}
     ),
     EXPLOSION("explosion","爆発ノード",
-            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC}
     ),
     GET_LOOK_TARGET("get_look_target","見た相手",
@@ -44,6 +44,17 @@ public enum MagiculeNodeType {
     COMBERS_LOOK_DIRECTION("combers_look_direction", "向き",
             new PortDataType[]{PortDataType.ENTITY},
             new PortDataType[]{PortDataType.VECTORE}
+    ),
+    IF("if", "IF",
+            new PortDataType[]{PortDataType.EXEC,PortDataType.BOOLEAN},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.EXEC}
+    ),BOOLEAN("boolean", "真偽値",
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.BOOLEAN},
+            ContentWidgetType.SWITCH
+    ),REPEAT("repeat", "繰り返し",
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER, PortDataType.EXEC}
     );
 
     private final String id;

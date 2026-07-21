@@ -5,13 +5,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public abstract class AbstractMagicNode implements MagicNode{
     protected final Map<Integer, MagicNode> executeOutputs = new HashMap<>();
     protected final Map<Integer, DataLink> dataInputs = new HashMap<>();
+    protected final Map<Integer, List<MagicNode>> outputConnections = new HashMap<>();
     protected UUID id;
 
     public AbstractMagicNode(){
@@ -29,7 +28,9 @@ public abstract class AbstractMagicNode implements MagicNode{
                 ((AbstractMagicNode) targetNode).dataInputs.put(targetPortIndex, new DataLink(this, sourcePortIndex));
             }
         }else{
-            this.executeOutputs.put(sourcePortIndex, targetNode);
+            this.outputConnections
+                    .computeIfAbsent(sourcePortIndex, k -> new ArrayList<>())
+                    .add(targetNode);
         }
     }
 
@@ -55,14 +56,30 @@ public abstract class AbstractMagicNode implements MagicNode{
     }
     protected double pullDouble(int myInputPortIndex, MagicContext context){
         Object rawData = pullData(myInputPortIndex, context);
-        return (Double) rawData;
+        if (rawData instanceof Number num) {
+            return num.doubleValue();
+        }
+        return 0.0;
+    }
+    protected boolean pullBoolean(int myInputPortIndex, MagicContext context){
+        Object rawData = pullData(myInputPortIndex, context);
+        return (boolean) rawData;
     }
 
-    protected  void pushExecute(MagicContext context){
-        MagicNode nextNode = executeOutputs.get(0);
-        if(nextNode != null){
-            nextNode.execute(context);
+    protected void executeOutputPort(int outputPortIndex, MagicContext context){
+        List<MagicNode> nextNodes = outputConnections.get(outputPortIndex);
+        if(nextNodes != null){
+            for(MagicNode node : nextNodes){
+                node.execute(context);
+            }
         }
+
+    }
+    protected void pushExecute(MagicContext context){
+        executeOutputPort(0, context);
+    }
+    protected void pushExecute(int outputPortIndex, MagicContext context){
+        executeOutputPort(outputPortIndex, context);
     }
 
     protected record DataLink(MagicNode sourceNode, int sourcePortIndex){}

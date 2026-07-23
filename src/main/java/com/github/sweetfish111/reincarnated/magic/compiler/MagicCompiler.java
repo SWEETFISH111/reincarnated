@@ -1,6 +1,7 @@
 package com.github.sweetfish111.reincarnated.magic.compiler;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
+import com.github.sweetfish111.reincarnated.magic.nodes.LessThanNode;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.*;
 import net.minecraft.server.level.ServerPlayer;
@@ -57,6 +58,19 @@ public class MagicCompiler {
             case "if":return new IfNode(nodeId);
             case "boolean":return new BooleanNode(nodeId);
             case "repeat":return new RepeatNode(nodeId);
+            case "add":return new AddNode();
+            case "subtract":return new SubtractNode();
+            case "multiply":return new MultiplyNode();
+            case "divide":return new DivideNode();
+            case "modulo":return new ModuloNode();
+            case "equal":return new EqualsNode();
+            case "not":return new NotNode();
+            case "or":return new OrNode();
+            case "and":return new AndNode();
+            case "greater_than":return new GreagerThanNode();
+            case "greater_or_equal":return new GreaterOrEqualNode();
+            case "less_than":return new LessThanNode();
+            case "less_or_equal":return new LessOrEqualNode();
             default : return null;
         }
     }

@@ -1,25 +1,20 @@
 package com.github.sweetfish111.reincarnated.network;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
-import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
-import net.minecraft.client.KeyMapping;
+import com.github.sweetfish111.reincarnated.circuit.PlayerMagicData;
+import com.github.sweetfish111.reincarnated.client.screen.MagicEditorScreen;
+import com.github.sweetfish111.reincarnated.magic.casting.CastingManager;
+import com.github.sweetfish111.reincarnated.network.payload.*;
 import com.github.sweetfish111.reincarnated.client.screen.MagicEditorScreen;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
-import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.common.util.Lazy;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import org.lwjgl.glfw.GLFW;
 
 @EventBusSubscriber(modid = "reincarnated")
 public class ModNetworking {
@@ -33,12 +28,12 @@ public class ModNetworking {
           SaveCircuitPayload.CODEC,
                 ((payload, context) -> {
                     context.enqueueWork(() -> {
-                        var player = context.player();
-                        var circuitData = payload.circuitData();
-
-                        player.setData(ModAttachments.MAGIC_CIRCUIT, circuitData);
-                        System.out.println("サーバー:プレイヤー" + player.getName().getString() + "から魔法人データを受信した");
-                        System.out.println("中身" + circuitData.toString());
+                        if(context.player() instanceof ServerPlayer player){
+                            PlayerMagicData magicData = new PlayerMagicData();
+                            magicData.loadFromNBT(payload.magicDataTag());
+                            player.setData(ModAttachments.PLAYER_MAGIC_DATA, magicData);
+                            System.out.println("サーバー: プレイヤー " + player.getName().getString() + " の魔法データを保存・同期しました");
+                        }
                     });
                 })
         );
@@ -46,21 +41,20 @@ public class ModNetworking {
         //魔法編集画面を開いたときに贈られるペイロードが届いた時のレジスタと処理
         registrar.playToServer(RequestCircuitPayload.TYPE, RequestCircuitPayload.CODEC, (payload, context) -> {
             context.enqueueWork(() -> {
-                var player = context.player();
-                var circuitData = player.getData(ModAttachments.MAGIC_CIRCUIT);
-
-                System.out.println("second:from sever:" + circuitData.toString());
-
-                context.reply(new SyncCircuitPayload(circuitData));
+                if(context.player() instanceof ServerPlayer player){
+                    PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+                    context.reply(new SyncCircuitPayload(magicData.saveToNBT()));
+                }
             });
         });
 
         //サーバーからSyncCircuitPayload（プレイヤーに保存された魔法データを実際のUIに反映させる時の手紙）を送るときのレジスタと処理
         registrar.playToClient(SyncCircuitPayload.TYPE, SyncCircuitPayload.CODEC, ((payload, context) -> {
             context.enqueueWork(() -> {
-                Minecraft.getInstance().setScreenAndShow(
-                        new MagicEditorScreen(payload.circuitData())
-                );
+                PlayerMagicData magicData = new PlayerMagicData();
+                magicData.loadFromNBT(payload.magicDataTag());
+
+                Minecraft.getInstance().setScreenAndShow(new MagicEditorScreen(magicData));
             });
         }));
 
@@ -68,16 +62,24 @@ public class ModNetworking {
         registrar.playToServer(CastMagicOnePayload.TYPE, CastMagicOnePayload.CODEC,((payload, context) -> {
             context.enqueueWork(() -> {
                 if(context.player() instanceof ServerPlayer player){
-                    CompoundTag playerTag = player.getData(ModAttachments.MAGIC_CIRCUIT);
-                    MagiculeCircuit circuit = new MagiculeCircuit();
-                    circuit.loadFromNBT(playerTag);
+                    PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+                    MagiculeCircuit circuit = magicData.getCircuit(MagicEditorScreen.EditorTab.MAGIC);
                     if(circuit != null){
                         System.out.println(player.getName().getString() + "is press magic_key_1. compiling magic circuit");
                         System.out.println("loaded nodes length" + circuit.getNodes().size() + "/wire length" + circuit.getWires().size());
-                        MagicCompiler.compileAndExecute(circuit, player, "event_key_1");
+                        CastingManager.startCasting(player, circuit, "event_key_1");
                     }else{
                         System.out.println("circuit not found");
                     }
+                }
+            });
+        }));
+
+        registrar.playToServer(StopCastPayload.TYPE, StopCastPayload.CODEC, ((payload, context) -> {
+            context.enqueueWork(() -> {
+                if (context.player() instanceof ServerPlayer player) {
+                    // キーが離されたので、詠唱完了状態なら魔法を発動、途中ならキャンセルの判定を依頼
+                    CastingManager.releaseCasting(player, payload.triggerType());
                 }
             });
         }));

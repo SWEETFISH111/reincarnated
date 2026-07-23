@@ -63,7 +63,10 @@ public abstract class AbstractMagicNode implements MagicNode{
     }
     protected boolean pullBoolean(int myInputPortIndex, MagicContext context){
         Object rawData = pullData(myInputPortIndex, context);
-        return (boolean) rawData;
+        if (rawData instanceof Boolean val) {
+            return val.booleanValue();
+        }
+        return false;
     }
 
     protected void executeOutputPort(int outputPortIndex, MagicContext context){

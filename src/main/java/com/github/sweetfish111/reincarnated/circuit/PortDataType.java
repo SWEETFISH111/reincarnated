@@ -5,7 +5,8 @@ public enum PortDataType {
     NUMBER(0XFF00AAFF),
     VECTORE(0XFF55FF55),
     ENTITY(0XFFFF5555),
-    BOOLEAN(0xCFF77EB5);
+    BOOLEAN(0xCFF77EB5),
+    ANY(0xFFF4E511);
 
     public final int color;
 

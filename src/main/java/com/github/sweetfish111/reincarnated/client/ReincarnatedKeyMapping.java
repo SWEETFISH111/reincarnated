@@ -12,7 +12,7 @@ import org.lwjgl.glfw.GLFW;
 
 @EventBusSubscriber(modid = "reincarnated", value = Dist.CLIENT)
 public class ReincarnatedKeyMapping {
-    public static final Lazy<KeyMapping> MAPPING = Lazy.of(() -> new KeyMapping(
+    public static final Lazy<KeyMapping> MAGIC_KEY_1 = Lazy.of(() -> new KeyMapping(
             "key.reincarnated.MAGIC_KEY_1",
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_Z,
@@ -23,6 +23,6 @@ public class ReincarnatedKeyMapping {
     @SubscribeEvent
     public static void registerBindings(RegisterKeyMappingsEvent event){
         event.registerCategory(CATEGORY);
-        event.register(MAPPING.get());
+        event.register(MAGIC_KEY_1.get());
     }
 }

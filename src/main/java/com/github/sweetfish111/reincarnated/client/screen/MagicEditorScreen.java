@@ -1,12 +1,10 @@
 package com.github.sweetfish111.reincarnated.client.screen;
 
-import com.github.sweetfish111.reincarnated.circuit.ContentWidgetType;
-import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
-import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
-import com.github.sweetfish111.reincarnated.circuit.PortDataType;
-import com.github.sweetfish111.reincarnated.network.SaveCircuitPayload;
+import com.github.sweetfish111.reincarnated.circuit.*;
+import com.github.sweetfish111.reincarnated.network.payload.SaveCircuitPayload;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
@@ -16,15 +14,15 @@ import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class MagicEditorScreen extends Screen {
 
-    private final MagiculeCircuit circuit = new MagiculeCircuit();
+    private MagiculeCircuit circuit = new MagiculeCircuit();
+    private final Map<EditorTab, MagiculeCircuit> tabCircuits = new EnumMap<>(EditorTab.class);
 
     private final List<DraggableNodeWidget> nodeWidgets = new ArrayList<>();
+    private final List<Button> tabButtons = new ArrayList<>();
 
     private final WorkspaceCamera camera = new WorkspaceCamera();
     private final NodePaletteWidget palette = new NodePaletteWidget(this);
@@ -33,36 +31,116 @@ public class MagicEditorScreen extends Screen {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    //コンストラクタ
-    public MagicEditorScreen() {super(Component.literal("魔法編集"));}
-    public MagicEditorScreen(CompoundTag initialData){
-        this();
-        if(initialData != null && !initialData.isEmpty()){
-            this.circuit.loadFromNBT(initialData);
-        }
-        for(MagiculeCircuit.NodeData nodeData : this.circuit.getNodes()){
-            DraggableNodeWidget nodeWidget = new DraggableNodeWidget(
-              this,
-              nodeData.id,
-              nodeData.type,
-              nodeData.x,
-              nodeData.y,
-              80
-            );
-            this.nodeWidgets.add(nodeWidget);
-            addRenderableWidget(nodeWidget);
-            if(nodeWidget.getContentWidget() != null){
-                addRenderableWidget(nodeWidget.getContentWidget());
-            }
-        }
+    private final PlayerMagicData magicData;
+
+    public enum EditorTab{
+        MAGIC("魔法"),
+        SKILL("スキル"),
+        ARTS("アーツ");
+
+        private final String displayName;
+        EditorTab(String displayName){this.displayName = displayName;}
+        public String getDisplayName(){return this.displayName;}
     }
 
+    private EditorTab currentTab = EditorTab.MAGIC;
+
+    public MagicEditorScreen(PlayerMagicData magicData){
+        super(Component.literal("魔法編集"));
+        this.magicData = magicData;
+    }
+
+    //getter
     public MagiculeCircuit getCircuit(){return this.circuit;}
+    public EditorTab getCurrentTab(){return this.currentTab;}
 
     //初期化
     @Override
     protected void init(){
         super.init();
+
+        this.circuit = this.magicData.getCircuit(this.currentTab);
+
+        int tabButtonWidth = 60;
+        int tabButtonHeight = 20;
+        int startX = 10;
+        int startY = 5;
+        for(EditorTab tab : EditorTab.values()){
+            Button btn = Button.builder(
+                    Component.literal(tab.getDisplayName()),
+                    button -> switchTab(tab)
+            ).bounds(startX, startY, tabButtonWidth, tabButtonHeight).build();
+
+            btn.active = (tab != this.currentTab);
+
+            this.tabButtons.add(btn);
+            this.addRenderableWidget(btn);
+
+            startX += tabButtonWidth + 5;
+        }
+        rebuildNodeWidgets();
+    }
+
+    private void switchTab(EditorTab tab){
+        if(this.currentTab == tab)return;
+        saveCurrentTabCircuit();
+
+        this.currentTab = tab;
+
+        for(int i = 0; i < EditorTab.values().length; i++){
+            if(i < this.tabButtons.size()){
+                this.tabButtons.get(i).active = (EditorTab.values()[i] != this.currentTab);
+            }
+        }
+        clearCanvasWidgets();
+        loadTabCircuit(this.currentTab);
+    }
+
+    private void clearCanvasWidgets(){
+        for(DraggableNodeWidget nodeWidget : this.nodeWidgets){
+            if(nodeWidget.getContentWidget() != null){
+                this.removeWidget(nodeWidget.getContentWidget().getContentWidget());
+            }
+            this.removeWidget(nodeWidget);
+        }
+        this.nodeWidgets.clear();
+    }
+
+    private void saveCurrentTabCircuit(){
+        this.circuit.getNodes().clear();
+        for(DraggableNodeWidget widget : this.nodeWidgets){
+            this.circuit.addNode(new MagiculeCircuit.NodeData(
+                    widget.getId(),
+                    widget.getType(),
+                    widget.getX(),
+                    widget.getY()
+            ));
+        }
+        this.magicData.setCircuits(this.currentTab, this.circuit);
+    }
+
+    private void loadTabCircuit(EditorTab tab){
+        this.circuit = this.magicData.getCircuit(tab);
+        rebuildNodeWidgets();
+    }
+
+    private void rebuildNodeWidgets(){
+        clearCanvasWidgets();
+        for(MagiculeCircuit.NodeData nodeData : this.circuit.getNodes()){
+            DraggableNodeWidget nodeWidget = new DraggableNodeWidget(
+                    this,
+                    nodeData.id,
+                    nodeData.type,
+                    nodeData.x,
+                    nodeData.y,
+                    80
+            );
+            this.nodeWidgets.add(nodeWidget);
+            this.addRenderableWidget(nodeWidget);
+            if(nodeWidget.getContentWidget() != null){
+                this.addRenderableWidget(nodeWidget.getContentWidget().getContentWidget());
+            }
+        }
     }
 
     //ポートにつながって存在が確定したワイヤーを記録する
@@ -73,7 +151,7 @@ public class MagicEditorScreen extends Screen {
             if(targetNode != sourceNode){
                 for(NodePort targetPort : targetNode.getInputPorts()){
                     if(targetPort.isMouseOver(dropX, dropY)){
-                        if(sourcePort.getDataType() != targetPort.getDataType()){
+                        if(sourcePort.getDataType() != targetPort.getDataType() && (! sourcePort.getDataType().equals(PortDataType.ANY)) && (! targetPort.getDataType().equals(PortDataType.ANY)) ){
                             LOGGER.info("ポートの型が違うため接続できません");
                             return;
                         }
@@ -112,10 +190,16 @@ public class MagicEditorScreen extends Screen {
             }
         }
         //ノード描画
-        for (net.minecraft.client.gui.components.Renderable renderable : this.renderables){
-            renderable.extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseY, partialTick);
+        for(DraggableNodeWidget nodeWidget : this.nodeWidgets){
+            nodeWidget.extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseY, partialTick);
+            if(nodeWidget.getContentWidget() != null){
+                nodeWidget.getContentWidget().getContentWidget().extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseY, partialTick);
+            }
         }
         guiGraphicsExtractor.pose().popMatrix();
+        for(Button btn : this.tabButtons){
+            btn.extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseY, partialTick);
+        }
         this.palette.render(guiGraphicsExtractor, mouseX, mouseY);
     }
 
@@ -129,6 +213,12 @@ public class MagicEditorScreen extends Screen {
         double canvasY = this.camera.getCanvasY(event.y());
         //選択中のノード
         this.activeNode = null;
+
+        for(Button btn : this.tabButtons){
+            if(btn.mouseClicked(event,doubleClick)){
+                return true;
+            }
+        }
         //パレットのクリック判定
         if(palette.isOpen()){
             palette.mouseClicked(rawX, rawY, event.button());
@@ -211,20 +301,12 @@ public class MagicEditorScreen extends Screen {
     //魔法編集画面全体を閉じたとき
     @Override
     public void onClose() {
+        saveCurrentTabCircuit();
 
-        this.circuit.getNodes().clear();
+        CompoundTag rootTag = this.magicData.saveToNBT();
 
-        for(DraggableNodeWidget widget : this.nodeWidgets){
-            this.circuit.addNode(new MagiculeCircuit.NodeData(
-                    widget.getId(),
-                    widget.getType(),
-                    widget.getX(),
-                    widget.getY()
-            ));
-        }
         LOGGER.info("===サーバーへのpayloadの送信===");
-        net.minecraft.nbt.CompoundTag savedData = this.circuit.saveToNBT();
-        SaveCircuitPayload payload = new SaveCircuitPayload(savedData);
+        SaveCircuitPayload payload = new SaveCircuitPayload(rootTag);
         if(net.minecraft.client.Minecraft.getInstance().getConnection() != null){
             net.minecraft.client.Minecraft.getInstance().getConnection().send(payload);
         }

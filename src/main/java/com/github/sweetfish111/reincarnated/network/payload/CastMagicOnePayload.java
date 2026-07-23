@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.network;
+package com.github.sweetfish111.reincarnated.network.payload;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;

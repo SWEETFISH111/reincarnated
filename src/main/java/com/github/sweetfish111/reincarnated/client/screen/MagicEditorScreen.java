@@ -5,6 +5,7 @@ import com.github.sweetfish111.reincarnated.network.payload.SaveCircuitPayload;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.BackupConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
@@ -27,7 +28,7 @@ public class MagicEditorScreen extends Screen {
     private final WorkspaceCamera camera = new WorkspaceCamera();
     private final NodePaletteWidget palette = new NodePaletteWidget(this);
 
-    private DraggableNodeWidget activeNode = null;
+    private Set<DraggableNodeWidget> activeNodes = new HashSet<>();
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -211,9 +212,8 @@ public class MagicEditorScreen extends Screen {
         //ズーム適応座標
         double canvasX = this.camera.getCanvasX(event.x());
         double canvasY = this.camera.getCanvasY(event.y());
-        //選択中のノード
-        this.activeNode = null;
 
+        //タブボタンのクリック判定
         for(Button btn : this.tabButtons){
             if(btn.mouseClicked(event,doubleClick)){
                 return true;
@@ -227,24 +227,77 @@ public class MagicEditorScreen extends Screen {
         for(int i = this.nodeWidgets.size() - 1; i >= 0; i--){
             DraggableNodeWidget node = this.nodeWidgets.get(i);
             if(node.handleCanvasClick(event, canvasX, canvasY, event.button())){
-                this.activeNode = node;
+                //クリックしたノードを最前面に移動
                 this.nodeWidgets.remove(i);
                 this.nodeWidgets.add(node);
-                if(event.button() == 1){
-                    if(node.portClicked((int)canvasX, (int)canvasY, event.button())){
+
+                if(event.hasControlDown()){
+                    if(event.button() == 0){
+                        activeNodes.add(node);
+                        node.setActive(true);
+                        node.setDragging(true);
+                        for (DraggableNodeWidget active : activeNodes){
+                            active.setDragOffset(canvasX, canvasY);
+                        }
+                    }else if(event.button() == 1){
+                        activeNodes.add(node);
+                        node.setActive(true);
+                        node.setDragging(true);
+                        palette.openContextMenu((int) rawX, (int) rawY, activeNodes);
+                    }
+                }else if(event.button() == 1){
+                    if(activeNodes.contains(node)){
+                        palette.openContextMenu((int)rawX, (int)rawY, activeNodes);
                         return true;
                     }
-                    palette.openContextMenu((int)rawX, (int)rawY, node);
+
+                    for (DraggableNodeWidget active : activeNodes){
+                        active.setActive(false);
+                        active.setDragging(false);
+                    }
+                    activeNodes.clear();
+
+                    if(node.portClicked((int)canvasX, (int)canvasY, event.button())){
+                        return true;
+
+                    }
+
+                    activeNodes.add(node);
+                    node.setActive(true);
+                    palette.openContextMenu((int)rawX, (int)rawY, activeNodes);
                     return true;
+
+                }else if(event.button() == 0){
+                    if(activeNodes.contains(node)){
+                        for (DraggableNodeWidget active : activeNodes){
+                            active.setDragOffset(canvasX, canvasY);
+                        }
+                        return true;
+                    }else{
+                        System.out.println("kurikkusita:" + node.getType().getDisplayName());
+                        for(DraggableNodeWidget active : activeNodes){
+                            active.setDragging(false);
+                            active.setActive(false);
+                        }
+                        activeNodes.clear();
+                        node.setDragging(true);
+                        return true;
+                    }
                 }
                 return true;
             }
         }
 
-        //何もない空間の右クリック
+        //何もない空間のクリック
         if(event.button() == 1){
             this.palette.openPalette((int)rawX, (int)rawY, canvasX, canvasY);
             return true;
+        }else if(event.button() == 0){
+            for (DraggableNodeWidget active : activeNodes){
+                active.setActive(false);
+                active.setDragging(false);
+            }
+            activeNodes.clear();
         }
 
         return this.camera.mouseClicked(event.x(), event.y(), event.button());
@@ -268,8 +321,8 @@ public class MagicEditorScreen extends Screen {
         double canvasDragX = dragX / this.camera.zoom;
         double canvasDragY = dragY / this.camera.zoom;
 
-        if(this.activeNode != null){
-            return this.activeNode.handleCanvasDragged(canvasX, canvasY, canvasDragX, canvasDragY);
+        for(DraggableNodeWidget node : nodeWidgets){
+            node.handleCanvasDragged(canvasX, canvasY, canvasDragX, canvasDragY);
         }
         return this.camera.mouseDragged(dragX,dragY);
     }
@@ -279,11 +332,12 @@ public class MagicEditorScreen extends Screen {
     public boolean mouseReleased(MouseButtonEvent event){
         double canvasX = this.camera.getCanvasX(event.x());
         double canvasY = this.camera.getCanvasY(event.y());
-        if(this.activeNode != null){
-            this.activeNode.handleCanvasReleased(canvasX, canvasY, event.button());
-            this.activeNode = null;
-            return true;
+        if(!event.hasControlDown()){
+            for(DraggableNodeWidget node : nodeWidgets){
+                node.handleCanvasReleased(canvasX, canvasY, event.button());
+            }
         }
+
         this.camera.mouseReleased();
         return true;
     }

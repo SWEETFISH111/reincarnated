@@ -201,6 +201,8 @@ public enum MagiculeNodeType {
         return this.content != null ? this.content : ContentWidgetType.NONE;
     }
 
+    public String getDisplayName(){return this.displayName;}
+
     public static MagiculeNodeType fromId(String id){
         for (MagiculeNodeType type : values()){
             if(type.id.equals(id)){

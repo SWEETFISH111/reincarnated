@@ -21,6 +21,7 @@ public class DraggableNodeWidget extends AbstractWidget {
     private final MagicEditorScreen parentScreen;
 
     private boolean isDragging = false;
+    private boolean isActive = false;
     private double dragOffsetX = 0;
     private double dragOffsetY = 0;
 
@@ -131,13 +132,25 @@ public class DraggableNodeWidget extends AbstractWidget {
         }
     }
 
+    public void setDragging(boolean isDragging){
+        this.isDragging = isDragging;
+    }
+    public void setDragOffset(double canvasX, double canvasY){
+        this.dragOffsetX = canvasX - this.getX();
+        this.dragOffsetY = canvasY - this.getY();
+    }
+    public void setActive(boolean isActive){
+        this.isActive = isActive;
+    }
+
     @Override
     protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
         if(this.draggingPort != null){
             drawMagiculeWire(guiGraphicsExtractor, this.draggingPort.getX() + 3, this.draggingPort.getY() + 3, this.currentMouseX, this.currentMouseY);
         }
 
-        int bgColor = this.isHovered ? 0xFF666666 : 0xFF444444;
+        int bgColor = this.isHovered ? 0xFFAAAAAA : 0xFF444444;
+        bgColor = this.isActive ? 0xFFAAAAAA : bgColor;
         guiGraphicsExtractor.fill(getX(), getY(), getX() + width, getY() + height, bgColor);
         guiGraphicsExtractor.outline(getX(), getY(), width, height, 0xFFFFFFFF);
 

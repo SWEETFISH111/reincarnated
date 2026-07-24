@@ -5,7 +5,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class NodePaletteWidget {
     private enum ContextMenuFacts{DELETE, COPY};
@@ -16,7 +18,7 @@ public class NodePaletteWidget {
     private double spawnCanvasX = 0;
     private double spawnCanvasY = 0;
 
-    private DraggableNodeWidget contextMenuTarget = null;
+    private Set<DraggableNodeWidget> contextMenuTargets = new HashSet<>();
     private static final int MENU_WIDTH = 100;
     private static final int ITEM_HEIGHT = 20;
     private int menuHeight;
@@ -31,7 +33,7 @@ public class NodePaletteWidget {
 
     public void openPalette(int sX, int sY, double cX, double cY) {
         this.isOpen = true;
-        this.contextMenuTarget = null;
+        this.contextMenuTargets.clear();
         this.screenX = sX;
         this.screenY = sY;
         this.spawnCanvasX = cX;
@@ -39,10 +41,10 @@ public class NodePaletteWidget {
         this.scrollOffset = 0;
     }
 
-    public void openContextMenu(int sX, int sY, DraggableNodeWidget target){
+    public void openContextMenu(int sX, int sY, Set<DraggableNodeWidget> target){
         this.isOpen = true;
         this.menuHeight = calcMenuHeight(2);
-        this.contextMenuTarget = target;
+        this.contextMenuTargets = target;
         this.screenX = sX;
         this.screenY = sY;
         this.scrollOffset = 0;
@@ -66,13 +68,16 @@ public class NodePaletteWidget {
     public boolean isOpen(){
         return this.isOpen;
     }
-    public DraggableNodeWidget getContextMenuTarget(){return this.contextMenuTarget;}
+    public Set<DraggableNodeWidget> getContextMenuTargets(){return this.contextMenuTargets;}
 
-    public void setContextMenuTarget(DraggableNodeWidget node){this.contextMenuTarget = node;}
+    public void setContextMenuTarget(Set<DraggableNodeWidget> nodes){this.contextMenuTargets = nodes;}
 
     public void close(){
         this.isOpen = false;
-        this.contextMenuTarget = null;
+        for(DraggableNodeWidget active : contextMenuTargets){
+            active.setActive(false);
+        }
+        this.contextMenuTargets.clear();
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button){
@@ -82,15 +87,20 @@ public class NodePaletteWidget {
         menuHeight = calcMenuHeight(availableTypes.size());
 
         if(button == 0){
-            if(this.contextMenuTarget != null){
+            if(!this.contextMenuTargets.isEmpty()){
                 if(mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= screenY && mouseY <= screenY + menuHeight){
                     int index = (int)((mouseY - screenY) / ITEM_HEIGHT + scrollOffset);
                     if(index == 0){
-                        this.paretScreen.deleteNode(this.contextMenuTarget);
+                        for(DraggableNodeWidget node : contextMenuTargets){
+                            this.paretScreen.deleteNode(node);
+                        }
                         close();
                         return true;
                     }else if(index == 1){
-                        this.paretScreen.copyNode(this.contextMenuTarget);
+                        for(DraggableNodeWidget node : contextMenuTargets){
+                            this.paretScreen.copyNode(node);
+                        }
+
                         close();
                         return true;
                     }
@@ -116,7 +126,7 @@ public class NodePaletteWidget {
         if (!isOpen) return false;
 
         List<MagiculeNodeType> types = getAvailableNodeTypes();
-        int maxScroll = (contextMenuTarget != null) ? 0 : Math.max(0, types.size() - MAX_VISIBLE_ITEMS);
+        int maxScroll = (!contextMenuTargets.isEmpty()) ? 0 : Math.max(0, types.size() - MAX_VISIBLE_ITEMS);
 
         // delta > 0 は上スクロール、delta < 0 は下スクロール
         if (delta > 0) {
@@ -132,10 +142,10 @@ public class NodePaletteWidget {
 
         List<MagiculeNodeType> availableTypes = getAvailableNodeTypes();
         int visibleCount = Math.min(
-                (contextMenuTarget != null) ? ContextMenuFacts.values().length : availableTypes.size(),
+                (!contextMenuTargets.isEmpty()) ? ContextMenuFacts.values().length : availableTypes.size(),
                 MAX_VISIBLE_ITEMS
         );
-        if (contextMenuTarget != null) {
+        if (!contextMenuTargets.isEmpty()) {
             ContextMenuFacts[] facts = ContextMenuFacts.values();
             menuHeight = calcMenuHeight(facts.length);
 
@@ -170,7 +180,7 @@ public class NodePaletteWidget {
             }
         }
 
-        if(availableTypes.size() > MAX_VISIBLE_ITEMS && contextMenuTarget == null){
+        if(availableTypes.size() > MAX_VISIBLE_ITEMS && contextMenuTargets.isEmpty()){
             int barHeight = Math.max(4, (menuHeight * MAX_VISIBLE_ITEMS) / availableTypes.size());
             int maxScroll = availableTypes.size() - MAX_VISIBLE_ITEMS;
             int barY = screenY + (scrollOffset * (menuHeight - barHeight)) / maxScroll;

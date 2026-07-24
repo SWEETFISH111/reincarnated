@@ -22,7 +22,6 @@ public class NodePort {
         this.dataType = dataType;
     }
 
-
     //ゲッター
     public PortDataType getDataType(){return this.dataType;}
     public int getX(){

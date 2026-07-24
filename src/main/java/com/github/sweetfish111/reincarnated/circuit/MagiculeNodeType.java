@@ -12,14 +12,14 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE},
             new PortDataType[]{PortDataType.EXEC},
             null,null,
-            20,
+                    12,
             MagicEditorScreen.EditorTab.MAGIC
     ),
     EXPLOSION("explosion","爆発ノード",
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC},
             null,null,
-            40,
+            8,
             MagicEditorScreen.EditorTab.MAGIC
     ),
     GET_LOOK_TARGET("get_look_target","見た相手",
@@ -35,7 +35,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.VECTORE},
             ContentWidgetType.MODE_SELECT,
             new PortDataType[]{PortDataType.VECTORE,PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
-            1,
+            5,
             MagicEditorScreen.EditorTab.MAGIC
     ),
     GET_LOOK_FORWARD("get_look_forward", "視線の方向",
@@ -43,7 +43,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.VECTORE},
             ContentWidgetType.SWITCH,
             null,
-            1,
+            5,
             MagicEditorScreen.EditorTab.MAGIC
     ),
     NUMBER("number", "数字",
@@ -56,7 +56,10 @@ public enum MagiculeNodeType {
     ),
     COMBERS_TARGET_POS("combers_target_pos", "座標変換",
             new PortDataType[]{PortDataType.ENTITY},
-            new PortDataType[]{PortDataType.VECTORE}
+            new PortDataType[]{PortDataType.VECTORE},
+            null,null,
+            5,
+            MagicEditorScreen.EditorTab.MAGIC
     ),
     COMBERS_LOOK_DIRECTION("combers_look_direction", "向き",
             new PortDataType[]{PortDataType.ENTITY},
@@ -64,7 +67,10 @@ public enum MagiculeNodeType {
     ),
     IF("if", "IF",
             new PortDataType[]{PortDataType.EXEC,PortDataType.BOOLEAN},
-            new PortDataType[]{PortDataType.EXEC, PortDataType.EXEC}
+            new PortDataType[]{PortDataType.EXEC, PortDataType.EXEC},
+            null, null,
+            20,
+            MagicEditorScreen.EditorTab.MAGIC
     ),
     BOOLEAN("boolean", "真偽値",
             new PortDataType[]{},
@@ -76,7 +82,10 @@ public enum MagiculeNodeType {
     ),
     REPEAT("repeat", "繰り返し",
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
-            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER, PortDataType.EXEC}
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER, PortDataType.EXEC},
+            null,null,
+            8,
+            MagicEditorScreen.EditorTab.MAGIC
     ),
     ADD("add", "足し算",
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
@@ -142,6 +151,10 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
             new PortDataType[]{PortDataType.BOOLEAN},
             null
+    ),
+    SHOOT_PROJECTILE("shoot_projectile", "発射",
+            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE,PortDataType.ENTITY}
     );
 
     private final String id;

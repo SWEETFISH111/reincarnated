@@ -1,6 +1,8 @@
 package com.github.sweetfish111.reincarnated.circuit;
 
 import com.github.sweetfish111.reincarnated.client.screen.NodePort;
+import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
@@ -39,6 +41,16 @@ public class MagiculeCircuit {
     // ゲッター
     public List<NodeData> getNodes(){ return this.nodes; }
     public List<WireData> getWires(){ return this.wires; }
+    public NodeData getNode(UUID nodeId){
+        if(nodeId == null) return null;
+        for (NodeData node : this.nodes){
+            if(node.id.equals(nodeId)){
+                return node;
+            }
+        }
+        return null;
+    }
+
 
     public Object getNodeParam(UUID nodeId, String key, Object defaultValue){
         if(nodeParameters.containsKey(nodeId)){

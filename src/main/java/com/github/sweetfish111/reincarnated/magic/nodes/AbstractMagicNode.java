@@ -34,6 +34,11 @@ public abstract class AbstractMagicNode implements MagicNode{
         }
     }
 
+    public Map<Integer, List<MagicNode>> getOutputConnections(){return outputConnections;}
+    public MagicNode getNextNode(int portIndex){
+        return outputConnections.get(portIndex).getFirst();
+    }
+
     protected Object pullData(int myInputPortIndex, MagicContext context){
         DataLink link = dataInputs.get(myInputPortIndex);
         if(link != null){

@@ -177,6 +177,9 @@ public class DraggableNodeWidget extends AbstractWidget {
     }
 
     public boolean handleCanvasClick(MouseButtonEvent sourceEvent, double canvasX, double canvasY, int button){
+        if(portClicked((int)canvasX, (int) canvasY, button)){
+            return true;
+        }
         if(this.contentWidget != null){
             if(this.contentWidget.handleMouseClicked((int)canvasX, (int)canvasY, sourceEvent.button(), sourceEvent.modifiers())){
                 this.contentWidget.setFocused(true);
@@ -198,8 +201,6 @@ public class DraggableNodeWidget extends AbstractWidget {
                 this.contentWidget.setFocused(false);
             }
         }
-
-        portClicked((int)canvasX, (int)canvasY, button);
 
         if(button == 0 && this.isMouseOver(canvasX, canvasY)){
             this.isDragging = true;

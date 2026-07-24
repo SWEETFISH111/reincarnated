@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated;
 
+import com.github.sweetfish111.reincarnated.entity.reincarnatedEntityTypes;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import org.slf4j.Logger;
 
@@ -74,6 +75,8 @@ public class reincarnated {
         ITEMS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
+        // 🌀 【重要】カスタムエンティティのレジストリをイベントバスに刻む！
+        reincarnatedEntityTypes.ENTITY_TYPES.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (reincarnated) to respond directly to events.

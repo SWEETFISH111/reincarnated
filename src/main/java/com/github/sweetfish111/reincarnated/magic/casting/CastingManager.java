@@ -14,26 +14,29 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
+//魔法の計算コストから詠唱時間を算出して実際に発動させるクラス
 @EventBusSubscriber(modid = "reincarnated")
 public class CastingManager {
     private static final Map<UUID, CastingTask>activeCasts = new HashMap<>();
 
     public static void startCasting(ServerPlayer player, MagiculeCircuit circuit, String triggerType) {
-        int totalCost = 0;
+
+        //くみ上げられたノードから静的に計算コストを算出。
+        int totalCalcCost = 0;
         for (MagiculeCircuit.NodeData node : circuit.getNodes()) {
-            totalCost += node.type.getCastCost();
+            totalCalcCost += node.type.getCastCost();
         }
 
         boolean hasChantCancellation = checkChantCancellationSkill(player);
 
 
-        if (hasChantCancellation || totalCost <= 0) {
+        if (hasChantCancellation || totalCalcCost <= 0) {
             MagicCompiler.compileAndExecute(circuit, player, triggerType);
             return;
         }
 
         // 3. 詠唱タスクをキューに登録
-        CastingTask task = new CastingTask(player, circuit, triggerType, hasChantCancellation ? 0 : totalCost);
+        CastingTask task = new CastingTask(player, circuit, triggerType, hasChantCancellation ? 0 : totalCalcCost);
         activeCasts.put(player.getUUID(), task);
     }
 

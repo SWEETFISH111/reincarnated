@@ -1,9 +1,22 @@
 package com.github.sweetfish111.reincarnated.magic.compiler;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
-import com.github.sweetfish111.reincarnated.magic.nodes.LessThanNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookForwardNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookTargetNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.sensor.ReturnCaster;
+import com.github.sweetfish111.reincarnated.magic.nodes.action.ExplosionNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.action.SummonLightningNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.math.*;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.*;
+import com.github.sweetfish111.reincarnated.magic.nodes.conversion.CombersLookDirection;
+import com.github.sweetfish111.reincarnated.magic.nodes.conversion.CombersTargetPos;
+import com.github.sweetfish111.reincarnated.magic.nodes.conversion.OffsetNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.control.IfNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.control.RepeatNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.value.BooleanNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.value.NumberNode;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.HashMap;
@@ -41,6 +54,27 @@ public class MagicCompiler {
         }
     }
 
+    public static MagicNode resolveNodeInstance(MagiculeCircuit circuit, UUID nodeId){
+        Map<UUID, MagicNode> instancedNodes = new HashMap<>();
+        for (MagiculeCircuit.NodeData data : circuit.getNodes()){
+            MagicNode actualNode = createNodeInstance(data.type.getId(), data.id);
+            if(actualNode != null){
+                instancedNodes.put(data.id, actualNode);
+            }
+        }
+
+        for (MagiculeCircuit.WireData wire : circuit.getWires()){
+            MagicNode sourceNode = instancedNodes.get(wire.sourceId);
+            MagicNode targetNode = instancedNodes.get(wire.targetId);
+            if(sourceNode != null && targetNode != null){
+                sourceNode.connectTo(wire.sourcePortIndex, targetNode, wire.targetPortIndex, wire.isDataFlow);
+            }
+        }
+
+        return instancedNodes.get(nodeId);
+    }
+
+
 
 
     public static MagicNode createNodeInstance(String typeId, UUID nodeId){
@@ -71,6 +105,7 @@ public class MagicCompiler {
             case "greater_or_equal":return new GreaterOrEqualNode();
             case "less_than":return new LessThanNode();
             case "less_or_equal":return new LessOrEqualNode();
+            case "shoot_projectile":return new ShootProjectileNode();
             default : return null;
         }
     }

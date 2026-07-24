@@ -224,10 +224,12 @@ public class MagicEditorScreen extends Screen {
             palette.mouseClicked(rawX, rawY, event.button());
         }
         //ノードのクリック＆右クリック判定
-        for(DraggableNodeWidget node : this.nodeWidgets){
-
+        for(int i = this.nodeWidgets.size() - 1; i >= 0; i--){
+            DraggableNodeWidget node = this.nodeWidgets.get(i);
             if(node.handleCanvasClick(event, canvasX, canvasY, event.button())){
                 this.activeNode = node;
+                this.nodeWidgets.remove(i);
+                this.nodeWidgets.add(node);
                 if(event.button() == 1){
                     if(node.portClicked((int)canvasX, (int)canvasY, event.button())){
                         return true;

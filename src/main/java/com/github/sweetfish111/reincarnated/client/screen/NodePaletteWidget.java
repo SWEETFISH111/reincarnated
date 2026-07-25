@@ -4,13 +4,10 @@ import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class NodePaletteWidget {
-    private enum ContextMenuFacts{DELETE, COPY};
+    private enum ContextMenuFacts{DELETE, COPY, COLLAPSE};
     private final MagicEditorScreen paretScreen;
     private boolean isOpen = false;
     private int screenX = 0;
@@ -64,7 +61,6 @@ public class NodePaletteWidget {
 
     private int calcMenuHeight(int size){return Math.min(size, MAX_VISIBLE_ITEMS) * ITEM_HEIGHT;}
 
-    //げったー
     public boolean isOpen(){
         return this.isOpen;
     }
@@ -101,6 +97,15 @@ public class NodePaletteWidget {
                             this.paretScreen.copyNode(node);
                         }
 
+                        close();
+                        return true;
+                    }else if(index == 2){
+                        List<UUID> collapseTarget = new ArrayList<>();
+                        for(DraggableNodeWidget nodeWidgt : contextMenuTargets){
+                            collapseTarget.add(nodeWidgt.getId());
+                        }
+                        this.paretScreen.getCircuit().collapseNodes(collapseTarget, "AA");
+                        this.paretScreen.rebuildNodeWidgets();
                         close();
                         return true;
                     }

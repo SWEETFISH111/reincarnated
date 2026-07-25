@@ -23,6 +23,7 @@ public class MagicEditorScreen extends Screen {
     private final Map<EditorTab, MagiculeCircuit> tabCircuits = new EnumMap<>(EditorTab.class);
 
     private final List<DraggableNodeWidget> nodeWidgets = new ArrayList<>();
+    private final List<CompoundNodeWidget> compoundNodeWidgets = new ArrayList<>();
     private final List<Button> tabButtons = new ArrayList<>();
 
     private final WorkspaceCamera camera = new WorkspaceCamera();
@@ -105,19 +106,44 @@ public class MagicEditorScreen extends Screen {
             this.removeWidget(nodeWidget);
         }
         this.nodeWidgets.clear();
+
+        for(CompoundNodeWidget compoundWidget : this.compoundNodeWidgets){
+            this.removeWidget(compoundWidget);
+        }
+        this.compoundNodeWidgets.clear();
     }
 
     private void saveCurrentTabCircuit(){
+        MagiculeCircuit currentCircuit = this.magicData.getCircuit(this.currentTab);
         this.circuit.getNodes().clear();
+        List<MagiculeCircuit.CompoundNodeData> updatedCompounds = new ArrayList<>();
+
         for(DraggableNodeWidget widget : this.nodeWidgets){
-            this.circuit.addNode(new MagiculeCircuit.NodeData(
-                    widget.getId(),
-                    widget.getType(),
-                    widget.getX(),
-                    widget.getY()
-            ));
+            if(widget instanceof CompoundNodeWidget compoundWidget){
+                MagiculeCircuit.CompoundNodeData existingData = findCompoundDataById(compoundWidget.getId());;
+                if(existingData != null){
+                    existingData.x = compoundWidget.getX();
+                    existingData.y = compoundWidget.getY();
+                    updatedCompounds.add(existingData);
+                }
+            }else{
+                this.circuit.addNode(new MagiculeCircuit.NodeData(
+                        widget.getId(),
+                        widget.getType(),
+                        widget.getX(),
+                        widget.getY()
+                ));
+            }
         }
+        this.circuit.setCompoundNodes(updatedCompounds);
         this.magicData.setCircuits(this.currentTab, this.circuit);
+    }
+
+    private MagiculeCircuit.CompoundNodeData findCompoundDataById(UUID id){
+        for(MagiculeCircuit.CompoundNodeData data : this.circuit.getCompoundNodes()){
+            if(data.id.equals(id))return data;
+        }
+        return null;
     }
 
     private void loadTabCircuit(EditorTab tab){
@@ -125,7 +151,7 @@ public class MagicEditorScreen extends Screen {
         rebuildNodeWidgets();
     }
 
-    private void rebuildNodeWidgets(){
+    public void rebuildNodeWidgets(){
         clearCanvasWidgets();
         for(MagiculeCircuit.NodeData nodeData : this.circuit.getNodes()){
             DraggableNodeWidget nodeWidget = new DraggableNodeWidget(
@@ -141,6 +167,19 @@ public class MagicEditorScreen extends Screen {
             if(nodeWidget.getContentWidget() != null){
                 this.addRenderableWidget(nodeWidget.getContentWidget().getContentWidget());
             }
+        }
+        for(MagiculeCircuit.CompoundNodeData compoundNodeData : this.circuit.getCompoundNodes()){
+            CompoundNodeWidget compoundWidget = new CompoundNodeWidget(
+                    this,
+                    compoundNodeData.id,
+                    MagiculeNodeType.COMPOUND,
+                    compoundNodeData.x,
+                    compoundNodeData.y,
+                    120
+            );
+            this.compoundNodeWidgets.add(compoundWidget);
+            this.nodeWidgets.add(compoundWidget);
+            this.addRenderableWidget(compoundWidget);
         }
     }
 
@@ -223,13 +262,14 @@ public class MagicEditorScreen extends Screen {
         if(palette.isOpen()){
             palette.mouseClicked(rawX, rawY, event.button());
         }
+
         //ノードのクリック＆右クリック判定
-        for(int i = this.nodeWidgets.size() - 1; i >= 0; i--){
-            DraggableNodeWidget node = this.nodeWidgets.get(i);
+        for(int i = nodeWidgets.size() - 1; i >= 0; i--){
+            DraggableNodeWidget node = nodeWidgets.get(i);
             if(node.handleCanvasClick(event, canvasX, canvasY, event.button())){
                 //クリックしたノードを最前面に移動
-                this.nodeWidgets.remove(i);
-                this.nodeWidgets.add(node);
+                nodeWidgets.remove(i);
+                nodeWidgets.add(node);
 
                 if(event.hasControlDown()){
                     if(event.button() == 0){

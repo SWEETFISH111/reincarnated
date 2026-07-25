@@ -155,7 +155,10 @@ public enum MagiculeNodeType {
     SHOOT_PROJECTILE("shoot_projectile", "発射",
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE,PortDataType.ENTITY}
-    );
+    ),
+    COMPOUND("compound", "塊",
+            new PortDataType[]{},
+            new PortDataType[]{});
 
     private final String id;
     public final String displayName;

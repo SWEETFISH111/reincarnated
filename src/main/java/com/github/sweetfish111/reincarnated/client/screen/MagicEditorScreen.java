@@ -25,6 +25,7 @@ public class MagicEditorScreen extends Screen {
     private final List<DraggableNodeWidget> nodeWidgets = new ArrayList<>();
     private final List<CompoundNodeWidget> compoundNodeWidgets = new ArrayList<>();
     private final List<Button> tabButtons = new ArrayList<>();
+    private Button backButton;
 
     private final WorkspaceCamera camera = new WorkspaceCamera();
     private final NodePaletteWidget palette = new NodePaletteWidget(this);
@@ -47,6 +48,22 @@ public class MagicEditorScreen extends Screen {
 
     private EditorTab currentTab = EditorTab.MAGIC;
 
+    public static class CircuitLayer{
+        public final MagiculeCircuit circuit;
+        public final String title;
+        public final UUID parentCompoundId;
+        public final MagiculeCircuit parentCircuit;
+
+        public CircuitLayer(MagiculeCircuit circuit, String title, UUID parentCompoundId, MagiculeCircuit parentCircuit){
+            this.circuit = circuit;
+            this.title = title;
+            this.parentCompoundId = parentCompoundId;
+            this.parentCircuit = parentCircuit;
+        }
+    }
+
+    private final Deque<CircuitLayer> layerStack = new ArrayDeque<>();
+
     public MagicEditorScreen(PlayerMagicData magicData){
         super(Component.literal("魔法編集"));
         this.magicData = magicData;
@@ -61,6 +78,7 @@ public class MagicEditorScreen extends Screen {
     protected void init(){
         super.init();
 
+        this.layerStack.clear();
         this.circuit = this.magicData.getCircuit(this.currentTab);
 
         int tabButtonWidth = 60;
@@ -80,6 +98,15 @@ public class MagicEditorScreen extends Screen {
 
             startX += tabButtonWidth + 5;
         }
+        int backButtonWidth = 80;
+        int backButtonHeight = 20;
+        this.backButton = Button.builder(
+                Component.literal("← 戻る"),
+                button -> goBackLayer()
+        ).bounds(10, 35, backButtonWidth, backButtonHeight).build();
+
+        updateBackButtonVisibility();
+        this.addRenderableWidget(this.backButton);
         rebuildNodeWidgets();
     }
 
@@ -88,6 +115,7 @@ public class MagicEditorScreen extends Screen {
         saveCurrentTabCircuit();
 
         this.currentTab = tab;
+        this.layerStack.clear();
 
         for(int i = 0; i < EditorTab.values().length; i++){
             if(i < this.tabButtons.size()){
@@ -96,6 +124,7 @@ public class MagicEditorScreen extends Screen {
         }
         clearCanvasWidgets();
         loadTabCircuit(this.currentTab);
+        updateBackButtonVisibility();
     }
 
     private void clearCanvasWidgets(){
@@ -114,6 +143,8 @@ public class MagicEditorScreen extends Screen {
     }
 
     private void saveCurrentTabCircuit(){
+        if(!this.layerStack.isEmpty())return;
+
         MagiculeCircuit currentCircuit = this.magicData.getCircuit(this.currentTab);
         this.circuit.getNodes().clear();
         List<MagiculeCircuit.CompoundNodeData> updatedCompounds = new ArrayList<>();
@@ -240,6 +271,9 @@ public class MagicEditorScreen extends Screen {
         for(Button btn : this.tabButtons){
             btn.extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseY, partialTick);
         }
+        if(this.backButton != null){
+            this.backButton.extractRenderState(guiGraphicsExtractor, (int) canvasMouseX, (int) canvasMouseY, partialTick);
+        }
         this.palette.render(guiGraphicsExtractor, mouseX, mouseY);
     }
 
@@ -258,6 +292,11 @@ public class MagicEditorScreen extends Screen {
                 return true;
             }
         }
+
+        if(this.backButton.mouseClicked(event, doubleClick)){
+            return true;
+        }
+
         //パレットのクリック判定
         if(palette.isOpen()){
             palette.mouseClicked(rawX, rawY, event.button());
@@ -270,6 +309,42 @@ public class MagicEditorScreen extends Screen {
                 //クリックしたノードを最前面に移動
                 nodeWidgets.remove(i);
                 nodeWidgets.add(node);
+
+                if(doubleClick && node instanceof CompoundNodeWidget cNode){
+                    MagiculeCircuit.CompoundNodeData compoundData = findCompoundDataById(cNode.getId());
+                    if(compoundData != null){
+                        saveCurrentTabCircuit();
+                        layerStack.push(new CircuitLayer(
+                                this.circuit,
+                                compoundData.customName,
+                                compoundData.id,
+                                this.circuit
+                        ));
+
+                        MagiculeCircuit innerCircuit = new MagiculeCircuit();
+                        for(MagiculeCircuit.NodeData nodeData : compoundData.innerNodes){
+                            innerCircuit.addNode(nodeData);
+                        }
+                        for (MagiculeCircuit.CompoundNodeData innerCompound : compoundData.innerCompoundNodes){
+                            innerCircuit.getCompoundNodes().add(innerCompound);
+                        }
+                        for(MagiculeCircuit.WireData wireData : compoundData.innerWires){
+                            innerCircuit.addWire(wireData.sourceId, wireData.sourcePortIndex, wireData.targetId, wireData.targetPortIndex, wireData.isDataFlow);
+                        }
+
+                        for(Map.Entry<UUID, Map<String, Object>> entry : compoundData.innerNodeParameters.entrySet()){
+                            UUID nId = entry.getKey();
+                            for(Map.Entry<String, Object> paramEntry : entry.getValue().entrySet()){
+                                innerCircuit.setNodeParam(nId, paramEntry.getKey(), paramEntry.getValue());
+                            }
+                        }
+
+                        this.circuit = innerCircuit;
+                        updateBackButtonVisibility();
+                        rebuildNodeWidgets();
+                        return true;
+                    }
+                }
 
                 if(event.hasControlDown()){
                     if(event.button() == 0){
@@ -341,6 +416,68 @@ public class MagicEditorScreen extends Screen {
         }
 
         return this.camera.mouseClicked(event.x(), event.y(), event.button());
+    }
+
+    public void goBackLayer(){
+        if(layerStack.isEmpty())return;
+
+        CircuitLayer parentLayer = layerStack.pop();
+        saveCurrentInnerCircuit(parentLayer);
+
+        this.circuit = parentLayer.circuit;
+        updateBackButtonVisibility();
+        rebuildNodeWidgets();
+
+        LOGGER.info("hitotu ue no kaisou ni modorimasita" + parentLayer.title);
+    }
+
+    private void saveCurrentInnerCircuit(CircuitLayer currentLayer){
+        if(currentLayer == null || currentLayer.parentCompoundId == null) return;
+
+        for(MagiculeCircuit.CompoundNodeData cNode : currentLayer.parentCircuit.getCompoundNodes()){
+            if(cNode.id.equals(currentLayer.parentCompoundId)){
+                cNode.innerNodes.clear();
+                cNode.innerCompoundNodes.clear();
+                cNode.innerWires.clear();
+                cNode.innerNodeParameters.clear();
+
+                for(DraggableNodeWidget widget : this.nodeWidgets){
+                    if(widget instanceof CompoundNodeWidget compoundWidget){
+                        MagiculeCircuit.CompoundNodeData existingCompound = findCompoundDataById(compoundWidget.getId());
+                        if(existingCompound != null){
+                            existingCompound.x = compoundWidget.getX();
+                            existingCompound.y = compoundWidget.getY();
+                            cNode.innerCompoundNodes.add(existingCompound);
+                        }
+                    }else{
+                        cNode.innerNodes.add(new MagiculeCircuit.NodeData(
+                                widget.getId(),
+                                widget.getType(),
+                                widget.getX(),
+                                widget.getY()));
+
+                        Object val = widget.getContentWidget() != null ? widget.getContentWidget().getCurrentValue() : null;
+                        if(val != null){
+                            cNode.innerNodeParameters.computeIfAbsent(widget.getId(), k -> new HashMap<>()).put("value", val);
+                        }
+                    }
+                }
+
+                for(MagiculeCircuit.WireData wire : this.circuit.getWires()){
+                    cNode.innerWires.add(wire);
+                }
+                break;
+            }
+
+        }
+    }
+
+    private void updateBackButtonVisibility(){
+        if(this.backButton != null){
+            boolean inCompound = !layerStack.isEmpty();
+            this.backButton.visible = inCompound;
+            this.backButton.active = inCompound;
+        }
     }
 
     public void copyNode(DraggableNodeWidget node){

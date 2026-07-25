@@ -71,10 +71,14 @@ public class MagiculeCircuit {
         if(targetNodeIds.isEmpty())return;
 
         List<NodeData> innerNodes = new ArrayList<>();
+        List<CompoundNodeData> innerCompoundNodes = new ArrayList<>();
         List<WireData> innerWires = new ArrayList<>();
+        Map<UUID, Map<String, Object>> innerNodeParams = new HashMap<>();
 
         int minX = Integer.MAX_VALUE;
         int minY = Integer.MAX_VALUE;
+
+        Set<UUID> idSet = new HashSet<>(targetNodeIds);
 
         for(UUID id : targetNodeIds){
             NodeData node  = getNode(id);
@@ -82,12 +86,26 @@ public class MagiculeCircuit {
                 innerNodes.add(node);
                 minX = Math.min(minX, node.x);
                 minY = Math.min(minY, node.y);
+
+                if(nodeParameters.containsKey(id)){
+                    innerNodeParams.put(id, new HashMap<>(nodeParameters.get(id)));
+                }
             }
         }
 
-        if(innerNodes.isEmpty()) return;
+        Iterator<CompoundNodeData> compoundIterator = this.compoundNodes.iterator();
+        while(compoundIterator.hasNext()){
+            CompoundNodeData cNode = compoundIterator.next();
+            if(idSet.contains(cNode.id)){
+                innerCompoundNodes.add(cNode);
+                minX = Math.min(minX, cNode.x);
+                minY = Math.min(minY, cNode.y);
+                compoundIterator.remove(); // 元の階層からは取り除く
+            }
+        }
 
-        Set<UUID> idSet = new HashSet<>(targetNodeIds);
+        if(innerNodes.isEmpty() && innerCompoundNodes.isEmpty()) return;
+
         Iterator<WireData> wireIterator = this.wires.iterator();
         while(wireIterator.hasNext()){
             WireData wire = wireIterator.next();
@@ -106,9 +124,12 @@ public class MagiculeCircuit {
                 newCompoundId,
                 customName,
                 innerNodes,
+                innerCompoundNodes,
                 innerWires,
                 minX,minY
         );
+
+        compoundNode.innerNodeParameters.putAll(innerNodeParams);
 
         this.compoundNodes.add(compoundNode);
     }
@@ -171,47 +192,18 @@ public class MagiculeCircuit {
         tag.put("Wires", wiresTag);
 
         ListTag compoundNodesTag = new ListTag();
-        for(CompoundNodeData cNode : this.compoundNodes){
+        for(CompoundNodeData cNode : this.compoundNodes) {
             CompoundTag cnTag = new CompoundTag();
             cnTag.putString("Id", cNode.id.toString());
             cnTag.putString("Name", cNode.customName);
             cnTag.putInt("X", cNode.x);
             cnTag.putInt("Y", cNode.y);
 
-            ListTag innerNodeTag = new ListTag();
-            for(NodeData innerNode : cNode.innerNodes){
-                CompoundTag inTag = new CompoundTag();
-                inTag.putString("Id", innerNode.id.toString());
-                inTag.putString("Type", innerNode.type.getId());
-                inTag.putInt("X", innerNode.x);
-                inTag.putInt("Y", innerNode.y);
-
-                Map<String, Object> params = this.nodeParameters.get(innerNode.id);
-                if(params != null && !params.isEmpty()){
-                    CompoundTag paramsTag = new CompoundTag();
-                    for(Map.Entry<String, Object> entry : params.entrySet()){
-                        Tag convertedTag = toNbtTag(entry.getValue());
-                        if (convertedTag != null) {
-                            paramsTag.put(entry.getKey(), convertedTag);
-                        }
-                    }
-                    inTag.put("Parameters", paramsTag);
-                }
-                innerNodeTag.add(inTag);
+            ListTag innerCompoundNodesTag = new ListTag();
+            for(CompoundNodeData innerCompound : cNode.innerCompoundNodes){
+                innerCompoundNodesTag.add(serializeCompoundNode(innerCompound));
             }
-            cnTag.put("InnerNodes", innerNodeTag);
-
-            ListTag innerWireTag = new ListTag();
-            for(WireData innerWire : cNode.innerWires){
-                CompoundTag iwTag = new CompoundTag();
-                iwTag.putString("SourceId", innerWire.sourceId.toString());
-                iwTag.putInt("SourcePort", innerWire.sourcePortIndex);
-                iwTag.putString("TargetId", innerWire.targetId.toString());
-                iwTag.putInt("TargetPort", innerWire.targetPortIndex);
-                iwTag.putBoolean("IsDataFlow", innerWire.isDataFlow);
-                innerWireTag.add(iwTag);
-            }
-            cnTag.put("InnerWires", innerWireTag);
+            cnTag.put("InnerCompoundNodes", innerCompoundNodesTag);
             compoundNodesTag.add(cnTag);
         }
         tag.put("CompoundNodes", compoundNodesTag);
@@ -292,88 +284,186 @@ public class MagiculeCircuit {
             for(int i = 0; i < compoundTag.get().size(); i++){
                 Optional<CompoundTag> cTag = compoundTag.get().getCompound(i);
                 if(cTag.isPresent()){
-                    CompoundTag c = cTag.get();
-
-                    String id = c.getString("Id").orElse("");
-                    String customName = c.getString("Name").orElse("");
-                    int x = c.getInt("X").orElse(0);
-                    int y = c.getInt("Y").orElse(0);
-                    List<MagiculeCircuit.NodeData> innerNodes = new ArrayList<>();
-                    List<MagiculeCircuit.WireData> innerWires = new ArrayList<>();
-
-                    Optional<ListTag> innerNodesTag = c.getList("InnerNodes");
-                    if(innerNodesTag.isPresent()){
-                        for(int n = 0; n < innerNodesTag.get().size(); n++){
-                            Optional<CompoundTag> inTag = innerNodesTag.get().getCompound(n);
-                            if(inTag.isPresent()){
-                                CompoundTag in = inTag.get();
-
-                                String inId = in.getString("Id").orElse("");
-                                String inType = in.getString("Type").orElse("");
-                                int inX = in.getInt("X").orElse(0);
-                                int inY = in.getInt("Y").orElse(0);
-                                if(!inId.isEmpty() && !inType.isEmpty()){
-                                    innerNodes.add(new NodeData(
-                                            UUID.fromString(inId),
-                                            MagiculeNodeType.fromId(inType),
-                                            inX,
-                                            inY
-                                    ));
-                                }
-
-                                if(in.contains("Parameters")){
-                                    CompoundTag paramsTag = in.getCompoundOrEmpty("Parameters");
-                                    Map<String, Object> params = new HashMap<>();
-                                    for(String key : paramsTag.keySet()){
-                                        Tag rawTag = paramsTag.get(key);
-                                        Object val = fromNbtTag(rawTag);
-                                        if(val != null){
-                                            params.put(key, val);
-                                        }
-                                    }
-                                    this.nodeParameters.put(UUID.fromString(inId), params);
-                                }
-                            }
-                        }
+                    CompoundNodeData cData = deserializeCompoundNode(cTag.get());
+                    if(cData != null){
+                        this.compoundNodes.add(cData);
                     }
-                    Optional<ListTag> innerWiresTag = c.getList("InnerWires");
-                    if(innerWiresTag.isPresent()){
-                        for(int p = 0; p < innerWiresTag.get().size(); p++){
-                            Optional<CompoundTag> wTag = innerWiresTag.get().getCompound(p);
-                            if(wTag.isPresent()){
-                                CompoundTag w = wTag.get();
 
-                                String sourceId = w.getString("SourceId").orElse("");
-                                int sourcePort = w.getInt("SourcePort").orElse(0);
-                                String targetId = w.getString("TargetId").orElse("");
-                                int targetPort = w.getInt("TargetPort").orElse(0);
-                                boolean isDataFlow = w.getBoolean("IsDataFlow").orElse(false);
+                }
 
-                                if(!sourceId.isEmpty() && !targetId.isEmpty()){
-                                    innerWires.add(new WireData(
-                                            UUID.fromString(sourceId),
-                                            sourcePort,
-                                            UUID.fromString(targetId),
-                                            targetPort,
-                                            isDataFlow
-                                    ));
-                                }
-                            }
-                        }
-                    }
-                    if(!id.isEmpty()){
-                        this.compoundNodes.add(new CompoundNodeData(
-                                UUID.fromString(id),
-                                customName,
-                                innerNodes,
-                                innerWires,
-                                x,
-                                y
+            }
+
+        }
+
+    }
+
+
+
+    private CompoundTag serializeCompoundNode(CompoundNodeData cNode) {
+        CompoundTag cnTag = new CompoundTag();
+        cnTag.putString("Id", cNode.id.toString());
+        cnTag.putString("Name", cNode.customName);
+        cnTag.putInt("X", cNode.x);
+        cnTag.putInt("Y", cNode.y);
+
+        // 1. InnerNodes
+        ListTag innerNodeTag = new ListTag();
+        for(NodeData innerNode : cNode.innerNodes){
+            CompoundTag inTag = new CompoundTag();
+            inTag.putString("Id", innerNode.id.toString());
+            inTag.putString("Type", innerNode.type.getId());
+            inTag.putInt("X", innerNode.x);
+            inTag.putInt("Y", innerNode.y);
+            innerNodeTag.add(inTag);
+        }
+        cnTag.put("InnerNodes", innerNodeTag);
+
+        // 2. InnerCompoundNodes (再帰的！)
+        ListTag innerCompoundNodesTag = new ListTag();
+        for(CompoundNodeData innerCompound : cNode.innerCompoundNodes){
+            innerCompoundNodesTag.add(serializeCompoundNode(innerCompound));
+        }
+        cnTag.put("InnerCompoundNodes", innerCompoundNodesTag);
+
+        // 3. InnerWires
+        ListTag innerWireTag = new ListTag();
+        for(WireData innerWire : cNode.innerWires){
+            CompoundTag iwTag = new CompoundTag();
+            iwTag.putString("SourceId", innerWire.sourceId.toString());
+            iwTag.putInt("SourcePort", innerWire.sourcePortIndex);
+            iwTag.putString("TargetId", innerWire.targetId.toString());
+            iwTag.putInt("TargetPort", innerWire.targetPortIndex);
+            iwTag.putBoolean("IsDataFlow", innerWire.isDataFlow);
+            innerWireTag.add(iwTag);
+        }
+        cnTag.put("InnerWires", innerWireTag);
+
+        // 4. InnerNodeParameters
+        ListTag innerParamsTag = new ListTag();
+        for(Map.Entry<UUID, Map<String, Object>> entry : cNode.innerNodeParameters.entrySet()){
+            CompoundTag pEntryTag = new CompoundTag();
+            pEntryTag.putString("NodeId", entry.getKey().toString());
+            CompoundTag pTag = new CompoundTag();
+            for(Map.Entry<String, Object> paramEntry : entry.getValue().entrySet()){
+                Tag convertedTag = toNbtTag(paramEntry.getValue());
+                if(convertedTag != null) {
+                    pTag.put(paramEntry.getKey(), convertedTag);
+                }
+            }
+            pEntryTag.put("Params", pTag);
+            innerParamsTag.add(pEntryTag);
+        }
+        cnTag.put("InnerNodeParameters", innerParamsTag);
+
+        return cnTag;
+    }
+
+    private CompoundNodeData deserializeCompoundNode(CompoundTag c){
+        String id = c.getString("Id").orElse("");
+        String customName = c.getString("Name").orElse("");
+        int x = c.getInt("X").orElse(0);
+        int y = c.getInt("Y").orElse(0);
+        List<MagiculeCircuit.NodeData> innerNodes = new ArrayList<>();
+        List<CompoundNodeData> innerCompoundNodes = new ArrayList<>();
+        List<MagiculeCircuit.WireData> innerWires = new ArrayList<>();
+        Map<UUID, Map<String, Object>> innerNodeParams = new HashMap<>();
+
+
+        Optional<ListTag> innerNodesTag = c.getList("InnerNodes");
+        if(innerNodesTag.isPresent()){
+            for(int n = 0; n < innerNodesTag.get().size(); n++){
+                Optional<CompoundTag> inTag = innerNodesTag.get().getCompound(n);
+                if(inTag.isPresent()){
+                    CompoundTag in = inTag.get();
+
+                    String inId = in.getString("Id").orElse("");
+                    String inType = in.getString("Type").orElse("");
+                    int inX = in.getInt("X").orElse(0);
+                    int inY = in.getInt("Y").orElse(0);
+                    if(!inId.isEmpty() && !inType.isEmpty()){
+                        innerNodes.add(new NodeData(
+                                UUID.fromString(inId),
+                                MagiculeNodeType.fromId(inType),
+                                inX,
+                                inY
                         ));
                     }
                 }
             }
         }
+
+        Optional<ListTag> innerCompoundsTag = c.getList("InnerCompoundNodes");
+        if(innerCompoundsTag.isPresent()){
+            for(int ic = 0; ic < innerCompoundsTag.get().size(); ic++){
+                Optional<CompoundTag> icTag = innerCompoundsTag.get().getCompound(ic);
+                if(icTag.isPresent()){
+                    innerCompoundNodes.add(deserializeCompoundNode(icTag.get()));
+                }
+            }
+        }
+
+        Optional<ListTag> innerWiresTag = c.getList("InnerWires");
+        if(innerWiresTag.isPresent()){
+            for(int p = 0; p < innerWiresTag.get().size(); p++){
+                Optional<CompoundTag> wTag = innerWiresTag.get().getCompound(p);
+                if(wTag.isPresent()){
+                    CompoundTag w = wTag.get();
+
+                    String sourceId = w.getString("SourceId").orElse("");
+                    int sourcePort = w.getInt("SourcePort").orElse(0);
+                    String targetId = w.getString("TargetId").orElse("");
+                    int targetPort = w.getInt("TargetPort").orElse(0);
+                    boolean isDataFlow = w.getBoolean("IsDataFlow").orElse(false);
+
+                    if(!sourceId.isEmpty() && !targetId.isEmpty()){
+                        innerWires.add(new WireData(
+                                UUID.fromString(sourceId),
+                                sourcePort,
+                                UUID.fromString(targetId),
+                                targetPort,
+                                isDataFlow
+                        ));
+                    }
+                }
+            }
+        }
+
+        Optional<ListTag> innerParamsTag = c.getList("InnerNodeParameters");
+        if(innerParamsTag.isPresent()){
+            for(int q = 0; q < innerParamsTag.get().size(); q++){
+                Optional<CompoundTag> pEntryOpt = innerParamsTag.get().getCompound(q);
+                if(pEntryOpt.isPresent()){
+                    CompoundTag pEntry = pEntryOpt.get();
+                    String nIdStr = pEntry.getString("NodeId").orElse("");
+                    if(!nIdStr.isEmpty()){
+                        UUID nId = UUID.fromString(nIdStr);
+                        CompoundTag pTag = pEntry.getCompoundOrEmpty("Params");
+                        Map<String, Object> params = new HashMap<>();
+                        for(String key : pTag.keySet()){
+                            Tag rawTag = pTag.get(key);
+                            Object val = fromNbtTag(rawTag);
+                            if(val != null){
+                                params.put(key, val);
+                            }
+                        }
+                        innerNodeParams.put(nId, params);
+
+                    }
+                }
+            }
+        }
+        if(id.isEmpty())return null;
+        CompoundNodeData compoundNode = new CompoundNodeData(
+                UUID.fromString(id),
+                customName,
+                innerNodes,
+                innerCompoundNodes,
+                innerWires,
+                x,
+                y
+        );
+        compoundNode.innerNodeParameters.putAll(innerNodeParams);
+        return compoundNode;
     }
 
     // JavaのObject -> NBT Tagへの変換
@@ -431,13 +521,16 @@ public class MagiculeCircuit {
         public final UUID id;
         public final String customName;
         public final List<MagiculeCircuit.NodeData> innerNodes;
+        public final List<MagiculeCircuit.CompoundNodeData> innerCompoundNodes;
         public final List<MagiculeCircuit.WireData> innerWires;
+        public final Map<UUID, Map<String, Object>> innerNodeParameters = new HashMap<>();
         public int x, y;
 
-        public CompoundNodeData(UUID id, String customName, List<MagiculeCircuit.NodeData> innerNodes, List<MagiculeCircuit.WireData> innerWires, int x, int y){
+        public CompoundNodeData(UUID id, String customName, List<MagiculeCircuit.NodeData> innerNodes,List<MagiculeCircuit.CompoundNodeData> innerCompoundNodes, List<MagiculeCircuit.WireData> innerWires, int x, int y){
             this.id = id;
             this.customName = customName;
             this.innerNodes = innerNodes;
+            this.innerCompoundNodes = innerCompoundNodes;
             this.innerWires = innerWires;
             this.x = x;
             this.y = y;

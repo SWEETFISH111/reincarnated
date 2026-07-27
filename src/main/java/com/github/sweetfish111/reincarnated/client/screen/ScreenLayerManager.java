@@ -1,0 +1,215 @@
+package com.github.sweetfish111.reincarnated.client.screen;
+
+import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
+import com.github.sweetfish111.reincarnated.circuit.PlayerMagicData;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
+
+import java.util.*;
+
+public class ScreenLayerManager {
+    private final Deque<CircuitLayer> layerStack = new ArrayDeque<>();
+    private EditorTab currentTab = EditorTab.MAGIC;
+    private MagiculeCircuit workCircuit = new MagiculeCircuit();
+    private PlayerMagicData magicData;
+    private List<Button> tabBtns = new ArrayList<>();
+    private Button backBtn;
+
+
+    public void init(PlayerMagicData magicData) {
+        this.layerStack.clear();
+        this.magicData = magicData;
+        this.workCircuit = this.magicData.getCircuit(this.currentTab);
+    }
+
+    public List<Button> getTabBtns(){return this.tabBtns;}
+    public Button getBackBtn(){return this.backBtn;}
+    public EditorTab getCurrentTab(){return this.currentTab;}
+    public MagiculeCircuit getWorkCircuit(){return this.workCircuit;}
+    public void setBackBtn(Button backBtn) {this.backBtn = backBtn;}
+
+    public void switchTab(EditorTab tab) {
+        if(this.currentTab == tab)return;
+
+        this.currentTab = tab;
+        this.layerStack.clear();
+
+        for (int i  = 0; i < EditorTab.values().length; i++){
+            if(i < this.tabBtns.size()){
+                this.tabBtns.get(i).active = (EditorTab.values()[i] != this.currentTab);
+            }
+        }
+        this.loadTabCircuit(this.currentTab);
+        this.updateBackButtonVisibility();
+    }
+
+    public void loadTabCircuit(EditorTab tab){
+        this.workCircuit = this.magicData.getCircuit(tab);
+    }
+
+    public void goBackLayer(List<AbstructDraggingNodeWidget> nodeWidgets){
+        if(layerStack.isEmpty())return;
+
+        CircuitLayer parentLayer = layerStack.pop();
+        saveCurrentInnerCircuit(parentLayer, nodeWidgets);
+
+        this.workCircuit = parentLayer.parentCircuit;
+        updateBackButtonVisibility();
+    }
+
+    public void updateBackButtonVisibility(){
+        if(this.backBtn != null){
+            this.backBtn.visible = !layerStack.isEmpty();
+        }
+    }
+
+    public void saveCurrentTabCircuit(List<AbstructDraggingNodeWidget> nodeWidgets){
+        if(!this.layerStack.isEmpty())return;
+
+        this.workCircuit.getNodes().clear();
+        List<MagiculeCircuit.CompoundNodeData> updatedCompounds = new ArrayList<>();
+        for(AbstructDraggingNodeWidget widget : nodeWidgets){
+
+            if(widget instanceof CompoundNodeWidget compoundWidget){
+                MagiculeCircuit.CompoundNodeData existingData = findCompoundDataById(compoundWidget.getId());
+                if(existingData != null){
+                    existingData.x = compoundWidget.getX();
+                    existingData.y = compoundWidget.getY();
+                    updatedCompounds.add(existingData);
+                }
+            }else if(widget instanceof DraggableNodeWidget draggableNodeWidget){
+                this.workCircuit.addNode(new MagiculeCircuit.NodeData(
+                        draggableNodeWidget.getId(),
+                        draggableNodeWidget.getType(),
+                        draggableNodeWidget.getX(),
+                        draggableNodeWidget.getY()
+                ));
+                Object val = draggableNodeWidget.getContentWidget() != null ? draggableNodeWidget.getContentWidget().getCurrentValue() : null;
+                if(val != null){
+                    this.workCircuit.setNodeParam(draggableNodeWidget.getId(), "value", val);
+                }
+            }
+        }
+        this.workCircuit.setCompoundNodes(updatedCompounds);
+        this.magicData.setCircuits(this.currentTab, this.workCircuit);
+    }
+
+    public MagiculeCircuit.CompoundNodeData findCompoundDataById(UUID id){
+        for(MagiculeCircuit.CompoundNodeData data : this.workCircuit.getCompoundNodes()){
+            if(data.id.equals(id))return data;
+        }
+        return null;
+    }
+
+    public boolean diveLayer(AbstructDraggingNodeWidget node, List<AbstructDraggingNodeWidget> nodeWidgets){
+        MagiculeCircuit.CompoundNodeData compoundData = findCompoundDataById(node.getId());
+        if(compoundData != null){
+            saveCurrentTabCircuit(nodeWidgets);
+
+            MagiculeCircuit innerCircuit = new MagiculeCircuit();
+            for(MagiculeCircuit.NodeData nodeData : compoundData.innerNodes){
+                innerCircuit.addNode(nodeData);
+            }
+            for (MagiculeCircuit.CompoundNodeData innerCompound : compoundData.innerCompoundNodes){
+                innerCircuit.getCompoundNodes().add(innerCompound);
+            }
+            for(MagiculeCircuit.WireData wireData : compoundData.innerWires){
+                innerCircuit.addWire(wireData.sourceId, wireData.sourcePortIndex, wireData.targetId, wireData.targetPortIndex, wireData.isDataFlow);
+            }
+
+            for(Map.Entry<UUID, Map<String, Object>> entry : compoundData.innerNodeParameters.entrySet()){
+                UUID nId = entry.getKey();
+                for(Map.Entry<String, Object> paramEntry : entry.getValue().entrySet()){
+                    innerCircuit.setNodeParam(nId, paramEntry.getKey(), paramEntry.getValue());
+                }
+            }
+
+            layerStack.push(new CircuitLayer(
+                    innerCircuit,
+                    compoundData.customName,
+                    compoundData.id,
+                    this.workCircuit
+            ));
+
+
+            this.workCircuit = innerCircuit;
+            updateBackButtonVisibility();
+            return true;
+        }
+        return false;
+    }
+
+    public void saveCurrentInnerCircuit(CircuitLayer currentLayer, List<AbstructDraggingNodeWidget>nodeWidgets){
+        if(currentLayer == null || currentLayer.parentCompoundId == null) return;
+
+        for(MagiculeCircuit.CompoundNodeData cNode : currentLayer.parentCircuit.getCompoundNodes()){
+            if(cNode.id.equals(currentLayer.parentCompoundId)){
+                cNode.innerNodes.clear();
+                cNode.innerCompoundNodes.clear();
+                cNode.innerWires.clear();
+                cNode.innerNodeParameters.clear();
+
+                for(AbstructDraggingNodeWidget widget : nodeWidgets){
+                    if(widget instanceof CompoundNodeWidget compoundWidget){
+                        MagiculeCircuit.CompoundNodeData existingCompound = findCompoundDataById(compoundWidget.getId());
+                        if(existingCompound != null){
+                            existingCompound.x = compoundWidget.getX();
+                            existingCompound.y = compoundWidget.getY();
+                            cNode.innerCompoundNodes.add(existingCompound);
+                        }
+                    }else if(widget instanceof DraggableNodeWidget dWidget){
+                        cNode.innerNodes.add(new MagiculeCircuit.NodeData(
+                                dWidget.getId(),
+                                dWidget.getType(),
+                                dWidget.getX(),
+                                dWidget.getY()));
+
+                        Object val = widget.getContentWidget() != null ? widget.getContentWidget().getCurrentValue() : null;
+                        if(val != null){
+                            cNode.innerNodeParameters.computeIfAbsent(widget.getId(), k -> new HashMap<>()).put("value", val);
+                        }
+                    }
+                }
+
+                for(MagiculeCircuit.WireData wire : this.workCircuit.getWires()){
+                    cNode.innerWires.add(wire);
+                }
+                break;
+            }
+
+        }
+    }
+
+    /*
+   =========== 内部データクラス ==========
+     */
+    public static class CircuitLayer {
+        public final MagiculeCircuit workCircuit;
+        public final String title;
+        public final UUID parentCompoundId;
+        public final MagiculeCircuit parentCircuit;
+
+        public CircuitLayer(MagiculeCircuit circuit, String title, UUID parentCompoundId, MagiculeCircuit parentCircuit) {
+            this.workCircuit = circuit;
+            this.title = title;
+            this.parentCompoundId = parentCompoundId;
+            this.parentCircuit = parentCircuit;
+        }
+    }
+
+    public enum EditorTab {
+        MAGIC("魔法"),
+        SKILL("スキル"),
+        ARTS("アーツ");
+
+        private final String displayName;
+
+        EditorTab(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return this.displayName;
+        }
+    }
+}

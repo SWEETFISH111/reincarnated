@@ -1,6 +1,8 @@
 package com.github.sweetfish111.reincarnated.circuit;
 
 import com.github.sweetfish111.reincarnated.client.screen.MagicEditorScreen;
+import com.github.sweetfish111.reincarnated.client.screen.ScreenLayerManager;
+import com.github.sweetfish111.reincarnated.client.screen.ScreenLayerManager.EditorTab;
 import net.minecraft.client.gui.layouts.EqualSpacingLayout;
 
 public enum MagiculeNodeType {
@@ -13,14 +15,14 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC},
             null,null,
                     12,
-            MagicEditorScreen.EditorTab.MAGIC
+            ScreenLayerManager.EditorTab.MAGIC
     ),
     EXPLOSION("explosion","爆発ノード",
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC},
             null,null,
             8,
-            MagicEditorScreen.EditorTab.MAGIC
+            ScreenLayerManager.EditorTab.MAGIC
     ),
     GET_LOOK_TARGET("get_look_target","見た相手",
             new PortDataType[]{},
@@ -36,7 +38,7 @@ public enum MagiculeNodeType {
             ContentWidgetType.MODE_SELECT,
             new PortDataType[]{PortDataType.VECTORE,PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
             5,
-            MagicEditorScreen.EditorTab.MAGIC
+            ScreenLayerManager.EditorTab.MAGIC
     ),
     GET_LOOK_FORWARD("get_look_forward", "視線の方向",
             new PortDataType[]{PortDataType.NUMBER},
@@ -44,7 +46,7 @@ public enum MagiculeNodeType {
             ContentWidgetType.SWITCH,
             null,
             5,
-            MagicEditorScreen.EditorTab.MAGIC
+            ScreenLayerManager.EditorTab.MAGIC
     ),
     NUMBER("number", "数字",
             new PortDataType[]{},
@@ -59,7 +61,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.VECTORE},
             null,null,
             5,
-            MagicEditorScreen.EditorTab.MAGIC
+            ScreenLayerManager.EditorTab.MAGIC
     ),
     COMBERS_LOOK_DIRECTION("combers_look_direction", "向き",
             new PortDataType[]{PortDataType.ENTITY},
@@ -70,7 +72,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC, PortDataType.EXEC},
             null, null,
             20,
-            MagicEditorScreen.EditorTab.MAGIC
+            ScreenLayerManager.EditorTab.MAGIC
     ),
     BOOLEAN("boolean", "真偽値",
             new PortDataType[]{},
@@ -85,7 +87,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER, PortDataType.EXEC},
             null,null,
             8,
-            MagicEditorScreen.EditorTab.MAGIC
+            ScreenLayerManager.EditorTab.MAGIC
     ),
     ADD("add", "足し算",
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
@@ -158,6 +160,14 @@ public enum MagiculeNodeType {
     ),
     COMPOUND("compound", "塊",
             new PortDataType[]{},
+            new PortDataType[]{}
+    ),
+    INPUT_PROXY("input_proxy", "入力",
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.ANY}
+    ),
+    OUTPUT_PROXY("output_proxy", "出力",
+            new PortDataType[]{PortDataType.ANY},
             new PortDataType[]{});
 
     private final String id;
@@ -167,7 +177,7 @@ public enum MagiculeNodeType {
     public PortDataType[] anotherInputs;
     public final PortDataType[] outputs;
     private int castCost;
-    private MagicEditorScreen.EditorTab targetTab;
+    private ScreenLayerManager.EditorTab targetTab;
 
     MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs){
         this.id = id;
@@ -176,10 +186,10 @@ public enum MagiculeNodeType {
         this.outputs = outputs;
         this.content = ContentWidgetType.NONE;
         this.castCost = 1;
-        this.targetTab = MagicEditorScreen.EditorTab.MAGIC;
+        this.targetTab = ScreenLayerManager.EditorTab.MAGIC;
     }
 
-    MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs, MagicEditorScreen.EditorTab targetTab){
+    MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs, ScreenLayerManager.EditorTab targetTab){
         this.id = id;
         this.displayName = displayName;
         this.inputs = inputs;
@@ -189,7 +199,7 @@ public enum MagiculeNodeType {
         this.targetTab = targetTab;
     }
 
-    MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs, ContentWidgetType content, PortDataType[] anotherInputs, int castCost, MagicEditorScreen.EditorTab targetTab){
+    MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs, ContentWidgetType content, PortDataType[] anotherInputs, int castCost, ScreenLayerManager.EditorTab targetTab){
         this(id, displayName, inputs, outputs);
         this.content = (content != null) ? content : ContentWidgetType.NONE;
         this.castCost = castCost;
@@ -217,7 +227,7 @@ public enum MagiculeNodeType {
 
     public int getCastCost(){return castCost;}
 
-    public boolean isAvailableFor(MagicEditorScreen.EditorTab currentTab){
+    public boolean isAvailableFor(ScreenLayerManager.EditorTab currentTab){
         return this.targetTab == null || this.targetTab == currentTab;
     }
 }

@@ -15,7 +15,7 @@ public class NodePaletteWidget {
     private double spawnCanvasX = 0;
     private double spawnCanvasY = 0;
 
-    private Set<DraggableNodeWidget> contextMenuTargets = new HashSet<>();
+    private Set<AbstructDraggingNodeWidget> contextMenuTargets = new HashSet<>();
     private static final int MENU_WIDTH = 100;
     private static final int ITEM_HEIGHT = 20;
     private int menuHeight;
@@ -38,7 +38,7 @@ public class NodePaletteWidget {
         this.scrollOffset = 0;
     }
 
-    public void openContextMenu(int sX, int sY, Set<DraggableNodeWidget> target){
+    public void openContextMenu(int sX, int sY, Set<AbstructDraggingNodeWidget> target){
         this.isOpen = true;
         this.menuHeight = calcMenuHeight(2);
         this.contextMenuTargets = target;
@@ -49,7 +49,7 @@ public class NodePaletteWidget {
 
     private List<MagiculeNodeType> getAvailableNodeTypes() {
         List<MagiculeNodeType> available = new ArrayList<>();
-        MagicEditorScreen.EditorTab currentTab = paretScreen.getCurrentTab();
+        ScreenLayerManager.EditorTab currentTab = paretScreen.getThisLayerManager().getCurrentTab();
 
         for (MagiculeNodeType type : MagiculeNodeType.values()){
             if(type.isAvailableFor(currentTab)){
@@ -64,14 +64,14 @@ public class NodePaletteWidget {
     public boolean isOpen(){
         return this.isOpen;
     }
-    public Set<DraggableNodeWidget> getContextMenuTargets(){return this.contextMenuTargets;}
+    public Set<AbstructDraggingNodeWidget> getContextMenuTargets(){return this.contextMenuTargets;}
 
-    public void setContextMenuTarget(Set<DraggableNodeWidget> nodes){this.contextMenuTargets = nodes;}
+    public void setContextMenuTarget(Set<AbstructDraggingNodeWidget> nodes){this.contextMenuTargets = nodes;}
 
     public void close(){
         this.isOpen = false;
-        for(DraggableNodeWidget active : contextMenuTargets){
-            active.setActive(false);
+        for(AbstructDraggingNodeWidget active : contextMenuTargets){
+            active.setFocused(false);
         }
         this.contextMenuTargets.clear();
     }
@@ -87,13 +87,13 @@ public class NodePaletteWidget {
                 if(mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= screenY && mouseY <= screenY + menuHeight){
                     int index = (int)((mouseY - screenY) / ITEM_HEIGHT + scrollOffset);
                     if(index == 0){
-                        for(DraggableNodeWidget node : contextMenuTargets){
+                        for(AbstructDraggingNodeWidget node : contextMenuTargets){
                             this.paretScreen.deleteNode(node);
                         }
                         close();
                         return true;
                     }else if(index == 1){
-                        for(DraggableNodeWidget node : contextMenuTargets){
+                        for(AbstructDraggingNodeWidget node : contextMenuTargets){
                             this.paretScreen.copyNode(node);
                         }
 
@@ -101,10 +101,10 @@ public class NodePaletteWidget {
                         return true;
                     }else if(index == 2){
                         List<UUID> collapseTarget = new ArrayList<>();
-                        for(DraggableNodeWidget nodeWidgt : contextMenuTargets){
-                            collapseTarget.add(nodeWidgt.getId());
+                        for(AbstructDraggingNodeWidget nodeWidget : contextMenuTargets){
+                            collapseTarget.add(nodeWidget.getId());
                         }
-                        this.paretScreen.getCircuit().collapseNodes(collapseTarget, "AA");
+                        this.paretScreen.getThisLayerManager().getWorkCircuit().collapseNodes(collapseTarget, "compound");
                         this.paretScreen.rebuildNodeWidgets();
                         close();
                         return true;

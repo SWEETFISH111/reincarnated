@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.circuit;
 
+import com.github.sweetfish111.reincarnated.client.screen.MagicEditorScreen;
 import com.github.sweetfish111.reincarnated.client.screen.NodePort;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
@@ -13,6 +14,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import org.w3c.dom.Node;
 
+import java.lang.management.ManagementFactory;
 import java.util.*;
 
 public class MagiculeCircuit {
@@ -20,6 +22,8 @@ public class MagiculeCircuit {
     private final List<CompoundNodeData> compoundNodes = new ArrayList<>();
     private final List<WireData> wires = new ArrayList<>();
     private final Map<UUID, Map<String, Object>> nodeParameters = new HashMap<>();
+
+    public MagiculeCircuit(){}
 
     public void addNode(NodeData node){
         this.nodes.add(node);
@@ -147,6 +151,7 @@ public class MagiculeCircuit {
 
     public void removeNodeAndWires(UUID nodeId){
         this.nodes.removeIf(node -> node.id.equals(nodeId));
+        this.compoundNodes.removeIf(node -> node.id.equals(nodeId));
         this.wires.removeIf(wire -> wire.sourceId.equals(nodeId) || wire.targetId.equals(nodeId));
         this.nodeParameters.remove(nodeId);
     }
@@ -193,18 +198,7 @@ public class MagiculeCircuit {
 
         ListTag compoundNodesTag = new ListTag();
         for(CompoundNodeData cNode : this.compoundNodes) {
-            CompoundTag cnTag = new CompoundTag();
-            cnTag.putString("Id", cNode.id.toString());
-            cnTag.putString("Name", cNode.customName);
-            cnTag.putInt("X", cNode.x);
-            cnTag.putInt("Y", cNode.y);
-
-            ListTag innerCompoundNodesTag = new ListTag();
-            for(CompoundNodeData innerCompound : cNode.innerCompoundNodes){
-                innerCompoundNodesTag.add(serializeCompoundNode(innerCompound));
-            }
-            cnTag.put("InnerCompoundNodes", innerCompoundNodesTag);
-            compoundNodesTag.add(cnTag);
+            compoundNodesTag.add(serializeCompoundNode(cNode));
         }
         tag.put("CompoundNodes", compoundNodesTag);
 
@@ -534,6 +528,34 @@ public class MagiculeCircuit {
             this.innerWires = innerWires;
             this.x = x;
             this.y = y;
+        }
+
+        public List<PortDataType> getInputPortTypes(){
+            List<PortDataType> types = new ArrayList<>();
+            for(NodeData node : innerNodes){
+                if(node.type == MagiculeNodeType.INPUT_PROXY){
+                    if(node.type.outputs.length > 0){
+                        types.add(node.type.outputs[0]);
+                    }else {
+                        types.add(PortDataType.ANY);
+                    }
+                }
+            }
+            return types;
+        }
+
+        public List<PortDataType> getOutputPortTypes(){
+            List<PortDataType> types = new ArrayList<>();
+            for(NodeData node : innerNodes){
+                if(node.type == MagiculeNodeType.OUTPUT_PROXY){
+                    if(node.type.inputs.length > 0){
+                        types.add(node.type.inputs[0]);
+                    }else {
+                        types.add(PortDataType.ANY);
+                    }
+                }
+            }
+            return types;
         }
     }
 

@@ -10,12 +10,12 @@ public class NodePort {
 
     private final PortDataType dataType;
 
-    private final DraggableNodeWidget parentNode;
+    private final AbstructDraggingNodeWidget parentNode;
     private final Type type;
     private final int index;
     private final int size = 6;
 
-    public NodePort(DraggableNodeWidget parentNode, Type type, int index, PortDataType dataType){
+    public NodePort(AbstructDraggingNodeWidget parentNode, Type type, int index, PortDataType dataType){
         this.parentNode = parentNode;
         this.type = type;
         this.index = index;
@@ -55,7 +55,7 @@ public class NodePort {
                 mouseY >= getY() && mouseY <= getY() + size;
     }
 
-    public void rightClicked(DraggableNodeWidget node, NodePort port){
-        parentNode.getParentScreen().getCircuit().removeWiresByPort(node.getId(), port.getType(), port.getIndex());
+    public void rightClicked(AbstructDraggingNodeWidget node, NodePort port){
+        parentNode.getParentScreen().getThisLayerManager().getWorkCircuit().removeWiresByPort(node.getId(), port.getType(), port.getIndex());
     }
 }

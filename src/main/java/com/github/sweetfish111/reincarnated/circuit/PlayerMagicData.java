@@ -1,6 +1,6 @@
 package com.github.sweetfish111.reincarnated.circuit;
 
-import com.github.sweetfish111.reincarnated.client.screen.MagicEditorScreen.EditorTab;
+import com.github.sweetfish111.reincarnated.client.screen.ScreenLayerManager.EditorTab;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.EnumMap;

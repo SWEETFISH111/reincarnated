@@ -1,47 +1,28 @@
 package com.github.sweetfish111.reincarnated.client.screen;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 import com.github.sweetfish111.reincarnated.circuit.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 
-public class DraggableNodeWidget extends AbstractWidget {
-    private final UUID id;
+import javax.sound.sampled.Port;
+
+public class DraggableNodeWidget extends AbstructDraggingNodeWidget {
     private final MagiculeNodeType type;
-    private final MagicEditorScreen parentScreen;
-
-    private boolean isDragging = false;
-    private boolean isActive = false;
-    private double dragOffsetX = 0;
-    private double dragOffsetY = 0;
-
-    private final List<NodePort> inputPorts = new ArrayList<>();
-    private final List<NodePort> outputPorts = new ArrayList<>();
-    private AbstractContentWidget contentWidget;
-
-    private NodePort draggingPort = null;
-    private int currentMouseX = 0;
-    private int currentMouseY = 0;
-
 
     //コンストラクタ
-    public DraggableNodeWidget(MagicEditorScreen screen,UUID id, MagiculeNodeType type, int x, int y, int width){
-        super(x, y, width, 0, Component.literal(type.displayName));
-        this.parentScreen = screen;
+    public DraggableNodeWidget(MagicEditorScreen parentScreen,UUID id, int x, int y, int width, MagiculeNodeType type){
+        super(parentScreen, id, x, y, width, 0, Component.literal(type.displayName));
         this.type = type;
-        this.id = id;
         boolean savedValue = false;
-        Object param = this.parentScreen.getCircuit().getNodeParam(this.id, "value", false);
+        Object param = this.parentScreen.getThisLayerManager().getWorkCircuit().getNodeParam(this.id, "value", false);
         if (param instanceof Boolean b) {
             savedValue = b;
         }
@@ -68,145 +49,27 @@ public class DraggableNodeWidget extends AbstractWidget {
                     break;
             }
         }
-        setupPorts();
+        setupPorts(Arrays.asList(this.type.inputs), Arrays.asList(this.type.outputs));
     }
 
     //ゲッター
-    public UUID getId(){return this.id;}
     public MagiculeNodeType getType(){return this.type;}
-    public List<NodePort> getInputPorts(){return this.inputPorts;}
-    public List<NodePort> getOutputPorts(){return this.outputPorts;}
-    public MagicEditorScreen getParentScreen(){return this.parentScreen;}
-    public AbstractContentWidget getContentWidget(){return contentWidget;}
-
-    //セッター
-    @Override
-    public void setX(int x) {
-        super.setX(x);
-        if(this.contentWidget != null){
-            this.contentWidget.setX(x);
-        }
-    }
-    @Override
-    public void setY(int y) {
-        super.setY(y);
-        if(this.contentWidget != null){
-            this.contentWidget.setY(y);
-        }
-    }
-
-    public boolean isModeActive() {
-        if (this.contentWidget instanceof SwitchContentWidget switchWidget) {
-            Object val = switchWidget.getCurrentValue();
-            if (val instanceof Boolean b) {
-                return b;
-            }
-        }
-        return false;
-    }
-
-    public void setupPorts(){
-        for(NodePort port : this.inputPorts){
-            if(port != null) port.rightClicked(this, port);
-        }
-        for(NodePort port : this.outputPorts){
-            if(port != null) port.rightClicked(this, port);
-        }
-        inputPorts.clear();
-        outputPorts.clear();
-
-        PortDataType[] targetInputs;
-        if (isModeActive()) {
-            targetInputs = (type.anotherInputs != null) ? type.anotherInputs : type.inputs;
-        } else {
-            targetInputs = type.inputs;
-        }
-        int maxPorts = Math.max(targetInputs.length, type.outputs.length);
-        this.height = 20 + (maxPorts * 15) + 5;
-
-        for(int i = 0; i < targetInputs.length; i++){
-            this.inputPorts.add(new NodePort(this, NodePort.Type.INPUT, i, targetInputs[i]));
-        }
-        for(int i = 0; i < type.outputs.length; i++){
-            this.outputPorts.add(new NodePort(this, NodePort.Type.OUTPUT, i, type.outputs[i]));
-        }
-    }
-
-    public void setDragging(boolean isDragging){
-        this.isDragging = isDragging;
-    }
-    public void setDragOffset(double canvasX, double canvasY){
-        this.dragOffsetX = canvasX - this.getX();
-        this.dragOffsetY = canvasY - this.getY();
-    }
-    public void setActive(boolean isActive){
-        this.isActive = isActive;
-    }
 
     @Override
-    protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
-        if(this.draggingPort != null){
-            drawMagiculeWire(guiGraphicsExtractor, this.draggingPort.getX() + 3, this.draggingPort.getY() + 3, this.currentMouseX, this.currentMouseY);
-        }
-
-        int bgColor = this.isHovered ? 0xFFAAAAAA : 0xFF444444;
-        bgColor = this.isActive ? 0xFFAAAAAA : bgColor;
-        guiGraphicsExtractor.fill(getX(), getY(), getX() + width, getY() + height, bgColor);
-        guiGraphicsExtractor.outline(getX(), getY(), width, height, 0xFFFFFFFF);
-
-        int textX = getX() + width / 2;
-        int textY = getY() + 6;
-        guiGraphicsExtractor.centeredText(Minecraft.getInstance().font, getMessage(), textX, textY, 0xFFFFFFFF);
-
-        for(NodePort port : this.inputPorts) {
-            if(port != null) port.render(guiGraphicsExtractor, mouseX, mouseY);
-        }
-        for(NodePort port : this.outputPorts) {
-            if(port != null) port.render(guiGraphicsExtractor, mouseX, mouseY);
-        }
-        if(this.contentWidget != null){
-            this.contentWidget.extractRenderState(guiGraphicsExtractor, mouseX, mouseY, partialTick);
-        }
-    }
-
-    private void drawMagiculeWire(GuiGraphicsExtractor guiGraphicsExtractor, int startX, int startY, int endX, int endY){
-        int dx = endX - startX;
-        int dy = endY - startY;
-
-        int steps = Math.max(Math.abs(dx), Math.abs(dy)) / 4;
-
-        if(steps == 0) return;
-
-        float xInc = (float) dx / steps;
-        float yInc = (float) dy / steps;
-        float x = startX;
-        float y = startY;
-
-        for(int i = 0; i <= steps; i++){
-            guiGraphicsExtractor.fill((int)x, (int)y, (int)x + 2, (int)y + 2, 0xFF00AAFF);
-            x += xInc;
-            y += yInc;
-        }
-    }
-
-    public boolean handleCanvasClick(MouseButtonEvent sourceEvent, double canvasX, double canvasY, int button){
-        if(portClicked((int)canvasX, (int) canvasY, button)){
-            return true;
-        }
+    public boolean handleCanvasClick(MouseButtonEvent sourceEvent, double canvasX, double canvasY){
         if(this.contentWidget != null){
             if(this.contentWidget.handleMouseClicked((int)canvasX, (int)canvasY, sourceEvent.button(), sourceEvent.modifiers())){
                 this.contentWidget.setFocused(true);
                 if(this.type.getContent() == ContentWidgetType.MODE_SELECT){
+                    SwitchContentWidget switchWidget = (SwitchContentWidget)contentWidget;
                     this.draggingPort = null;
-                    boolean currentState = isModeActive();
+                    boolean currentState = switchWidget.getCurrentValue();
 
-                    this.parentScreen.getCircuit().setNodeParam(this.getId(), "value", currentState);
+                    this.parentScreen.getThisLayerManager().getWorkCircuit().setNodeParam(this.getId(), "value", currentState);
 
-                    this.parentScreen.getCircuit().removeWiresByNode(this.getId());
-                    setupPorts();
-                    this.parentScreen.getCircuit().addNode(new MagiculeCircuit.NodeData(
-                            this.getId(), this.getType(), this.getX(), this.getY()
-                    ));
+                    this.parentScreen.getThisLayerManager().getWorkCircuit().removeWiresByNode(this.getId());
+                    List<PortDataType> targetPorts = (currentState) ? Arrays.asList(type.anotherInputs) : Arrays.asList(type.inputs);
+                    setupPorts(targetPorts, Arrays.asList(type.outputs));
                 }
 
                 return true;
@@ -215,95 +78,23 @@ public class DraggableNodeWidget extends AbstractWidget {
             }
         }
 
-        if(button == 0 && this.isMouseOver(canvasX, canvasY)){
-            this.isDragging = true;
-            this.dragOffsetX = canvasX - this.getX();
-            this.dragOffsetY = canvasY - this.getY();
-            return true;
-        }else if(button == 1 && this.isMouseOver(canvasX, canvasY)){
-            return true;
-        }
-
-        return false;
-    }
-
-    public boolean portClicked(int canvasX, int canvasY, int button){
-        for(NodePort port : this.inputPorts){
-            if(port.isMouseOver(canvasX, canvasY)){
-                if(button == 1){
-                    port.rightClicked(this, port);
-                    return true;
-                }else if(button == 0){
-                    this.draggingPort = port;
-
-                    this.currentMouseX = canvasX;
-                    this.currentMouseY = canvasY;
-                    return true;
-                }
-            }
-        }
-        for(NodePort port : this.outputPorts){
-            if(port.isMouseOver(canvasX, canvasY)){
-                if(button == 1){
-                    port.rightClicked(this, port);
-                    return true;
-                }else if(button == 0){
-                    this.draggingPort = port;
-                    this.currentMouseX = (int)canvasX;
-                    this.currentMouseY = (int)canvasY;
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean handleCanvasDragged(double canvasX, double canvasY, double dx, double dy) {
-        if(this.draggingPort != null){
-            this.currentMouseX = (int) canvasX;
-            this.currentMouseY = (int) canvasY;
-            return true;
-        }
-
-        if(this.isDragging){
-            this.setX((int)(canvasX - this.dragOffsetX));
-            this.setY((int)(canvasY - this.dragOffsetY));
-            if(contentWidget != null){
-                contentWidget.setX(this.getX() + 10);
-                contentWidget.setY(this.getY() + 24);
-            }
-            return true;
-        }
-        return false;
-    }
-
-    public boolean handleCanvasReleased(double canvasX, double casnvasY, int button) {
-        this.isDragging = false;
-
-        if(this.draggingPort != null){
-            this.parentScreen.onWireDropped(this, this.draggingPort, canvasX, casnvasY);
-            this.draggingPort = null;
-            return true;
-        }
-        return false;
+        return super.handleCanvasClick(sourceEvent, canvasX, canvasY);
     }
 
     @Override
-    public boolean keyPressed(KeyEvent event) {
-        if (this.contentWidget != null && this.contentWidget.isFocused()) {
-            return this.contentWidget.keyPressed(event);
+    protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphicsExtractor, int mouseX, int mouseY, float partianTick) {
+        super.extractWidgetRenderState(guiGraphicsExtractor, mouseX, mouseY, partianTick);
+        Object currentValue = this.parentScreen.getThisLayerManager().getWorkCircuit().getNodeParam(this.getId(), "value", false);
+        boolean currentState = false;
+        if(currentValue instanceof Boolean b){
+            currentState = b.booleanValue();
         }
-        return super.keyPressed(event);
+        List<PortDataType> targetPorts = (currentState) ? Arrays.asList(type.anotherInputs) : Arrays.asList(type.inputs);
+        setupPorts(targetPorts, Arrays.asList(type.outputs));
     }
 
     @Override
-    public boolean charTyped(CharacterEvent event) {
-        if (this.contentWidget != null && this.contentWidget.isFocused()) {
-            return this.contentWidget.charTyped(event);
-        }
-        return super.charTyped(event);
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+        //todo nanikore
     }
-
-    @Override
-    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {}
 }

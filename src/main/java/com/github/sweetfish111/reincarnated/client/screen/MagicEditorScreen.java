@@ -3,8 +3,10 @@ package com.github.sweetfish111.reincarnated.client.screen;
 import com.github.sweetfish111.reincarnated.circuit.*;
 import com.github.sweetfish111.reincarnated.network.payload.SaveCircuitPayload;
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.BackupConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
@@ -20,6 +22,10 @@ import java.util.*;
 public class MagicEditorScreen extends Screen {
     private ScreenLayerManager thisLayerManager = new ScreenLayerManager();
     private final List<AbstructDraggingNodeWidget> nodeWidgets = new ArrayList<>();
+
+    private EditBox popupBox;
+    private boolean isNamingCompound;
+    private final List<UUID> collapseTargets = new ArrayList<>();
 
     private final WorkspaceCamera camera = new WorkspaceCamera();
     private final NodePaletteWidget palette = new NodePaletteWidget(this);
@@ -38,6 +44,10 @@ public class MagicEditorScreen extends Screen {
     }
 
     public ScreenLayerManager getThisLayerManager(){return this.thisLayerManager;}
+    public void setCollapseTargets(List<UUID> collapseTargets){
+        this.collapseTargets.clear();
+        this.collapseTargets.addAll(collapseTargets);
+    }
 
     //初期化
     @Override
@@ -109,7 +119,8 @@ public class MagicEditorScreen extends Screen {
                     compoundNodeData.id,
                     compoundNodeData.x,
                     compoundNodeData.y,
-                    80
+                    80,
+                    compoundNodeData.customName
             );
             this.nodeWidgets.add(compoundWidget);
             this.addRenderableWidget(compoundWidget);
@@ -177,6 +188,10 @@ public class MagicEditorScreen extends Screen {
             thisLayerManager.getBackBtn().extractRenderState(guiGraphicsExtractor, (int) canvasMouseX, (int) canvasMouseY, partialTick);
         }
         this.palette.render(guiGraphicsExtractor, mouseX, mouseY);
+
+        if(this.isNamingCompound && this.popupBox != null){
+            this.popupBox.extractRenderState(guiGraphicsExtractor, mouseX, mouseY, partialTick);
+        }
     }
 
     @Override
@@ -187,6 +202,11 @@ public class MagicEditorScreen extends Screen {
         //ズーム適応座標
         double canvasX = this.camera.getCanvasX(event.x());
         double canvasY = this.camera.getCanvasY(event.y());
+
+        if(this.isNamingCompound && this.popupBox != null){
+            this.popupBox.onClick(event, doubleClick);
+            return true;
+        }
 
         //タブボタンのクリック判定
         for(Button btn : thisLayerManager.getTabBtns()){
@@ -297,10 +317,6 @@ public class MagicEditorScreen extends Screen {
         LOGGER.info("hitotu ue no kaisou ni modorimasita");
     }
 
-    private void saveCurrentInnerCircuit(ScreenLayerManager.CircuitLayer currentLayer){
-        thisLayerManager.saveCurrentInnerCircuit(currentLayer, this.nodeWidgets);
-    }
-
     public void copyNode(AbstructDraggingNodeWidget node){
         if(node instanceof DraggableNodeWidget dNode){
             if(dNode.getContentWidget() != null){
@@ -383,6 +399,27 @@ public class MagicEditorScreen extends Screen {
                 return true;
             }
         }
+        if(this.isNamingCompound && this.popupBox != null){
+            if(this.popupBox.keyPressed(event)){
+                return true;
+            }
+            if(event.key() == 257 || event.key() == 335){
+                String customName = this.popupBox.getValue();
+                this.removeWidget(this.popupBox);
+                this.popupBox = null;
+                this.isNamingCompound = false;
+                this.thisLayerManager.getWorkCircuit().collapseNodes(collapseTargets, customName);
+
+                return true;
+            }
+
+            if(event.key() == 256){
+                this.removeWidget(this.popupBox);
+                this.popupBox = null;
+                this.isNamingCompound = false;
+                return true;
+            }
+        }
         return super.keyPressed(event);
     }
 
@@ -390,6 +427,11 @@ public class MagicEditorScreen extends Screen {
     public boolean charTyped(@NonNull CharacterEvent event) {
         for (AbstructDraggingNodeWidget node : this.nodeWidgets) {
             if (node.getContentWidget() != null && node.charTyped(event)) {
+                return true;
+            }
+        }
+        if(this.isNamingCompound && this.popupBox != null){
+            if(this.popupBox.charTyped(event)){
                 return true;
             }
         }
@@ -449,5 +491,22 @@ public class MagicEditorScreen extends Screen {
             x += xInc;
             y += yInc;
         }
+    }
+
+    public void openCompoundNamingPopup(){
+        this.isNamingCompound = true;
+        this.popupBox = new EditBox(
+                Minecraft.getInstance().font,
+                this.width / 2 - 60, this.height / 2 - 10,
+                120, 20,
+                Component.literal("カスタムネーム入力")
+        );
+        this.popupBox.setMaxLength(15);
+        this.popupBox.setValue("MyCustomMagic");
+
+        this.setFocused(this.popupBox);
+        this.popupBox.setFocused(true);
+
+        this.addRenderableWidget(this.popupBox);
     }
 }

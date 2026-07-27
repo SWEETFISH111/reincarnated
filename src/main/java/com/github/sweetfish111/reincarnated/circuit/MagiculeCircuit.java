@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.circuit;
 
+import com.github.sweetfish111.reincarnated.client.screen.CompoundNodeWidget;
 import com.github.sweetfish111.reincarnated.client.screen.MagicEditorScreen;
 import com.github.sweetfish111.reincarnated.client.screen.NodePort;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
@@ -40,12 +41,20 @@ public class MagiculeCircuit {
     }
 
     // セッター
+    public void setNodes(List<NodeData> nodes){
+        this.nodes.clear();
+        this.nodes.addAll(nodes);
+    }
     public void setNodeParam(UUID nodeId, String key, Object value){
         nodeParameters.computeIfAbsent(nodeId, k -> new HashMap<>()).put(key, value);
     }
     public void setCompoundNodes(List<CompoundNodeData> nodes){
         this.compoundNodes.clear();
         this.compoundNodes.addAll(nodes);
+    }
+    public void setWires(List<WireData> wires){
+        this.wires.clear();
+        this.wires.addAll(wires);
     }
 
     // ゲッター
@@ -55,6 +64,15 @@ public class MagiculeCircuit {
         if(nodeId == null) return null;
         for (NodeData node : this.nodes){
             if(node.id.equals(nodeId)){
+                return node;
+            }
+        }
+        return null;
+    }
+    public CompoundNodeData getCNode(UUID cNodeId){
+        if(cNodeId == null) return null;
+        for (CompoundNodeData node : this.compoundNodes){
+            if(node.id.equals(cNodeId)){
                 return node;
             }
         }

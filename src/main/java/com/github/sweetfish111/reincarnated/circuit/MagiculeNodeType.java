@@ -3,7 +3,11 @@ package com.github.sweetfish111.reincarnated.circuit;
 import com.github.sweetfish111.reincarnated.client.screen.MagicEditorScreen;
 import com.github.sweetfish111.reincarnated.client.screen.ScreenLayerManager;
 import com.github.sweetfish111.reincarnated.client.screen.ScreenLayerManager.EditorTab;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.layouts.EqualSpacingLayout;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public enum MagiculeNodeType {
     EVENT_KEY_ONE("event_key_1", "実行キー１",
@@ -14,15 +18,13 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE},
             new PortDataType[]{PortDataType.EXEC},
             null,null,
-                    12,
-            ScreenLayerManager.EditorTab.MAGIC
+                    12
     ),
     EXPLOSION("explosion","爆発ノード",
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC},
             null,null,
-            8,
-            ScreenLayerManager.EditorTab.MAGIC
+            8
     ),
     GET_LOOK_TARGET("get_look_target","見た相手",
             new PortDataType[]{},
@@ -37,16 +39,14 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.VECTORE},
             ContentWidgetType.MODE_SELECT,
             new PortDataType[]{PortDataType.VECTORE,PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
-            5,
-            ScreenLayerManager.EditorTab.MAGIC
+            5
     ),
     GET_LOOK_FORWARD("get_look_forward", "視線の方向",
             new PortDataType[]{PortDataType.NUMBER},
             new PortDataType[]{PortDataType.VECTORE},
             ContentWidgetType.SWITCH,
             null,
-            5,
-            ScreenLayerManager.EditorTab.MAGIC
+            5
     ),
     NUMBER("number", "数字",
             new PortDataType[]{},
@@ -54,14 +54,13 @@ public enum MagiculeNodeType {
             ContentWidgetType.NUMBER_INPUT,
             null,
             1,
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     COMBERS_TARGET_POS("combers_target_pos", "座標変換",
             new PortDataType[]{PortDataType.ENTITY},
             new PortDataType[]{PortDataType.VECTORE},
             null,null,
-            5,
-            ScreenLayerManager.EditorTab.MAGIC
+            5
     ),
     COMBERS_LOOK_DIRECTION("combers_look_direction", "向き",
             new PortDataType[]{PortDataType.ENTITY},
@@ -71,8 +70,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC,PortDataType.BOOLEAN},
             new PortDataType[]{PortDataType.EXEC, PortDataType.EXEC},
             null, null,
-            20,
-            ScreenLayerManager.EditorTab.MAGIC
+            20
     ),
     BOOLEAN("boolean", "真偽値",
             new PortDataType[]{},
@@ -80,79 +78,78 @@ public enum MagiculeNodeType {
             ContentWidgetType.SWITCH,
             null,
             1,
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     REPEAT("repeat", "繰り返し",
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER, PortDataType.EXEC},
             null,null,
-            8,
-            ScreenLayerManager.EditorTab.MAGIC
+            8
     ),
     ADD("add", "足し算",
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
             new PortDataType[]{PortDataType.ANY},
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     SUBTACT("subtract", "引き算",
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
             new PortDataType[]{PortDataType.ANY},
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     MULTIPLY("multiply", "掛け算",
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
             new PortDataType[]{PortDataType.ANY},
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     DIVIDE("divide", "割り算",
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
             new PortDataType[]{PortDataType.ANY},
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     MODULO("modulo", "剰余",
             new PortDataType[]{PortDataType.NUMBER, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.NUMBER},
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     EQUAL("equal", "等しい",
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
             new PortDataType[]{PortDataType.BOOLEAN},
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     NOT("not", "否定",
             new PortDataType[]{PortDataType.BOOLEAN},
             new PortDataType[]{PortDataType.BOOLEAN},
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     OR("or", "または",
             new PortDataType[]{PortDataType.BOOLEAN, PortDataType.BOOLEAN},
             new PortDataType[]{PortDataType.BOOLEAN},
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     AND("and", "かつ",
             new PortDataType[]{PortDataType.BOOLEAN, PortDataType.BOOLEAN},
             new PortDataType[]{PortDataType.BOOLEAN},
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     GREATER_THAN("greater_than", "より大きい",
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
             new PortDataType[]{PortDataType.BOOLEAN},
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     GRATER_OR_EQUAL("greater_or_equal", "以上",
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
             new PortDataType[]{PortDataType.BOOLEAN},
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     LESS_THAN("less_than", "より小さい",
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
             new PortDataType[]{PortDataType.BOOLEAN},
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     LESS_OR_EQUAL("less_or_equal", "以下",
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
             new PortDataType[]{PortDataType.BOOLEAN},
-            null
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     SHOOT_PROJECTILE("shoot_projectile", "発射",
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER},
@@ -164,11 +161,20 @@ public enum MagiculeNodeType {
     ),
     INPUT_PROXY("input_proxy", "入力",
             new PortDataType[]{},
-            new PortDataType[]{PortDataType.ANY}
+            new PortDataType[]{PortDataType.ANY},
+            ContentWidgetType.NUMBER_INPUT,
+            null,
+            0,
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     OUTPUT_PROXY("output_proxy", "出力",
             new PortDataType[]{PortDataType.ANY},
-            new PortDataType[]{});
+            new PortDataType[]{},
+            ContentWidgetType.NUMBER_INPUT,
+            null,
+            0,
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
+    );
 
     private final String id;
     public final String displayName;
@@ -177,7 +183,7 @@ public enum MagiculeNodeType {
     public PortDataType[] anotherInputs;
     public final PortDataType[] outputs;
     private int castCost;
-    private ScreenLayerManager.EditorTab targetTab;
+    private List<EditorTab> targetTab = new ArrayList<>();
 
     MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs){
         this.id = id;
@@ -186,10 +192,10 @@ public enum MagiculeNodeType {
         this.outputs = outputs;
         this.content = ContentWidgetType.NONE;
         this.castCost = 1;
-        this.targetTab = ScreenLayerManager.EditorTab.MAGIC;
+        this.targetTab.add(EditorTab.MAGIC);
     }
 
-    MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs, ScreenLayerManager.EditorTab targetTab){
+    MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs, List<EditorTab> targetTab){
         this.id = id;
         this.displayName = displayName;
         this.inputs = inputs;
@@ -199,7 +205,15 @@ public enum MagiculeNodeType {
         this.targetTab = targetTab;
     }
 
-    MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs, ContentWidgetType content, PortDataType[] anotherInputs, int castCost, ScreenLayerManager.EditorTab targetTab){
+    MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs, ContentWidgetType content, PortDataType[] anotherInputs, int castCost){
+        this(id, displayName, inputs, outputs);
+        this.content = (content != null) ? content : ContentWidgetType.NONE;
+        this.castCost = castCost;
+        this.anotherInputs = anotherInputs;
+        this.targetTab.add(EditorTab.MAGIC);
+    }
+
+    MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs, ContentWidgetType content, PortDataType[] anotherInputs, int castCost, List<EditorTab> targetTab){
         this(id, displayName, inputs, outputs);
         this.content = (content != null) ? content : ContentWidgetType.NONE;
         this.castCost = castCost;
@@ -228,6 +242,6 @@ public enum MagiculeNodeType {
     public int getCastCost(){return castCost;}
 
     public boolean isAvailableFor(ScreenLayerManager.EditorTab currentTab){
-        return this.targetTab == null || this.targetTab == currentTab;
+        return this.targetTab.contains(currentTab);
     }
 }

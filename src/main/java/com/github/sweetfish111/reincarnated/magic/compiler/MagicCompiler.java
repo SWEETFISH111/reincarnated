@@ -1,6 +1,7 @@
 package com.github.sweetfish111.reincarnated.magic.compiler;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
+import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookForwardNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookTargetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.ReturnCaster;
@@ -18,28 +19,89 @@ import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.BooleanNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.NumberNode;
 import net.minecraft.server.level.ServerPlayer;
+import org.jspecify.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class MagicCompiler {
-    public static void compileAndExecute(MagiculeCircuit circuit, ServerPlayer caster, String triggerType){
-        Map<UUID, MagicNode> instancedNodes = new HashMap<>();
+    private static void compileNodes(MagiculeCircuit circuit, Map<UUID, MagicNode> instancedNodes){
         for (MagiculeCircuit.NodeData data : circuit.getNodes()){
             MagicNode actualNode = createNodeInstance(data.type.getId(), data.id);
             if(actualNode != null){
                 instancedNodes.put(data.id, actualNode);
             }
         }
+    }
 
-        for (MagiculeCircuit.WireData wire : circuit.getWires()){
+    private static void compileCompoundNodes(MagiculeCircuit circuit, Map<UUID, MagicNode> instancedNodes, List<MagiculeCircuit.WireData> allWires){
+        for(MagiculeCircuit.CompoundNodeData data : circuit.getCompoundNodes()){
+            MagiculeCircuit innerCircuit = new MagiculeCircuit();
+
+            innerCircuit.setNodes(data.innerNodes);
+            compileNodes(innerCircuit, instancedNodes);
+
+            innerCircuit.setCompoundNodes(data.innerCompoundNodes);
+            compileCompoundNodes(innerCircuit, instancedNodes, allWires);
+
+            allWires.addAll(data.innerWires);
+        }
+    }
+
+    private static List<MagiculeCircuit.NodeData> getInnerProxys(MagiculeCircuit.CompoundNodeData target, MagiculeNodeType proxyType){
+        if(proxyType != MagiculeNodeType.INPUT_PROXY && proxyType != MagiculeNodeType.OUTPUT_PROXY){return null;}
+
+        List<MagiculeCircuit.NodeData> result = new ArrayList<>();
+        for(MagiculeCircuit.NodeData node : target.innerNodes){
+            if(node.type == proxyType){
+                if(target.innerNodeParameters.get(node.id).get("value") instanceof Double d)
+               result.add(d.intValue(), node);
+            }
+        }
+        return result;
+    }
+
+    private static void compileWires(MagiculeCircuit circuit, Map<UUID, MagicNode> instancedNodes, List<MagiculeCircuit.WireData> allWires){
+        for (MagiculeCircuit.WireData wire : allWires){
             MagicNode sourceNode = instancedNodes.get(wire.sourceId);
             MagicNode targetNode = instancedNodes.get(wire.targetId);
+
+            MagiculeCircuit.CompoundNodeData sourceCNode = circuit.getCNode(wire.sourceId);
+            MagiculeCircuit.CompoundNodeData targetCNode = circuit.getCNode(wire.targetId);
+
+            int sourcePortIndex = wire.sourcePortIndex;
+            int targetPortIndex = wire.targetPortIndex;
+
+            if(targetCNode != null){
+                List<MagiculeCircuit.NodeData> inputProxys = getInnerProxys(targetCNode, MagiculeNodeType.INPUT_PROXY);
+                for(MagiculeCircuit.WireData innerWire : targetCNode.innerWires){
+                    if(innerWire.sourceId.equals(inputProxys.get(targetPortIndex).id)){
+                        targetNode = instancedNodes.get(innerWire.targetId);
+                        targetPortIndex = innerWire.targetPortIndex;
+                    }
+                }
+            }
+            if(sourceCNode != null){
+                List<MagiculeCircuit.NodeData> outputProxys = getInnerProxys(sourceCNode, MagiculeNodeType.OUTPUT_PROXY);
+                for(MagiculeCircuit.WireData innerWire : targetCNode.innerWires){
+                    if(innerWire.targetId.equals(outputProxys.get(sourcePortIndex).id)){
+                        sourceNode = instancedNodes.get(innerWire.targetId);
+                        sourcePortIndex = innerWire.sourcePortIndex;
+                    }
+                }
+            }
             if(sourceNode != null && targetNode != null){
                 sourceNode.connectTo(wire.sourcePortIndex, targetNode, wire.targetPortIndex, wire.isDataFlow);
             }
         }
+    }
+
+    public static void compileAndExecute(MagiculeCircuit circuit, ServerPlayer caster, String triggerType){
+        Map<UUID, MagicNode> instancedNodes = new HashMap<>();
+        List<MagiculeCircuit.WireData> allWires = new ArrayList<>();
+        allWires.addAll(circuit.getWires());
+        compileNodes(circuit, instancedNodes);
+        compileCompoundNodes(circuit, instancedNodes, allWires);
+        compileWires(circuit, instancedNodes, allWires);
 
         MagicContext context = new MagicContext(caster, circuit);
 

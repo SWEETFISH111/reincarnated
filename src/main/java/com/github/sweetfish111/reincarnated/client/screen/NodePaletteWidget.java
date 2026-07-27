@@ -3,6 +3,8 @@ package com.github.sweetfish111.reincarnated.client.screen;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
 
 import java.util.*;
 
@@ -100,12 +102,12 @@ public class NodePaletteWidget {
                         close();
                         return true;
                     }else if(index == 2){
-                        List<UUID> collapseTarget = new ArrayList<>();
-                        for(AbstructDraggingNodeWidget nodeWidget : contextMenuTargets){
-                            collapseTarget.add(nodeWidget.getId());
+                        this.paretScreen.openCompoundNamingPopup();
+                        List<UUID> targetNodes = new ArrayList<>();
+                        for(AbstructDraggingNodeWidget node : this.contextMenuTargets){
+                            targetNodes.add(node.getId());
                         }
-                        this.paretScreen.getThisLayerManager().getWorkCircuit().collapseNodes(collapseTarget, "compound");
-                        this.paretScreen.rebuildNodeWidgets();
+                        this.paretScreen.setCollapseTargets(targetNodes);
                         close();
                         return true;
                     }

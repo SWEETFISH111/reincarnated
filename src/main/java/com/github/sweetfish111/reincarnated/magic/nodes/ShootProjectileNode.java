@@ -13,8 +13,10 @@ public class ShootProjectileNode extends AbstractMagicNode{
     public void execute(MagicContext context) {
         Vec3 spawnPos = pullVector3(1, context);
         Vec3 direction = pullVector3(2, context);
-        double size = pullDouble(3, context);
-        double speed = pullDouble(4, context);
+        double speed = pullDouble(3, context) / 10;
+        double size = pullDouble(4, context);
+        size = (size != 0) ? 1 : size;
+
 
         if (spawnPos == null || direction == null) {
             System.out.println("❌ ShootProjectileNode: zahyou ka muki ga null");

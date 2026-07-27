@@ -71,12 +71,15 @@ public class ScreenLayerManager {
         for(AbstructDraggingNodeWidget widget : nodeWidgets){
 
             if(widget instanceof CompoundNodeWidget compoundWidget){
-                MagiculeCircuit.CompoundNodeData existingData = findCompoundDataById(compoundWidget.getId());
-                if(existingData != null){
-                    existingData.x = compoundWidget.getX();
-                    existingData.y = compoundWidget.getY();
-                    updatedCompounds.add(existingData);
+                if(compoundWidget != null){
+                    MagiculeCircuit.CompoundNodeData existingData = findCompoundDataById(compoundWidget.getId());
+                    if(existingData != null){
+                        existingData.x = compoundWidget.getX();
+                        existingData.y = compoundWidget.getY();
+                        updatedCompounds.add(existingData);
+                    }
                 }
+
             }else if(widget instanceof DraggableNodeWidget draggableNodeWidget){
                 this.workCircuit.addNode(new MagiculeCircuit.NodeData(
                         draggableNodeWidget.getId(),
@@ -90,6 +93,7 @@ public class ScreenLayerManager {
                 }
             }
         }
+
         this.workCircuit.setCompoundNodes(updatedCompounds);
         this.magicData.setCircuits(this.currentTab, this.workCircuit);
     }

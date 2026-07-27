@@ -81,17 +81,7 @@ public class DraggableNodeWidget extends AbstructDraggingNodeWidget {
         return super.handleCanvasClick(sourceEvent, canvasX, canvasY);
     }
 
-    @Override
-    protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphicsExtractor, int mouseX, int mouseY, float partianTick) {
-        super.extractWidgetRenderState(guiGraphicsExtractor, mouseX, mouseY, partianTick);
-        Object currentValue = this.parentScreen.getThisLayerManager().getWorkCircuit().getNodeParam(this.getId(), "value", false);
-        boolean currentState = false;
-        if(currentValue instanceof Boolean b){
-            currentState = b.booleanValue();
-        }
-        List<PortDataType> targetPorts = (currentState) ? Arrays.asList(type.anotherInputs) : Arrays.asList(type.inputs);
-        setupPorts(targetPorts, Arrays.asList(type.outputs));
-    }
+
 
     @Override
     protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {

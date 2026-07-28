@@ -97,6 +97,7 @@ public class MagicEditorScreen extends Screen {
     }
 
     public void rebuildNodeWidgets(){
+        System.out.println("MagicEditorScreen_rebuild_start : " + thisLayerManager.getWorkCircuit());
         clearCanvasWidgets();
         for(MagiculeCircuit.NodeData nodeData : thisLayerManager.getWorkCircuit().getNodes()){
             AbstructDraggingNodeWidget nodeWidget = new DraggableNodeWidget(
@@ -125,6 +126,7 @@ public class MagicEditorScreen extends Screen {
             this.nodeWidgets.add(compoundWidget);
             this.addRenderableWidget(compoundWidget);
         }
+        System.out.println("MagicEditorScreen_rebuild_End" + thisLayerManager.getWorkCircuit());
     }
 
     //ポートにつながって存在が確定したワイヤーを記録する
@@ -139,7 +141,7 @@ public class MagicEditorScreen extends Screen {
                             LOGGER.info("ポートの型が違うため接続できません");
                             return;
                         }
-                        thisLayerManager.getWorkCircuit().addWire(sourceNode.getId(), sourcePort.getIndex(), targetNode.getId(),targetPort.getIndex(), sourcePort.getDataType() != PortDataType.EXEC);
+                        thisLayerManager.getWorkCircuit().addWire(sourceNode.getId(), sourcePort.getIndex(), targetNode.getId(),targetPort.getIndex(), sourcePort.getDataType() != PortDataType.EXEC && targetPort.getDataType() != PortDataType.EXEC);
 
                         return;
                     }
@@ -312,7 +314,7 @@ public class MagicEditorScreen extends Screen {
     }
 
     public void goBackLayer(){
-        thisLayerManager.goBackLayer(this.nodeWidgets);
+        this.thisLayerManager.goBackLayer(this.nodeWidgets);
         rebuildNodeWidgets();
         LOGGER.info("hitotu ue no kaisou ni modorimasita");
     }
@@ -409,7 +411,7 @@ public class MagicEditorScreen extends Screen {
                 this.popupBox = null;
                 this.isNamingCompound = false;
                 this.thisLayerManager.getWorkCircuit().collapseNodes(collapseTargets, customName);
-
+                this.rebuildNodeWidgets();
                 return true;
             }
 

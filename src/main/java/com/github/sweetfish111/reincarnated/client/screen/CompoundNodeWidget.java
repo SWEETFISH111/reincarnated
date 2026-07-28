@@ -31,7 +31,7 @@ public class CompoundNodeWidget extends AbstructDraggingNodeWidget {
 
         List<PortDataType> existInputs = new ArrayList<>();
         List<PortDataType> existOutputs = new ArrayList<>();
-        for(MagiculeCircuit.NodeData node : nodeData.innerNodes){
+        for(MagiculeCircuit.NodeData node : nodeData.getCompoundCircuit().getNodes()){
             if(node.type == MagiculeNodeType.INPUT_PROXY){
                 innerInputProxys.add(node);
                 existInputs.add(PortDataType.ANY);
@@ -47,7 +47,7 @@ public class CompoundNodeWidget extends AbstructDraggingNodeWidget {
     public MagiculeCircuit.CompoundNodeData getLinkedData(){
         return this.nodeData;
     }
-
+    public String getCustomName(){return this.customName;}
 
 
     @Override
@@ -56,8 +56,8 @@ public class CompoundNodeWidget extends AbstructDraggingNodeWidget {
 
         // ここで通常のノードとは違う「四角い箱型」の見た目を描画する！
         int bgColor = this.isHovered ? 0xFF334466 : 0xFF222233;
-        guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + 40, bgColor); // 箱の高さやデザインを自由にカスタム
-        guiGraphics.outline(this.getX(), this.getY(), this.width, 40, 0xFF66AACC);
+        guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + height, bgColor); // 箱の高さやデザインを自由にカスタム
+        guiGraphics.outline(this.getX(), this.getY(), this.width, height, 0xFF66AACC);
 
         // タイトル文字の描画
         guiGraphics.centeredText(Minecraft.getInstance().font, this.customName, this.getX() + (this.width / 2), this.getY() + 16, 0xFFFFFF55);

@@ -111,13 +111,13 @@ public class ScreenLayerManager {
             saveCurrentTabCircuit(nodeWidgets);
 
             MagiculeCircuit innerCircuit = new MagiculeCircuit();
-            for(MagiculeCircuit.NodeData nodeData : compoundData.innerNodes){
+            for(MagiculeCircuit.NodeData nodeData : compoundData.getCompoundCircuit().getNodes()){
                 innerCircuit.addNode(nodeData);
             }
-            for (MagiculeCircuit.CompoundNodeData innerCompound : compoundData.innerCompoundNodes){
+            for (MagiculeCircuit.CompoundNodeData innerCompound : compoundData.getCompoundCircuit().getCompoundNodes()){
                 innerCircuit.getCompoundNodes().add(innerCompound);
             }
-            for(MagiculeCircuit.WireData wireData : compoundData.innerWires){
+            for(MagiculeCircuit.WireData wireData : compoundData.getCompoundCircuit().getWires()){
                 innerCircuit.addWire(wireData.sourceId, wireData.sourcePortIndex, wireData.targetId, wireData.targetPortIndex, wireData.isDataFlow);
             }
 
@@ -148,9 +148,9 @@ public class ScreenLayerManager {
 
         for(MagiculeCircuit.CompoundNodeData cNode : currentLayer.parentCircuit.getCompoundNodes()){
             if(cNode.id.equals(currentLayer.parentCompoundId)){
-                cNode.innerNodes.clear();
-                cNode.innerCompoundNodes.clear();
-                cNode.innerWires.clear();
+                cNode.getCompoundCircuit().getNodes().clear();
+                cNode.getCompoundCircuit().getCompoundNodes().clear();
+                cNode.getCompoundCircuit().getWires().clear();
                 cNode.innerNodeParameters.clear();
 
                 for(AbstructDraggingNodeWidget widget : nodeWidgets){
@@ -159,10 +159,10 @@ public class ScreenLayerManager {
                         if(existingCompound != null){
                             existingCompound.x = compoundWidget.getX();
                             existingCompound.y = compoundWidget.getY();
-                            cNode.innerCompoundNodes.add(existingCompound);
+                            cNode.getCompoundCircuit().getCompoundNodes().add(existingCompound);
                         }
                     }else if(widget instanceof DraggableNodeWidget dWidget){
-                        cNode.innerNodes.add(new MagiculeCircuit.NodeData(
+                        cNode.getCompoundCircuit().getNodes().add(new MagiculeCircuit.NodeData(
                                 dWidget.getId(),
                                 dWidget.getType(),
                                 dWidget.getX(),
@@ -176,9 +176,9 @@ public class ScreenLayerManager {
                 }
 
                 for(MagiculeCircuit.WireData wire : this.workCircuit.getWires()){
-                    cNode.innerWires.add(wire);
+                    cNode.getCompoundCircuit().getWires().add(wire);
                 }
-                break;
+
             }
 
         }

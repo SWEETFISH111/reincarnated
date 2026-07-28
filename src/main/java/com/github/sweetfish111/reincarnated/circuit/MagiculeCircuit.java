@@ -22,7 +22,7 @@ public class MagiculeCircuit {
     private final List<NodeData> nodes = new ArrayList<>();
     private final List<CompoundNodeData> compoundNodes = new ArrayList<>();
     private final List<WireData> wires = new ArrayList<>();
-    private final Map<UUID, Map<String, Object>> nodeParameters = new HashMap<>();
+    private Map<UUID, Map<String, Object>> nodeParameters = new HashMap<>();
 
     public MagiculeCircuit(){}
 
@@ -56,6 +56,7 @@ public class MagiculeCircuit {
         this.wires.clear();
         this.wires.addAll(wires);
     }
+    public void setNodeParameters(Map<UUID, Map<String, Object>> nodeParameters){this.nodeParameters = nodeParameters;}
 
     // ゲッター
     public List<NodeData> getNodes(){ return this.nodes; }
@@ -78,15 +79,32 @@ public class MagiculeCircuit {
         }
         return null;
     }
-
-
     public Object getNodeParam(UUID nodeId, String key, Object defaultValue){
         if(nodeParameters.containsKey(nodeId)){
             return nodeParameters.get(nodeId).getOrDefault(key, defaultValue);
         }
+        Object foundInCompound = searchParamInCompounds(this.compoundNodes, nodeId, key);
+        if(foundInCompound != null){
+            return foundInCompound;
+        }
         return defaultValue;
     }
-
+    public Map<UUID, Map<String, Object>> getNodeParameters(){return this.nodeParameters;}
+    private Object searchParamInCompounds(List<CompoundNodeData> compounds, UUID nodeId, String key){
+        for(CompoundNodeData cNode : compounds){
+            if(cNode.innerNodeParameters.containsKey(nodeId)){
+                Map<String, Object> params = cNode.innerNodeParameters.get(nodeId);
+                if(params.containsKey(key)){
+                    return params.get(key);
+                }
+            }
+            Object found = searchParamInCompounds(cNode.getCompoundCircuit().getCompoundNodes(), nodeId, key);
+            if(found != null){
+                return found;
+            }
+        }
+        return null;
+    }
     public List<CompoundNodeData> getCompoundNodes(){return this.compoundNodes;}
 
     public void collapseNodes(List<UUID> targetNodeIds, String customName){
@@ -320,7 +338,7 @@ public class MagiculeCircuit {
 
         // 1. InnerNodes
         ListTag innerNodeTag = new ListTag();
-        for(NodeData innerNode : cNode.innerNodes){
+        for(NodeData innerNode : cNode.getCompoundCircuit().getNodes()){
             CompoundTag inTag = new CompoundTag();
             inTag.putString("Id", innerNode.id.toString());
             inTag.putString("Type", innerNode.type.getId());
@@ -332,14 +350,14 @@ public class MagiculeCircuit {
 
         // 2. InnerCompoundNodes (再帰的！)
         ListTag innerCompoundNodesTag = new ListTag();
-        for(CompoundNodeData innerCompound : cNode.innerCompoundNodes){
+        for(CompoundNodeData innerCompound : cNode.getCompoundCircuit().getCompoundNodes()){
             innerCompoundNodesTag.add(serializeCompoundNode(innerCompound));
         }
         cnTag.put("InnerCompoundNodes", innerCompoundNodesTag);
 
         // 3. InnerWires
         ListTag innerWireTag = new ListTag();
-        for(WireData innerWire : cNode.innerWires){
+        for(WireData innerWire : cNode.getCompoundCircuit().getWires()){
             CompoundTag iwTag = new CompoundTag();
             iwTag.putString("SourceId", innerWire.sourceId.toString());
             iwTag.putInt("SourcePort", innerWire.sourcePortIndex);
@@ -532,25 +550,25 @@ public class MagiculeCircuit {
     public static class CompoundNodeData{
         public final UUID id;
         public final String customName;
-        public final List<MagiculeCircuit.NodeData> innerNodes;
-        public final List<MagiculeCircuit.CompoundNodeData> innerCompoundNodes;
-        public final List<MagiculeCircuit.WireData> innerWires;
+        MagiculeCircuit compoundCircuit = new MagiculeCircuit();
         public final Map<UUID, Map<String, Object>> innerNodeParameters = new HashMap<>();
         public int x, y;
 
         public CompoundNodeData(UUID id, String customName, List<MagiculeCircuit.NodeData> innerNodes,List<MagiculeCircuit.CompoundNodeData> innerCompoundNodes, List<MagiculeCircuit.WireData> innerWires, int x, int y){
             this.id = id;
             this.customName = customName;
-            this.innerNodes = innerNodes;
-            this.innerCompoundNodes = innerCompoundNodes;
-            this.innerWires = innerWires;
+            this.compoundCircuit.setNodes(innerNodes);
+            this.compoundCircuit.setCompoundNodes(innerCompoundNodes);
+            this.compoundCircuit.setWires(innerWires);
             this.x = x;
             this.y = y;
         }
 
+        public MagiculeCircuit getCompoundCircuit(){return this.compoundCircuit;}
+
         public List<PortDataType> getInputPortTypes(){
             List<PortDataType> types = new ArrayList<>();
-            for(NodeData node : innerNodes){
+            for(NodeData node : compoundCircuit.getNodes()){
                 if(node.type == MagiculeNodeType.INPUT_PROXY){
                     if(node.type.outputs.length > 0){
                         types.add(node.type.outputs[0]);
@@ -564,7 +582,7 @@ public class MagiculeCircuit {
 
         public List<PortDataType> getOutputPortTypes(){
             List<PortDataType> types = new ArrayList<>();
-            for(NodeData node : innerNodes){
+            for(NodeData node : compoundCircuit.getNodes()){
                 if(node.type == MagiculeNodeType.OUTPUT_PROXY){
                     if(node.type.inputs.length > 0){
                         types.add(node.type.inputs[0]);

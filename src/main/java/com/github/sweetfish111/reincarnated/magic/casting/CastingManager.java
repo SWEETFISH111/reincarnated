@@ -123,7 +123,7 @@ public class CastingManager {
     }
 
     private static void triggerThermalRunawayPenalty(ServerLevel level, ServerPlayer caster){
-        level.explode(caster, caster.getX(), caster.getY(), caster.getZ(), 10.0f, Level.ExplosionInteraction.MOB);
+        level.explode(caster, caster.getX(), caster.getY(), caster.getZ(), 10.0f, Level.ExplosionInteraction.TNT);
         caster.hurt(level.damageSources().magic(), 10.0f);
     }
 }

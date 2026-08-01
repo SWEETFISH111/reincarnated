@@ -85,7 +85,7 @@ public class CustomMagicProjectileEntity extends ThrowableProjectile implements 
                         nextNode.execute(newContext);
                     }catch (CalculationCapacityOverException c){
                         context.getCaster().sendSystemMessage(Component.literal("《告》発射体が制御不能に陥りました"));
-                        context.getCaster().level().explode(context.getCaster(), hitPos.x, hitPos.y, hitPos.z, 10.0f, Level.ExplosionInteraction.MOB);
+                        context.getCaster().level().explode(context.getCaster(), hitPos.x, hitPos.y, hitPos.z, 10.0f, Level.ExplosionInteraction.TNT);
                     }catch (MasoShortageException m){
                         context.getCaster().sendSystemMessage(Component.literal("《告》個体名" + context.getCaster().getName().getString() + "の魔素残量が低下。発射体の術式を維持できません"));
                     }

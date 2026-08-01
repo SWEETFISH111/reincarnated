@@ -8,8 +8,13 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.*;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class GetLookTargetNode extends AbstractMagicNode {
+    public GetLookTargetNode(UUID id) {
+        super(id);
+    }
+
     @Override
     public void execute(MagicContext context){
         //何もしない

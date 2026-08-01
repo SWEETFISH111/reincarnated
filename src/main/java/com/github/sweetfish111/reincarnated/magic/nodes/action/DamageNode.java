@@ -10,9 +10,16 @@ import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 
+import java.util.UUID;
+
 
 public class DamageNode extends AbstractMagicNode implements MagicNode {
     float BASECOST = 3;
+
+    public DamageNode(UUID id) {
+        super(id);
+    }
+
     @Override
     public void execute(MagicContext context) {
         double damageAmount = pullDouble(2, context);

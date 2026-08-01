@@ -52,7 +52,7 @@ public class ClientModEvents {
 
         if(!isCurrentlyDown && wasKeyPressedLastTick){
             if(net.minecraft.client.Minecraft.getInstance().getConnection() != null){
-                net.minecraft.client.Minecraft.getInstance().getConnection().send(new StopCastPayload("event_key_1"));
+                net.minecraft.client.Minecraft.getInstance().getConnection().send(new StopCastPayload());
             }
         }
 

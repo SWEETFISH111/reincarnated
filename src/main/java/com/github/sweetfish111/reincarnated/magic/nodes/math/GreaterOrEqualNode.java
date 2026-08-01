@@ -4,7 +4,13 @@ import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.UUID;
+
 public class GreaterOrEqualNode extends AbstractMagicNode {
+    public GreaterOrEqualNode(UUID id) {
+        super(id);
+    }
+
     @Override
     public void execute(MagicContext context) {
         //なにもしない

@@ -5,7 +5,13 @@ import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.UUID;
+
 public class CombersTargetPos extends AbstractMagicNode {
+    public CombersTargetPos(UUID id) {
+        super(id);
+    }
+
     @Override
     public void execute(MagicContext context) {
         //何もしない

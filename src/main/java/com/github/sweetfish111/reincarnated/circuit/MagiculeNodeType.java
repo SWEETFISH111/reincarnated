@@ -93,6 +93,10 @@ public enum MagiculeNodeType {
             null,null,
             8
     ),
+    DELAY("delay", "delay",
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC}
+    ),
     ADD("add", "add",
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
             new PortDataType[]{PortDataType.ANY},

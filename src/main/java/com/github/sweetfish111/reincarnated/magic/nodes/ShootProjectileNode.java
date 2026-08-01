@@ -8,7 +8,12 @@ import net.minecraft.world.phys.Vec3;
 
 import net.minecraft.world.entity.Entity;
 
+import java.util.UUID;
+
 public class ShootProjectileNode extends AbstractMagicNode{
+    public ShootProjectileNode(UUID id) {
+        super(id);
+    }
 
     @Override
     public void execute(MagicContext context) {

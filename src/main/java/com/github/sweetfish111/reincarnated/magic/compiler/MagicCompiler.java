@@ -4,6 +4,7 @@ import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.DamageNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.HealingNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.control.DelayNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookForwardNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookTargetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.ReturnCaster;
@@ -183,23 +184,21 @@ public class MagicCompiler {
         }
     }
 
-    public static void compileAndExecute(MagiculeCircuit circuit, ServerPlayer caster, String triggerType){
+    public static void compileAndExecute(MagicContext context){
         Map<UUID, MagicNode> instancedNodes = new HashMap<>();
         List<MagiculeCircuit.WireData> allWires = new ArrayList<>();
 
-        if (circuit.getWires() != null) {
-            allWires.addAll(circuit.getWires());
+        if (context.getCircuit().getWires() != null) {
+            allWires.addAll(context.getCircuit().getWires());
         }
 
-        compileNodes(circuit, instancedNodes);
-        compileCompoundNodes(circuit, instancedNodes, allWires);
-        compileWires(circuit, instancedNodes, allWires);
+        compileNodes(context.getCircuit(), instancedNodes);
+        compileCompoundNodes(context.getCircuit(), instancedNodes, allWires);
+        compileWires(context.getCircuit(), instancedNodes, allWires);
 
-        MagicContext context = new MagicContext(caster, circuit);
-
-        if (circuit.getNodes() != null) {
-            for (MagiculeCircuit.NodeData data : circuit.getNodes()){
-                if(data.type != null && data.type.getId().equals(triggerType)){
+        if (context.getCircuit().getNodes() != null) {
+            for (MagiculeCircuit.NodeData data : context.getCircuit().getNodes()){
+                if(data.type == MagiculeNodeType.EVENT_KEY_ONE){
                     MagicNode startNode = instancedNodes.get(data.id);
                     if(startNode != null){
                         startNode.execute(context);
@@ -212,35 +211,36 @@ public class MagicCompiler {
 
     public static MagicNode createNodeInstance(String typeId, UUID nodeId){
         switch (typeId){
-            case "event_key_1":return new EventKeyOneNode();
-            case "lightning":return new SummonLightningNode();
-            case "get_look_target":return new GetLookTargetNode();
+            case "event_key_1":return new EventKeyOneNode(nodeId);
+            case "lightning":return new SummonLightningNode(nodeId);
+            case "get_look_target":return new GetLookTargetNode(nodeId);
             case "explosion":return new ExplosionNode(nodeId);
-            case "caster_pos":return new ReturnCaster();
+            case "caster_pos":return new ReturnCaster(nodeId);
             case "offset":return new OffsetNode(nodeId);
             case "get_look_forward":return new GetLookForwardNode(nodeId);
             case "number":return new NumberNode(nodeId);
-            case "combers_target_pos":return new CombersTargetPos();
-            case "combers_look_direction":return new CombersLookDirection();
+            case "combers_target_pos":return new CombersTargetPos(nodeId);
+            case "combers_look_direction":return new CombersLookDirection(nodeId);
             case "if":return new IfNode(nodeId);
             case "boolean":return new BooleanNode(nodeId);
             case "repeat":return new RepeatNode(nodeId);
-            case "add":return new AddNode();
-            case "subtract":return new SubtractNode();
-            case "multiply":return new MultiplyNode();
-            case "divide":return new DivideNode();
-            case "modulo":return new ModuloNode();
-            case "equal":return new EqualsNode();
-            case "not":return new NotNode();
-            case "or":return new OrNode();
-            case "and":return new AndNode();
-            case "greater_than":return new GreagerThanNode();
-            case "greater_or_equal":return new GreaterOrEqualNode();
-            case "less_than":return new LessThanNode();
-            case "less_or_equal":return new LessOrEqualNode();
-            case "shoot_projectile":return new ShootProjectileNode();
-            case "damage":return new DamageNode();
-            case "healing":return new HealingNode();
+            case "add":return new AddNode(nodeId);
+            case "subtract":return new SubtractNode(nodeId);
+            case "multiply":return new MultiplyNode(nodeId);
+            case "divide":return new DivideNode(nodeId);
+            case "modulo":return new ModuloNode(nodeId);
+            case "equal":return new EqualsNode(nodeId);
+            case "not":return new NotNode(nodeId);
+            case "or":return new OrNode(nodeId);
+            case "and":return new AndNode(nodeId);
+            case "greater_than":return new GreagerThanNode(nodeId);
+            case "greater_or_equal":return new GreaterOrEqualNode(nodeId);
+            case "less_than":return new LessThanNode(nodeId);
+            case "less_or_equal":return new LessOrEqualNode(nodeId);
+            case "shoot_projectile":return new ShootProjectileNode(nodeId);
+            case "damage":return new DamageNode(nodeId);
+            case "healing":return new HealingNode(nodeId);
+            case "delay":return new DelayNode(nodeId);
             default : return null;
         }
     }

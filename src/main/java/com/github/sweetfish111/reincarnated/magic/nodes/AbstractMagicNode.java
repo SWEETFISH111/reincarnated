@@ -19,12 +19,8 @@ public abstract class AbstractMagicNode implements MagicNode{
     protected float masoCost;
     protected ServerPlayer caster;
 
-    public AbstractMagicNode(){
-        masoCost = 0.2f;
-        this.id = UUID.randomUUID();
-    }
     public AbstractMagicNode(UUID id){
-        this();
+        masoCost = 0.2f;
         this.id = id;
     }
     @Override
@@ -87,7 +83,7 @@ public abstract class AbstractMagicNode implements MagicNode{
         return false;
     }
 
-    protected void executeOutputPort(int outputPortIndex, MagicContext context){
+    public void executeOutputPort(int outputPortIndex, MagicContext context){
         List<MagicNode> nextNodes = outputConnections.get(outputPortIndex);
         if(nextNodes != null){
             for(MagicNode node : nextNodes){
@@ -108,10 +104,12 @@ public abstract class AbstractMagicNode implements MagicNode{
         return null;
     }
 
-    protected void pushExecute(MagicContext context){
+    public UUID getId(){return this.id;}
+
+    public void pushExecute(MagicContext context){
         executeOutputPort(0, context);
     }
-    protected void pushExecute(int outputPortIndex, MagicContext context){
+    public void pushExecute(int outputPortIndex, MagicContext context){
         executeOutputPort(outputPortIndex, context);
     }
 

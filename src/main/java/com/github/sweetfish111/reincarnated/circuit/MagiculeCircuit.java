@@ -1,5 +1,7 @@
 package com.github.sweetfish111.reincarnated.circuit;
 
+import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
+import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
@@ -80,6 +82,10 @@ public class MagiculeCircuit {
             return foundInCompound;
         }
         return defaultValue;
+    }
+    public AbstractMagicNode getNodeInstance(UUID id){
+        NodeData nodeData = getNode(id);
+        return (AbstractMagicNode) MagicCompiler.createNodeInstance(nodeData.type.getId(), nodeData.id);
     }
     public Map<UUID, Map<String, Object>> getNodeParameters(){return this.nodeParameters;}
     private Object searchParamInCompounds(List<CompoundNodeData> compounds, UUID nodeId, String key){

@@ -3,7 +3,13 @@ package com.github.sweetfish111.reincarnated.magic.nodes.math;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 
+import java.util.UUID;
+
 public class OrNode extends AbstractMagicNode {
+    public OrNode(UUID id) {
+        super(id);
+    }
+
     @Override
     public void execute(MagicContext context) {
         //何もしない

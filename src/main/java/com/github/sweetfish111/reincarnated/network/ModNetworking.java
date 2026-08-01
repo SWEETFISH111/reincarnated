@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.network;
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.client.event.handler.ClientPacketHandlers;
+import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.magic.casting.CastingManager;
 import com.github.sweetfish111.reincarnated.network.payload.*;
@@ -64,7 +65,7 @@ public class ModNetworking {
                     if(circuit != null){
                         System.out.println(player.getName().getString() + "is press magic_key_1. compiling magic circuit");
                         System.out.println("loaded nodes length" + circuit.getNodes().size() + "/wire length" + circuit.getWires().size());
-                        CastingManager.startCasting(player, circuit, "event_key_1");
+                        CastingManager.startCasting(new MagicContext(player, circuit));
                     }else{
                         System.out.println("circuit not found");
                     }
@@ -77,7 +78,7 @@ public class ModNetworking {
             context.enqueueWork(() -> {
                 if (context.player() instanceof ServerPlayer player) {
                     // キーが離されたので、詠唱完了状態なら魔法を発動、途中ならキャンセルの判定を依頼
-                    CastingManager.releaseCasting(player, payload.triggerType());
+                    CastingManager.releaseCasting(player);
                 }
             });
         }));

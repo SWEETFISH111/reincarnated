@@ -12,13 +12,13 @@ public class RepeatNode extends AbstractMagicNode {
 
     @Override
     public void execute(MagicContext context) {
+        super.execute(context);
         System.out.println("before");
         double rawCount = (int)pullDouble(1, context);
         int count = (rawCount <= 0) ? 1 : (int) Math.round(rawCount);
-        count = Math.min(count, 20);
         for(int i = 0; i < count; i++){
             context.setNodeLocalVariable(this.id, 0, (double) i);
-            executeOutputPort(0, context);
+            pushExecute(0, context);
             System.out.println("executing " + i);
         }
         System.out.println("finish");
@@ -27,6 +27,7 @@ public class RepeatNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
         Object val = context.getNodeLocalVariable(this.id, 0);
         if (val instanceof Number num) {
             return num.doubleValue();

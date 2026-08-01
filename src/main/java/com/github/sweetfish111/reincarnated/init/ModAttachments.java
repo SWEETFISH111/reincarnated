@@ -1,6 +1,6 @@
 package com.github.sweetfish111.reincarnated.init;
 
-import com.github.sweetfish111.reincarnated.circuit.PlayerMagicData;
+import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;

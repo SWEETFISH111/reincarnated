@@ -21,6 +21,7 @@ public class GetLookForwardNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
         if(portIndex == 0){
             Object distanceData = pullData(0, context);
             double maxDistance = distanceData instanceof Number num ? num.doubleValue() : 16.0;

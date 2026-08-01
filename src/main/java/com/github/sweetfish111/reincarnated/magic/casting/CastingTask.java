@@ -4,7 +4,7 @@ import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.UUID;
-
+//魔法の情報を記録して発動要求から実際の発動迄保持するクラス
 public class CastingTask {
     private final UUID playerId;
     private final ServerPlayer player;

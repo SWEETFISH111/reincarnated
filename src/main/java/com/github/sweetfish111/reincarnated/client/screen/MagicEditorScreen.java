@@ -2,22 +2,26 @@ package com.github.sweetfish111.reincarnated.client.screen;
 
 import com.github.sweetfish111.reincarnated.circuit.*;
 import com.github.sweetfish111.reincarnated.network.payload.SaveCircuitPayload;
+import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.BackupConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.common.Mod;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 
 import java.util.*;
+
 
 public class MagicEditorScreen extends Screen {
     private ScreenLayerManager thisLayerManager = new ScreenLayerManager();
@@ -55,7 +59,7 @@ public class MagicEditorScreen extends Screen {
         super.init();
         thisLayerManager.init(this.magicData);
         int startX = 10;
-        for (ScreenLayerManager.EditorTab tab : ScreenLayerManager.EditorTab.values()) {
+        for (EditorTab tab : EditorTab.values()) {
             Button tabBtn = Button.builder(
                     Component.literal(tab.getDisplayName()),
                     button -> switchTab(tab)
@@ -79,7 +83,7 @@ public class MagicEditorScreen extends Screen {
         rebuildNodeWidgets();
     }
 
-    public void switchTab(ScreenLayerManager.EditorTab tab){
+    public void switchTab(EditorTab tab){
         thisLayerManager.saveCurrentTabCircuit(this.nodeWidgets);
         thisLayerManager.switchTab(tab);
         clearCanvasWidgets();
@@ -131,7 +135,7 @@ public class MagicEditorScreen extends Screen {
 
     //ポートにつながって存在が確定したワイヤーを記録する
     public void onWireDropped(AbstructDraggingNodeWidget sourceNode, NodePort sourcePort, double dropX, double dropY){
-        if(sourcePort.getType() != NodePort.Type.OUTPUT) return;
+        if(sourcePort.getType() != PortType.OUTPUT) return;
 
         for(AbstructDraggingNodeWidget targetNode : this.nodeWidgets){
             if(targetNode != sourceNode){
@@ -381,6 +385,7 @@ public class MagicEditorScreen extends Screen {
     //魔法編集画面全体を閉じたとき
     @Override
     public void onClose() {
+        thisLayerManager.saveCurrentInnerCircuit(thisLayerManager.getLayerStack().peek(), this.nodeWidgets);
         thisLayerManager.saveCurrentTabCircuit(this.nodeWidgets);
 
         CompoundTag rootTag = this.magicData.saveToNBT();

@@ -11,8 +11,12 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.common.Mod;
 
 import javax.sound.sampled.Port;
+
 
 public class DraggableNodeWidget extends AbstructDraggingNodeWidget {
     private final MagiculeNodeType type;
@@ -49,7 +53,12 @@ public class DraggableNodeWidget extends AbstructDraggingNodeWidget {
                     break;
             }
         }
-        setupPorts(Arrays.asList(this.type.inputs), Arrays.asList(this.type.outputs));
+        List<PortDataType> targetPorts = Arrays.asList(type.inputs);
+        if(contentWidget != null && contentWidget instanceof SwitchContentWidget switchWidget){
+            boolean currentState = switchWidget.getCurrentValue();
+            targetPorts = (currentState) ? Arrays.asList(type.anotherInputs) : targetPorts;
+        }
+        setupPorts(targetPorts, Arrays.asList(this.type.outputs));
     }
 
     //ゲッター

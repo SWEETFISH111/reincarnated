@@ -6,9 +6,13 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.common.Mod;
 
 import java.util.HashMap;
 import java.util.UUID;
+
 
 public class SwitchContentWidget extends AbstractContentWidget<Boolean,Button> {
 

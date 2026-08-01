@@ -11,6 +11,7 @@ public class EqualsNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
         Object data1 = pullData(0, context);
         Object data2 = pullData(1, context);
         return data1.equals(data2);

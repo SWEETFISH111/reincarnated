@@ -1,11 +1,6 @@
 package com.github.sweetfish111.reincarnated.circuit;
 
-import com.github.sweetfish111.reincarnated.client.screen.MagicEditorScreen;
-import com.github.sweetfish111.reincarnated.client.screen.ScreenLayerManager;
-import com.github.sweetfish111.reincarnated.client.screen.ScreenLayerManager.EditorTab;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.layouts.EqualSpacingLayout;
-
+import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -241,7 +236,7 @@ public enum MagiculeNodeType {
 
     public int getCastCost(){return castCost;}
 
-    public boolean isAvailableFor(ScreenLayerManager.EditorTab currentTab){
+    public boolean isAvailableFor(EditorTab currentTab){
         return this.targetTab.contains(currentTab);
     }
 }

@@ -1,10 +1,14 @@
 package com.github.sweetfish111.reincarnated.client.screen;
 
+import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.common.Mod;
 
 import java.util.*;
 
@@ -51,7 +55,7 @@ public class NodePaletteWidget {
 
     private List<MagiculeNodeType> getAvailableNodeTypes() {
         List<MagiculeNodeType> available = new ArrayList<>();
-        ScreenLayerManager.EditorTab currentTab = paretScreen.getThisLayerManager().getCurrentTab();
+        EditorTab currentTab = paretScreen.getThisLayerManager().getCurrentTab();
 
         for (MagiculeNodeType type : MagiculeNodeType.values()){
             if(type.isAvailableFor(currentTab)){

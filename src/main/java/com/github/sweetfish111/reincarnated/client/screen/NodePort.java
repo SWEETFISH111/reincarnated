@@ -2,20 +2,24 @@ package com.github.sweetfish111.reincarnated.client.screen;
 
 import com.github.sweetfish111.reincarnated.circuit.PortDataType;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.common.Mod;
+import com.github.sweetfish111.reincarnated.circuit.PortType;
 
 import javax.sound.sampled.Port;
 
+
 public class NodePort {
-    public enum Type{INPUT, OUTPUT}
 
     private final PortDataType dataType;
 
     private final AbstructDraggingNodeWidget parentNode;
-    private final Type type;
+    private final PortType type;
     private final int index;
     private final int size = 6;
 
-    public NodePort(AbstructDraggingNodeWidget parentNode, Type type, int index, PortDataType dataType){
+    public NodePort(AbstructDraggingNodeWidget parentNode, PortType type, int index, PortDataType dataType){
         this.parentNode = parentNode;
         this.type = type;
         this.index = index;
@@ -25,7 +29,7 @@ public class NodePort {
     //ゲッター
     public PortDataType getDataType(){return this.dataType;}
     public int getX(){
-        if(this.type == Type.INPUT){
+        if(this.type == PortType.INPUT){
             return parentNode.getX() - (size / 2);
         }else{
             return parentNode.getX() + parentNode.getWidth() - (size / 2);
@@ -36,7 +40,7 @@ public class NodePort {
         int spacing = parentNode.getHeight() / (totalPorts + 1);
         return parentNode.getY() + (spacing * (this.index + 1)) - (size / 2);
     }
-    public Type getType(){
+    public PortType getType(){
         return this.type;
     }
     public int getIndex(){

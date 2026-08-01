@@ -1,7 +1,11 @@
 package com.github.sweetfish111.reincarnated.magic.nodes;
 
+import com.github.sweetfish111.reincarnated.event.MasoShortageException;
+import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
+import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
@@ -12,11 +16,15 @@ public abstract class AbstractMagicNode implements MagicNode{
     protected final Map<Integer, DataLink> dataInputs = new HashMap<>();
     protected final Map<Integer, List<MagicNode>> outputConnections = new HashMap<>();
     protected UUID id;
+    protected float masoCost;
+    protected ServerPlayer caster;
 
     public AbstractMagicNode(){
+        masoCost = 0.2f;
         this.id = UUID.randomUUID();
     }
     public AbstractMagicNode(UUID id){
+        this();
         this.id = id;
     }
     @Override
@@ -86,13 +94,35 @@ public abstract class AbstractMagicNode implements MagicNode{
                 node.execute(context);
             }
         }
-
     }
+
+    @Override
+    public void execute(MagicContext context) {
+        context.incrementAndCheck();
+        consumeMaso(masoCost, context.getCaster());
+    }
+
+    @Override
+    public Object getOutputData(int portIndex, MagicContext context) {
+        context.incrementAndCheck();
+        return null;
+    }
+
     protected void pushExecute(MagicContext context){
         executeOutputPort(0, context);
     }
     protected void pushExecute(int outputPortIndex, MagicContext context){
         executeOutputPort(outputPortIndex, context);
+    }
+
+    protected void consumeMaso(float masoCost, ServerPlayer caster){
+        PlayerMagicData magicData = caster.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        if(magicData.currentMaso >= masoCost){
+            magicData.currentMaso -= masoCost;
+        }else{
+            throw new MasoShortageException(masoCost, magicData.currentMaso);
+        }
+        System.out.println("AbstractMagicNode:cost_" + masoCost + " current_" + magicData.currentMaso);
     }
 
     protected record DataLink(MagicNode sourceNode, int sourcePortIndex){}

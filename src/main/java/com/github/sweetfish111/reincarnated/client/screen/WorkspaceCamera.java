@@ -1,5 +1,11 @@
 package com.github.sweetfish111.reincarnated.client.screen;
 
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.common.Mod;
+
+
 public class WorkspaceCamera {
     //視点のずれ
     public double panX = 0;

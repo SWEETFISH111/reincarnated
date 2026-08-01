@@ -11,6 +11,7 @@ public class AndNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
         boolean data1 = pullBoolean(0, context);
         boolean data2 = pullBoolean(1, context);
         return data1 && data2;

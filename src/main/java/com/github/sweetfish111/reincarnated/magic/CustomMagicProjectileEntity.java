@@ -1,8 +1,11 @@
 package com.github.sweetfish111.reincarnated.magic;
 
+import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
+import com.github.sweetfish111.reincarnated.event.MasoShortageException;
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -70,16 +73,23 @@ public class CustomMagicProjectileEntity extends ThrowableProjectile implements 
         if(!this.level().isClientSide() && this.level() instanceof ServerLevel serverLevel){
             if(this.context != null && this.nextNode != null){
                 Vec3 hitPos = hitResult.getLocation();
-                this.context.setMagicValue("hit_pos", hitPos);
+                MagicContext newContext = new MagicContext(context.getCaster(), context.getCircuit());
+                newContext.setMagicValue("hit_pos", hitPos);
 
                 if(hitResult instanceof EntityHitResult entityHitResult){
-                    this.context.setMagicValue("hit_entity", entityHitResult.getEntity());
+                    newContext.setMagicValue("hit_entity", entityHitResult.getEntity());
                 }
 
                 if(nextNode != null){
-                    nextNode.execute(this.context);
+                    try{
+                        nextNode.execute(newContext);
+                    }catch (CalculationCapacityOverException c){
+                        context.getCaster().sendSystemMessage(Component.literal("《告》発射体が制御不能に陥りました"));
+                        context.getCaster().level().explode(context.getCaster(), hitPos.x, hitPos.y, hitPos.z, 10.0f, Level.ExplosionInteraction.MOB);
+                    }catch (MasoShortageException m){
+                        context.getCaster().sendSystemMessage(Component.literal("《告》個体名" + context.getCaster().getName().getString() + "の魔素残量が低下。発射体の術式を維持できません"));
+                    }
                 }
-
             }
             this.discard();
         }

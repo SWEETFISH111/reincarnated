@@ -1,6 +1,7 @@
 package com.github.sweetfish111.reincarnated.magic.context;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
+import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -15,8 +16,8 @@ public class MagicContext {
     private final Map<String, Object> magicValue = new HashMap<>();
     private final ExecutionTrace trace = new ExecutionTrace();
     private final ServerLevel level;
-    int currentCount = 0;
-    static final int MAX_LIMIT = 1000;
+    private int currentCount = 0;
+    private static final int MAX_LIMIT = 1000;
 
     public MagicContext(ServerPlayer caster, MagiculeCircuit circuit) {
         this.circuit = circuit;
@@ -46,6 +47,8 @@ public class MagicContext {
     public Object getMagicValue(String key){
         return this.magicValue.get(key);
     }
+    public int getCurrentCount(){return this.currentCount;}
+    public int getMaxLimit(){return this.MAX_LIMIT;}
 
     public void setNodeLocalVariable(UUID nodeId, int portIndex, double value) {
         this.LocalVariable
@@ -55,5 +58,12 @@ public class MagicContext {
 
     public void setMagicValue(String key, Object value) {
         magicValue.put(key, value);
+    }
+
+    public void incrementAndCheck() throws CalculationCapacityOverException {
+        currentCount ++;
+        if(currentCount > MAX_LIMIT){
+            throw new RuntimeException("告：魔法の演算容量（ループ上限）を超過しました。熱暴走によりキャストを強制中断します。");
+        }
     }
 }

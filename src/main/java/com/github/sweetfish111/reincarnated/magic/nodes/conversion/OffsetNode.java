@@ -12,11 +12,11 @@ public class OffsetNode extends AbstractMagicNode {
     }
 
     @Override
-    public void execute(MagicContext context) {
-    }
+    public void execute(MagicContext context) {}
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
         Object rawParam = context.getCircuit().getNodeParam(this.id, "value", "【データが存在しません】");
         System.out.println("★ [OffsetNode Check] rawParam = " + rawParam + " (Node ID: " + this.id + ")");
 

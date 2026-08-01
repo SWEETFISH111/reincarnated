@@ -11,6 +11,7 @@ public class ModuloNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
         double a = pullDouble(0, context);
         double b = pullDouble(1, context);
         return (b != 0) ? (a % b) : 0;

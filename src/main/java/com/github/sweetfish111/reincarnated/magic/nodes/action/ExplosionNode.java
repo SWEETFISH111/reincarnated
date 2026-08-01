@@ -7,15 +7,17 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
 public class ExplosionNode extends AbstractMagicNode {
-    float MAX_EXPLOSION_POWER = 10.0f;
+    float BASECOST = 5;
 
     @Override
     public void execute(MagicContext context) {
+        double rawData = pullDouble(2,context);
+        masoCost = BASECOST * (float) rawData;
+        super.execute(context);
         BlockPos targetPos = BlockPos.containing(pullVector3(1, context));
 
         if(context.getCaster().level() instanceof ServerLevel serverLevel){
-            double rawData = pullDouble(2,context);
-            float explosionPower = Math.min(MAX_EXPLOSION_POWER, (float)rawData);
+            float explosionPower = (float)rawData;
 
             serverLevel.explode(
                     context.getCaster(),

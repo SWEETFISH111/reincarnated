@@ -13,6 +13,7 @@ public class CombersTargetPos extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
         Entity targetEntity = pullEntity(0, context);
         if(targetEntity != null){
             Vec3 targetPos = targetEntity.position();

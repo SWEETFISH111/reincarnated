@@ -8,7 +8,11 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.common.Mod;
 import org.jspecify.annotations.NonNull;
+
 
 public class NumberInputContentWidget extends AbstractContentWidget<Double, EditBox>{
     private boolean isUpdating = false;

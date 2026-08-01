@@ -12,6 +12,7 @@ public class IfNode extends AbstractMagicNode {
 
     @Override
     public void execute(MagicContext context) {
+        super.execute(context);
         if(pullBoolean(1,context)){
             pushExecute(0,context);
         }else {

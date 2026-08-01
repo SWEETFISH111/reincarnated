@@ -17,6 +17,7 @@ public class NumberNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
         if(portIndex == 0){
             if(context != null && context.getCircuit() != null){
                 System.out.println("======" + context.getCircuit().getNodeParam(this.id, "value", 0.0) + "=====");

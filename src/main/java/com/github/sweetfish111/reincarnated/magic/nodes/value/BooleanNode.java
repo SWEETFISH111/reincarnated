@@ -17,6 +17,7 @@ public class BooleanNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
         boolean booleanValue = false;
         if(context.getCircuit().getNodeParam(this.id, "value", false) instanceof Boolean b){
             booleanValue = b;

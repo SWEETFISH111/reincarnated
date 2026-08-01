@@ -12,6 +12,7 @@ public class LessThanNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
         double data1 = convertToComparableValue(pullData(0, context));
         double data2 = convertToComparableValue(pullData(1, context));
         return data1 < data2;

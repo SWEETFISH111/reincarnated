@@ -6,6 +6,7 @@ import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 public class EventKeyOneNode extends AbstractMagicNode {
     @Override
     public void execute(MagicContext context) {
+        super.execute(context);
         pushExecute(context);
     }
 

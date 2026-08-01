@@ -26,15 +26,3 @@ public class reincarnatedEntityTypes {
                             .build(PROJECTILE_KEY)
             );
 }
-/*
-    public static <T> ResourceKey<T> create(ResourceKey<? extends Registry<T>> registryName, Identifier location) {
-        return create(registryName.identifier, location);
-    }
-
-        public static <T> ResourceKey<Registry<T>> createRegistryKey(Identifier identifier) {
-        return create(Registries.ROOT_REGISTRY_NAME, identifier);
-    }
-
-      public static Identifier fromNamespaceAndPath(String namespace, String path) {
-        return createUntrusted(namespace, path);
- */

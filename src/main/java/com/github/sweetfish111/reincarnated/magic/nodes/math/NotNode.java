@@ -11,6 +11,7 @@ public class NotNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
         boolean rawData = pullBoolean(0, context);
         return !rawData;
     }

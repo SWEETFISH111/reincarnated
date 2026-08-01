@@ -12,6 +12,7 @@ public class MultiplyNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
         Object valA = pullData(0, context);
         Object valB = pullData(1, context);
 

@@ -11,6 +11,7 @@ public class ReturnCaster extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
         return context.getCaster();
     }
 }

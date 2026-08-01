@@ -1,10 +1,5 @@
 package com.github.sweetfish111.reincarnated.circuit;
 
-import com.github.sweetfish111.reincarnated.client.screen.CompoundNodeWidget;
-import com.github.sweetfish111.reincarnated.client.screen.MagicEditorScreen;
-import com.github.sweetfish111.reincarnated.client.screen.NodePort;
-import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
@@ -13,9 +8,6 @@ import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import org.w3c.dom.Node;
-
-import java.lang.management.ManagementFactory;
 import java.util.*;
 
 public class MagiculeCircuit {
@@ -175,10 +167,10 @@ public class MagiculeCircuit {
     }
 
     // 消す系
-    public void removeWiresByPort(UUID nodeId, NodePort.Type portType, int portIndex){
+    public void removeWiresByPort(UUID nodeId, PortType portType, int portIndex){
         this.wires.removeIf(wire ->
-                (portType == NodePort.Type.OUTPUT && wire.sourceId.equals(nodeId) && wire.sourcePortIndex == portIndex) ||
-                        (portType == NodePort.Type.INPUT && wire.targetId.equals(nodeId) && wire.targetPortIndex == portIndex));
+                (portType == PortType.OUTPUT && wire.sourceId.equals(nodeId) && wire.sourcePortIndex == portIndex) ||
+                        (portType == PortType.INPUT && wire.targetId.equals(nodeId) && wire.targetPortIndex == portIndex));
     }
 
     public void removeWiresByNode(UUID nodeId){
@@ -565,34 +557,6 @@ public class MagiculeCircuit {
         }
 
         public MagiculeCircuit getCompoundCircuit(){return this.compoundCircuit;}
-
-        public List<PortDataType> getInputPortTypes(){
-            List<PortDataType> types = new ArrayList<>();
-            for(NodeData node : compoundCircuit.getNodes()){
-                if(node.type == MagiculeNodeType.INPUT_PROXY){
-                    if(node.type.outputs.length > 0){
-                        types.add(node.type.outputs[0]);
-                    }else {
-                        types.add(PortDataType.ANY);
-                    }
-                }
-            }
-            return types;
-        }
-
-        public List<PortDataType> getOutputPortTypes(){
-            List<PortDataType> types = new ArrayList<>();
-            for(NodeData node : compoundCircuit.getNodes()){
-                if(node.type == MagiculeNodeType.OUTPUT_PROXY){
-                    if(node.type.inputs.length > 0){
-                        types.add(node.type.inputs[0]);
-                    }else {
-                        types.add(PortDataType.ANY);
-                    }
-                }
-            }
-            return types;
-        }
     }
 
     public static class WireData {
@@ -610,5 +574,6 @@ public class MagiculeCircuit {
             this.isDataFlow = isDataFlow;
         }
     }
+
 
 }

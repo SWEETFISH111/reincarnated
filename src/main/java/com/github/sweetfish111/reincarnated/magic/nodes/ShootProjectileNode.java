@@ -9,14 +9,18 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.Entity;
 
 public class ShootProjectileNode extends AbstractMagicNode{
+
     @Override
     public void execute(MagicContext context) {
+
         Vec3 spawnPos = pullVector3(1, context);
         Vec3 direction = pullVector3(2, context);
-        double speed = pullDouble(3, context) / 10;
+        double speed = pullDouble(3, context);
         double size = pullDouble(4, context);
         size = (size != 0) ? 1 : size;
 
+        masoCost = (float)speed * (float) size;
+        super.execute(context);
 
         if (spawnPos == null || direction == null) {
             System.out.println("❌ ShootProjectileNode: zahyou ka muki ga null");
@@ -55,6 +59,7 @@ public class ShootProjectileNode extends AbstractMagicNode{
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
         Object val = context.getMagicValue("hit_pos");
         if(portIndex == 1 && val instanceof Vec3 targetPos) {
             return targetPos;

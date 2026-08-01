@@ -1,11 +1,15 @@
 package com.github.sweetfish111.reincarnated.client.screen;
 
+import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
-import com.github.sweetfish111.reincarnated.circuit.PlayerMagicData;
+import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.Component;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.common.Mod;
 
 import java.util.*;
+
 
 public class ScreenLayerManager {
     private final Deque<CircuitLayer> layerStack = new ArrayDeque<>();
@@ -26,6 +30,7 @@ public class ScreenLayerManager {
     public Button getBackBtn(){return this.backBtn;}
     public EditorTab getCurrentTab(){return this.currentTab;}
     public MagiculeCircuit getWorkCircuit(){return this.workCircuit;}
+    public Deque<CircuitLayer> getLayerStack(){return this.layerStack;}
     public void setBackBtn(Button backBtn) {this.backBtn = backBtn;}
 
     public void switchTab(EditorTab tab) {
@@ -201,19 +206,4 @@ public class ScreenLayerManager {
         }
     }
 
-    public enum EditorTab {
-        MAGIC("魔法"),
-        SKILL("スキル"),
-        ARTS("アーツ");
-
-        private final String displayName;
-
-        EditorTab(String displayName) {
-            this.displayName = displayName;
-        }
-
-        public String getDisplayName() {
-            return this.displayName;
-        }
-    }
 }

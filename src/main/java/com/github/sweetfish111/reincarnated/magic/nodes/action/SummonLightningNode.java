@@ -12,9 +12,12 @@ import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.phys.Vec3;
 
 public class SummonLightningNode extends AbstractMagicNode {
+    float BASECOST = 3;
 
     @Override
     public void execute(MagicContext context) {
+        masoCost = BASECOST;
+        super.execute(context);
         System.out.println("[kaminari] zikkou no nami ga toutatu! hidari no pin kara zahyou wo pull");
 
         Vec3 targetPos = pullVector3(1, context);

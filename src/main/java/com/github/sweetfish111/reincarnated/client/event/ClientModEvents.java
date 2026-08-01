@@ -1,8 +1,6 @@
 package com.github.sweetfish111.reincarnated.client.event;
 
-import com.github.sweetfish111.reincarnated.circuit.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.client.ReincarnatedKeyMapping;
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.network.payload.CastMagicOnePayload;
 import com.github.sweetfish111.reincarnated.network.payload.RequestCircuitPayload;
 import com.github.sweetfish111.reincarnated.network.payload.StopCastPayload;
@@ -16,8 +14,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = "reincarnated", value = Dist.CLIENT)
 public class ClientModEvents {

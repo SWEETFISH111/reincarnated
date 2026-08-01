@@ -1,6 +1,7 @@
 package com.github.sweetfish111.reincarnated.client.screen;
 
 import com.github.sweetfish111.reincarnated.circuit.PortDataType;
+import com.github.sweetfish111.reincarnated.circuit.PortType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -9,11 +10,15 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.common.Mod;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 
 public abstract class AbstructDraggingNodeWidget extends AbstractWidget {
 
@@ -91,10 +96,10 @@ public abstract class AbstructDraggingNodeWidget extends AbstractWidget {
         this.height = 20 + (maxPorts * 15) + 5;
 
         for(int i = 0; i < inputPorts.toArray().length; i++){
-            this.inputPorts.add(new NodePort(this, NodePort.Type.INPUT, i, inputPorts.get(i)));
+            this.inputPorts.add(new NodePort(this, PortType.INPUT, i, inputPorts.get(i)));
         }
         for(int i = 0; i < outputPorts.toArray().length; i++){
-            this.outputPorts.add(new NodePort(this, NodePort.Type.OUTPUT, i, outputPorts.get(i)));
+            this.outputPorts.add(new NodePort(this, PortType.OUTPUT, i, outputPorts.get(i)));
         }
     }
 

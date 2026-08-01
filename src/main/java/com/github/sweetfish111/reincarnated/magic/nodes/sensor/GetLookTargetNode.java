@@ -17,6 +17,7 @@ public class GetLookTargetNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context){
+        super.getOutputData(portIndex, context);
         if(portIndex == 0){
             Player player = context.getCaster();
             double maxDistance = 80.0D;

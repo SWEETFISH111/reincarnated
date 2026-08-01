@@ -2,6 +2,8 @@ package com.github.sweetfish111.reincarnated.magic.compiler;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
+import com.github.sweetfish111.reincarnated.magic.nodes.action.DamageNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.action.HealingNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookForwardNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookTargetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.ReturnCaster;
@@ -213,7 +215,7 @@ public class MagicCompiler {
             case "event_key_1":return new EventKeyOneNode();
             case "lightning":return new SummonLightningNode();
             case "get_look_target":return new GetLookTargetNode();
-            case "explosion":return new ExplosionNode();
+            case "explosion":return new ExplosionNode(nodeId);
             case "caster_pos":return new ReturnCaster();
             case "offset":return new OffsetNode(nodeId);
             case "get_look_forward":return new GetLookForwardNode(nodeId);
@@ -237,6 +239,8 @@ public class MagicCompiler {
             case "less_than":return new LessThanNode();
             case "less_or_equal":return new LessOrEqualNode();
             case "shoot_projectile":return new ShootProjectileNode();
+            case "damage":return new DamageNode();
+            case "healing":return new HealingNode();
             default : return null;
         }
     }

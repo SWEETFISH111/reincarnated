@@ -1,6 +1,8 @@
 package com.github.sweetfish111.reincarnated.circuit;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
+import com.github.sweetfish111.reincarnated.client.screen.SwitchContentWidget;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +20,21 @@ public enum MagiculeNodeType {
     EXPLOSION("explosion","爆発ノード",
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC},
-            null,null,
+            ContentWidgetType.SWITCH,
+            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER},
             8
+    ),
+    DAMAGE("damage", "ダメージノード",
+            new PortDataType[]{PortDataType.EXEC, PortDataType.ENTITY, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC},
+            null, null,
+            3
+    ),
+    HEALING("healing", "回復ノード",
+            new PortDataType[]{PortDataType.EXEC, PortDataType.ENTITY, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC},
+            null, null,
+            5
     ),
     GET_LOOK_TARGET("get_look_target","見た相手",
             new PortDataType[]{},

@@ -6,8 +6,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
+import java.util.UUID;
+
 public class ExplosionNode extends AbstractMagicNode {
-    float BASECOST = 5;
+    float BASECOST = 4;
+
+    public ExplosionNode(UUID id){
+        super(id);
+    }
 
     @Override
     public void execute(MagicContext context) {
@@ -15,7 +21,13 @@ public class ExplosionNode extends AbstractMagicNode {
         masoCost = BASECOST * (float) rawData;
         super.execute(context);
         BlockPos targetPos = BlockPos.containing(pullVector3(1, context));
-
+        Level.ExplosionInteraction interaction = Level.ExplosionInteraction.NONE;
+        if (context.getCircuit() != null) {
+            Object switchBoolean = context.getCircuit().getNodeParam(this.id, "value", false);
+            if (switchBoolean instanceof Boolean b && b) {
+                interaction = Level.ExplosionInteraction.TNT;
+            }
+        }
         if(context.getCaster().level() instanceof ServerLevel serverLevel){
             float explosionPower = (float)rawData;
 
@@ -23,7 +35,7 @@ public class ExplosionNode extends AbstractMagicNode {
                     context.getCaster(),
                     targetPos.getX(), targetPos.getY(), targetPos.getZ(),
                     explosionPower,
-                    Level.ExplosionInteraction.TNT
+                    interaction
             );
         }
         pushExecute(context);

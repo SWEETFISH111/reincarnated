@@ -13,7 +13,7 @@ import net.neoforged.fml.common.Mod;
 import java.util.*;
 
 public class NodePaletteWidget {
-    private enum ContextMenuFacts{DELETE, COPY, COLLAPSE};
+    private enum ContextMenuFacts{DELETE, COPY, COLLAPSE, OPEN};
     private final MagicEditorScreen paretScreen;
     private boolean isOpen = false;
     private int screenX = 0;
@@ -114,6 +114,12 @@ public class NodePaletteWidget {
                         this.paretScreen.setCollapseTargets(targetNodes);
                         close();
                         return true;
+                    } else if (index == 3) {
+                        for (AbstructDraggingNodeWidget node : this.contextMenuTargets){
+                            if(node instanceof CompoundNodeWidget cNode){
+                                cNode.openContents();
+                            }
+                        }
                     }
                 }
             }else{
@@ -152,10 +158,24 @@ public class NodePaletteWidget {
         if(!this.isOpen) return;
 
         List<MagiculeNodeType> availableTypes = getAvailableNodeTypes();
-        int visibleCount = Math.min(
-                (!contextMenuTargets.isEmpty()) ? ContextMenuFacts.values().length : availableTypes.size(),
-                MAX_VISIBLE_ITEMS
-        );
+        int visibleCount;
+        if(!contextMenuTargets.isEmpty()){
+            int i = 0;
+            for(AbstructDraggingNodeWidget nods : contextMenuTargets){
+                if(nods instanceof DraggableNodeWidget){
+                    i ++;
+                }
+            }
+            if(i == 0){
+                visibleCount = ContextMenuFacts.values().length;
+            }else{
+                visibleCount = ContextMenuFacts.values().length - 1;
+            }
+        }else{
+            visibleCount = availableTypes.size();
+        }
+        visibleCount = Math.min(visibleCount, MAX_VISIBLE_ITEMS);
+
         if (!contextMenuTargets.isEmpty()) {
             ContextMenuFacts[] facts = ContextMenuFacts.values();
             menuHeight = calcMenuHeight(facts.length);

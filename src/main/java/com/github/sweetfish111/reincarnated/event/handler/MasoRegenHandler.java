@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.client.handler;
+package com.github.sweetfish111.reincarnated.event.handler;
 
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.network.payload.SyncMasoPayload;
@@ -18,14 +18,15 @@ public class MasoRegenHandler {
             PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
 
             float current = magicData.currentMaso;
-            float max = magicData.maxMaso;
+            float max = magicData.getMaxMaso();
 
 
             if (current < max) {
-                float regenPerTick = magicData.masoRegenRate / 20.0f;
+                float regenPerTick = magicData.getMasoRegenRate() / 20.0f;
 
                 magicData.currentMaso += regenPerTick;
-                PacketDistributor.sendToPlayer(player, new SyncMasoPayload(magicData.maxMaso, magicData.currentMaso));
+                magicData.totalRegeneratedMaso += regenPerTick;
+                PacketDistributor.sendToPlayer(player, new SyncMasoPayload(magicData.getMaxMaso(), magicData.currentMaso));
             }
         }
     }

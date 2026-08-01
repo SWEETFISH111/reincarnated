@@ -12,7 +12,7 @@ import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.phys.Vec3;
 
 public class SummonLightningNode extends AbstractMagicNode {
-    float BASECOST = 3;
+    float BASECOST = 2;
 
     @Override
     public void execute(MagicContext context) {

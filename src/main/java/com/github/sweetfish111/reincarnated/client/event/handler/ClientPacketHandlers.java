@@ -1,13 +1,10 @@
-package com.github.sweetfish111.reincarnated.client.handler;
+package com.github.sweetfish111.reincarnated.client.event.handler;
 
 import com.github.sweetfish111.reincarnated.client.MagiculeHUDOverlay;
 import com.github.sweetfish111.reincarnated.client.screen.MagicEditorScreen;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.fml.common.Mod;
 
 
 public class ClientPacketHandlers {

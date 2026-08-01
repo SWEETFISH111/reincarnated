@@ -119,6 +119,7 @@ public abstract class AbstractMagicNode implements MagicNode{
         PlayerMagicData magicData = caster.getData(ModAttachments.PLAYER_MAGIC_DATA);
         if(magicData.currentMaso >= masoCost){
             magicData.currentMaso -= masoCost;
+            magicData.totalConsumedMaso += masoCost;
         }else{
             throw new MasoShortageException(masoCost, magicData.currentMaso);
         }

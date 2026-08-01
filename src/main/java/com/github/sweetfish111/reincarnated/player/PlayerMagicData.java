@@ -11,9 +11,17 @@ import java.util.Map;
 
 public class PlayerMagicData {
     private final Map<EditorTab, MagiculeCircuit> circuits = new EnumMap<>(EditorTab.class);
-    public float maxMaso = 20f;
     public float currentMaso = 20f;
-    public float masoRegenRate = 0.1f;
+
+    public float totalRegeneratedMaso = 0;
+    public float totalConsumedMaso = 0;
+
+    private static final double BASE_MAX_MASO = 20f;
+    private static final double BASE_REGEN_RATE = 0.1f;
+
+    // 成長係数（チューニング用）
+    private static final double MAX_SCALE_FACTOR = 5.0;
+    private static final double REGEN_SCALE_FACTOR = 0.5;
 
     public PlayerMagicData(){
         for(EditorTab tab : EditorTab.values()){
@@ -23,6 +31,16 @@ public class PlayerMagicData {
 
     public MagiculeCircuit getCircuit(EditorTab tab){
         return circuits.computeIfAbsent(tab, k -> new MagiculeCircuit());
+    }
+
+    public float getMaxMaso(){
+        double scaledInput = this.totalConsumedMaso / 100.0;
+        return (float) (BASE_MAX_MASO + MAX_SCALE_FACTOR * Math.log(1.0 + scaledInput));
+    }
+
+    public float getMasoRegenRate(){
+        double scaledInput = this.totalRegeneratedMaso / 100.0;
+        return (float)(BASE_REGEN_RATE + REGEN_SCALE_FACTOR * Math.log(1.0 + scaledInput));
     }
 
     public void setCircuits(EditorTab tab, MagiculeCircuit circuit){
@@ -39,9 +57,9 @@ public class PlayerMagicData {
             rootTag.put(tab.name(), circuit.saveToNBT());
         }
         CompoundTag masoTag = new CompoundTag();
-        masoTag.putFloat("maxMaso", maxMaso);
         masoTag.putFloat("currentMaso", currentMaso);
-        masoTag.putFloat("masoRegenRate", masoRegenRate);
+        masoTag.putFloat("totalRegeneratedMaso", totalRegeneratedMaso);
+        masoTag.putFloat("totalConsumedMaso", totalConsumedMaso);
         rootTag.put("maso", masoTag);
         return rootTag;
     }
@@ -60,10 +78,9 @@ public class PlayerMagicData {
         }
         if(rootTag.contains("maso")){
             CompoundTag masoTag = rootTag.getCompound("maso").orElse(new CompoundTag());
-            maxMaso = masoTag.getFloat("maxMaso").orElse(20f);
             currentMaso = masoTag.getFloat("currentMaso").orElse(20f);
-            masoRegenRate = masoTag.getFloat("masoRegenRate").orElse(0.1f);
-
+            totalRegeneratedMaso = masoTag.getFloat("totalRegeneratedMaso").orElse(0f);
+            totalConsumedMaso = masoTag.getFloat("totalConsumedMaso").orElse(0f);
         }
     }
 }

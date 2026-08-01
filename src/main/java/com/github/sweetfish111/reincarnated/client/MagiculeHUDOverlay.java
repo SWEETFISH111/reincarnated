@@ -1,9 +1,7 @@
 package com.github.sweetfish111.reincarnated.client;
 
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ActiveTextCollector;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -26,12 +24,13 @@ public class MagiculeHUDOverlay {
         // 画面の左上（またはお好みの位置）にテキストを描画
         int x = 265;
         int y = 190;
+        int color = (current >= max) ? 0xFFFFFF : 0xFF55FFFF;
         event.getGuiGraphics().centeredText(
                 Minecraft.getInstance().font,
                 text,
                 x,
                 y,
-                0xFF55FFFF
-                );
+                color
+        );
     }
 }

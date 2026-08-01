@@ -2,18 +2,14 @@ package com.github.sweetfish111.reincarnated.network;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
-import com.github.sweetfish111.reincarnated.client.handler.ClientPacketHandlers;
+import com.github.sweetfish111.reincarnated.client.event.handler.ClientPacketHandlers;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.magic.casting.CastingManager;
 import com.github.sweetfish111.reincarnated.network.payload.*;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -54,7 +50,7 @@ public class ModNetworking {
         registrar.playToClient(SyncCircuitPayload.TYPE, SyncCircuitPayload.CODEC, ((payload, context) -> {
             context.enqueueWork(() -> {
                 if(net.neoforged.fml.loading.FMLEnvironment.getDist().isClient()) {
-                    com.github.sweetfish111.reincarnated.client.handler.ClientPacketHandlers.handleSyncCircuit(payload.magicDataTag());
+                    com.github.sweetfish111.reincarnated.client.event.handler.ClientPacketHandlers.handleSyncCircuit(payload.magicDataTag());
                 }
             });
         }));

@@ -27,7 +27,7 @@ public class ClientModEvents {
             int screenWidth = event.getScreen().width;
             int screenHeight = event.getScreen().height;
 
-            event.addListener(Button.builder(Component.literal("魔法編集"),(button)->{
+            event.addListener(Button.builder(Component.literal("Magic Edit"),(button)->{
                 if(Minecraft.getInstance().getConnection() != null){
                     Minecraft.getInstance().getConnection().send(new RequestCircuitPayload());
                 }

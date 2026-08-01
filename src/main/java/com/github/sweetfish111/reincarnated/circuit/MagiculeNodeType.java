@@ -1,8 +1,5 @@
 package com.github.sweetfish111.reincarnated.circuit;
 
-import com.github.sweetfish111.reincarnated.circuit.EditorTab;
-import com.github.sweetfish111.reincarnated.client.screen.SwitchContentWidget;
-
 import java.util.ArrayList;
 import java.util.List;
 

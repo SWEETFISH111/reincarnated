@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.network;
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.client.event.handler.ClientPacketHandlers;
+import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.magic.casting.CastingManager;
@@ -65,7 +66,7 @@ public class ModNetworking {
                     if(circuit != null){
                         System.out.println(player.getName().getString() + "is press magic_key_1. compiling magic circuit");
                         System.out.println("loaded nodes length" + circuit.getNodes().size() + "/wire length" + circuit.getWires().size());
-                        CastingManager.startCasting(new MagicContext(player, circuit));
+                        CastingManager.startCasting(new MagicContext(player, circuit, MagicCompiler.compileCircuit(circuit)));
                     }else{
                         System.out.println("circuit not found");
                     }

@@ -73,7 +73,7 @@ public class CustomMagicProjectileEntity extends ThrowableProjectile implements 
         if(!this.level().isClientSide() && this.level() instanceof ServerLevel serverLevel){
             if(this.context != null && this.nextNode != null){
                 Vec3 hitPos = hitResult.getLocation();
-                MagicContext newContext = new MagicContext(context.getCaster(), context.getCircuit());
+                MagicContext newContext = new MagicContext(context.getCaster(), context.getCircuit(), context.getRuntimeCircuit());
                 newContext.setMagicValue("hit_pos", hitPos);
 
                 if(hitResult instanceof EntityHitResult entityHitResult){

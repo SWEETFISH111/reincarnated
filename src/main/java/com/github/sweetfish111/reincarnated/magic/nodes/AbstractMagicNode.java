@@ -40,7 +40,6 @@ public abstract class AbstractMagicNode implements MagicNode{
 
     public Map<Integer, List<MagicNode>> getOutputConnections(){return outputConnections;}
     public MagicNode getNextNode(int portIndex){
-        if(this.outputConnections == null) return null;
         List<MagicNode> connections = this.outputConnections.get(portIndex);
         if (connections == null || connections.isEmpty()) {
             return null;

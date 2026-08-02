@@ -1,6 +1,7 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.control;
 
 import com.github.sweetfish111.reincarnated.magic.casting.CastingManager;
+import com.github.sweetfish111.reincarnated.magic.casting.DelayCastingManager;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
@@ -26,7 +27,7 @@ public class DelayNode extends AbstractMagicNode {
 
 
         // CastingManagerの待合室にタスクを預け、ここで同期ループを抜ける（ここで処理がストップする）
-        CastingManager.scheduleDelay(player, this, context, delayTicks);
+        DelayCastingManager.scheduleDelay(player, ((AbstractMagicNode) (this.getNextNode(0))).getId(), context, delayTicks);
     }
 
     @Override

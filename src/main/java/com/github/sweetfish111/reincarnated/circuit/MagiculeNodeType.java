@@ -88,7 +88,7 @@ public enum MagiculeNodeType {
             List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     REPEAT("repeat", "repeat",
-            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER, PortDataType.EXEC},
             null,null,
             8

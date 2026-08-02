@@ -19,16 +19,12 @@ public class NumberNode extends AbstractMagicNode {
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
         if(portIndex == 0){
-            if(context != null && context.getCircuit() != null){
+            if(context.getCircuit() != null){
                 System.out.println("======" + context.getCircuit().getNodeParam(this.id, "value", 0.0) + "=====");
                 return context.getCircuit().getNodeParam(this.id, "value", 0.0);
             }
             return 0.0;
         }
         return null;
-    }
-
-    public UUID getId(){
-        return this.id;
     }
 }

@@ -2,6 +2,7 @@ package com.github.sweetfish111.reincarnated.magic.compiler;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
+import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.DamageNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.HealingNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.DelayNode;
@@ -27,18 +28,18 @@ import java.util.*;
 
 public class MagicCompiler {
 
-    private static void compileNodes(MagiculeCircuit circuit, Map<UUID, MagicNode> instancedNodes){
+    private static void compileNodes(MagiculeCircuit circuit, Map<UUID, AbstractMagicNode> instancedNodes){
         if (circuit.getNodes() == null) return;
         for (MagiculeCircuit.NodeData data : circuit.getNodes()){
             MagicNode actualNode = createNodeInstance(data.type.getId(), data.id);
             if(actualNode != null){
-                instancedNodes.put(data.id, actualNode);
+                instancedNodes.put(data.id, (AbstractMagicNode) actualNode);
             }
         }
     }
 
     // 再帰的にすべての階層のノードをインスタンス化し、全階層のワイヤーをリストに回収する
-    private static void compileCompoundNodes(MagiculeCircuit circuit, Map<UUID, MagicNode> instancedNodes, List<MagiculeCircuit.WireData> allWires){
+    private static void compileCompoundNodes(MagiculeCircuit circuit, Map<UUID, AbstractMagicNode> instancedNodes, List<MagiculeCircuit.WireData> allWires){
         if (circuit.getCompoundNodes() == null) return;
         for(MagiculeCircuit.CompoundNodeData data : circuit.getCompoundNodes()){
             MagiculeCircuit innerCircuit = data.getCompoundCircuit();
@@ -119,7 +120,7 @@ public class MagicCompiler {
     }
 
     // プロキシやコンパウンドを透過して、最終的な「実体ノード」と「ポート番号」を割り出す再帰解決ロジック
-    private static ResolvedEndpoint resolveEndpoint(UUID nodeId, int portIndex, boolean isTarget, WireResolutionContext ctx, Map<UUID, MagicNode> instancedNodes) {
+    private static ResolvedEndpoint resolveEndpoint(UUID nodeId, int portIndex, boolean isTarget, WireResolutionContext ctx, Map<UUID, AbstractMagicNode> instancedNodes) {
         // 1. すでに実体ノードならそのまま返す
         if (instancedNodes.containsKey(nodeId)) {
             return new ResolvedEndpoint(instancedNodes.get(nodeId), portIndex);
@@ -168,7 +169,7 @@ public class MagicCompiler {
         }
     }
 
-    private static void compileWires(MagiculeCircuit rootCircuit, Map<UUID, MagicNode> instancedNodes, List<MagiculeCircuit.WireData> allWires){
+    private static void compileWires(MagiculeCircuit rootCircuit, Map<UUID, AbstractMagicNode> instancedNodes, List<MagiculeCircuit.WireData> allWires){
         if (allWires == null) return;
 
         WireResolutionContext ctx = new WireResolutionContext();
@@ -184,23 +185,28 @@ public class MagicCompiler {
         }
     }
 
-    public static void compileAndExecute(MagicContext context){
-        Map<UUID, MagicNode> instancedNodes = new HashMap<>();
+    public static Map<UUID, AbstractMagicNode> compileCircuit(MagiculeCircuit circuit){
+        Map<UUID, AbstractMagicNode> instancedNodes = new HashMap<>();
         List<MagiculeCircuit.WireData> allWires = new ArrayList<>();
 
-        if (context.getCircuit().getWires() != null) {
-            allWires.addAll(context.getCircuit().getWires());
+        if (circuit.getWires() != null) {
+            allWires.addAll(circuit.getWires());
         }
 
-        compileNodes(context.getCircuit(), instancedNodes);
-        compileCompoundNodes(context.getCircuit(), instancedNodes, allWires);
-        compileWires(context.getCircuit(), instancedNodes, allWires);
+        compileNodes(circuit, instancedNodes);
+        compileCompoundNodes(circuit, instancedNodes, allWires);
+        compileWires(circuit, instancedNodes, allWires);
+        return instancedNodes;
+    }
+    public static void compileAndExecute(MagicContext context){
+        Map<UUID, AbstractMagicNode> instancedNodes = compileCircuit(context.getCircuit());
 
         if (context.getCircuit().getNodes() != null) {
             for (MagiculeCircuit.NodeData data : context.getCircuit().getNodes()){
                 if(data.type == MagiculeNodeType.EVENT_KEY_ONE){
-                    MagicNode startNode = instancedNodes.get(data.id);
+                    AbstractMagicNode startNode = instancedNodes.get(data.id);
                     if(startNode != null){
+                        RuntimeMagicCircuit runtimeCircuit = new RuntimeMagicCircuit(context.getCaster().getUUID(), instancedNodes, startNode);
                         startNode.execute(context);
                         break;
                     }

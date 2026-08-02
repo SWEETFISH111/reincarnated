@@ -24,22 +24,13 @@ import java.util.Map;
 import java.util.UUID;
 
 //魔法の計算コストから詠唱時間を算出して実際に発動させるクラス
-@EventBusSubscriber(modid = "reincarnated")
 public class CastingManager {
     private static final Map<UUID, CastingTask>activeCasts = new HashMap<>();
-    private static final java.util.List<DelayedMagicTask> delayedTasks = new java.util.ArrayList<>();
 
-    public static void scheduleDelay(ServerPlayer player, AbstractMagicNode currentNode, MagicContext context, int delayTickes){
-        if(delayTickes <= 0){
-            executeNextNode(player, currentNode, context);
-            return;
-        }
-        delayedTasks.add(new DelayedMagicTask(player, currentNode, context, delayTickes));
+    private static void registerTimer(UUID nextNodeId, MagicContext context, int delayTicks, int intervalTicks, int count){
+
     }
-    public static void executeNextNode(ServerPlayer player, AbstractMagicNode currentNode, MagicContext context){
-        if (currentNode == null) return;
-        currentNode.pushExecute(0, context);
-    }
+
     public static void startCasting(MagicContext context) {
 
         //くみ上げられたノードから静的に計算コストを算出。
@@ -59,7 +50,6 @@ public class CastingManager {
                 triggerThermalRunawayPenalty(context.getCaster().level(), context.getCaster());
             } catch (MasoShortageException m) {
                 context.getCaster().sendSystemMessage(Component.literal("《告》個体名" + context.getCaster().getName().getString() + "の魔素残量が低下。術式を維持できません"));
-
             }
             return;
         }
@@ -75,7 +65,7 @@ public class CastingManager {
 
         if(task.isReady()){
             try{
-                MagicCompiler.compileAndExecute(new MagicContext(player, task.getCircuit()));
+                MagicCompiler.compileAndExecute(task.getContext());
             }catch(CalculationCapacityOverException c){
                 player.sendSystemMessage(Component.literal("《告》個体名" + player.getName().getString() + "の演算容量が限界を超過。術式暴走が発生"));
                 triggerThermalRunawayPenalty(player.level(), player);
@@ -92,8 +82,7 @@ public class CastingManager {
         activeCasts.remove(player.getUUID());
     }
 
-    @SubscribeEvent
-    public static void onServerTick(ServerTickEvent.Post event) {
+    public static void onServerTick() {
         if (!activeCasts.isEmpty()) {
 
             Iterator<Map.Entry<UUID, CastingTask>> iterator = activeCasts.entrySet().iterator();
@@ -124,25 +113,6 @@ public class CastingManager {
                             player.getX(), player.getY() + 1.5, player.getZ(),
                             2, 0.5, 0.3, 0.5, 0.1
                     );
-                }
-            }
-        }
-
-        if(!delayedTasks.isEmpty()){
-            Iterator<DelayedMagicTask> delayIterator = delayedTasks.iterator();
-            while (delayIterator.hasNext()) {
-                DelayedMagicTask task = delayIterator.next();
-                ServerPlayer player = task.getPlayer();
-
-                if (player == null || player.isRemoved()) {
-                    delayIterator.remove();
-                    continue;
-                }
-
-                // タイマーを進め、時間が来たら発動
-                if (task.tick()) {
-                    executeNextNode(player, task.getCurrentNode(), task.getContext());
-                    delayIterator.remove();
                 }
             }
         }

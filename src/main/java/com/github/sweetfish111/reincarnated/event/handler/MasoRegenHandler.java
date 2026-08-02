@@ -9,10 +9,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-@EventBusSubscriber(modid = "reincarnated")
 public class MasoRegenHandler {
-    @SubscribeEvent
-    public static void onPlayerTick(PlayerTickEvent.Post event){
+    public static void onPlayerTick(PlayerTickEvent event){
         if (event.getEntity() instanceof ServerPlayer player) {
 
             PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);

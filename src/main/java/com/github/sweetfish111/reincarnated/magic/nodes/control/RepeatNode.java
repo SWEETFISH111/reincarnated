@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.control;
 
+import com.github.sweetfish111.reincarnated.magic.casting.TimerCastingManager;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 
@@ -13,16 +14,26 @@ public class RepeatNode extends AbstractMagicNode {
     @Override
     public void execute(MagicContext context) {
         super.execute(context);
-        System.out.println("before");
-        double rawCount = (int)pullDouble(1, context);
-        int count = (rawCount <= 0) ? 1 : (int) Math.round(rawCount);
-        for(int i = 0; i < count; i++){
-            context.setNodeLocalVariable(this.id, 0, (double) i);
+        int totalCount = (int)pullDouble(1, context);
+        double intervalTicks = pullDouble(2, context);
+
+        context.setNodeLocalVariable(this.id, 0, 0);
+        if(getNextNode(0) != null) {
             pushExecute(0, context);
-            System.out.println("executing " + i);
         }
-        System.out.println("finish");
-        pushExecute(2, context);
+        totalCount--;
+
+        UUID nextNodeId = ((AbstractMagicNode)(this.getNextNode(0))).getId();
+        if(totalCount >= 1){
+            TimerCastingManager.registerTimer(
+                    nextNodeId,
+                    this.id,
+                    context,
+                    (int)intervalTicks * 20,
+                    (int)intervalTicks * 20,
+                    totalCount - 1
+            );
+        }
     }
 
     @Override

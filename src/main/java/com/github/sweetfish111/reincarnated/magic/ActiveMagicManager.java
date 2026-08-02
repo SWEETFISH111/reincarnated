@@ -50,7 +50,7 @@ public class ActiveMagicManager {
             try {
                 // 実行用のコンテキストを生成（術者やレベル情報を内包）
                 PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-                MagicContext context = new MagicContext(player, magicData.getCircuit(EditorTab.MAGIC));
+                MagicContext context = new MagicContext(player, magicData.getCircuit(EditorTab.MAGIC), MagicCompiler.compileCircuit(magicData.getCircuit(EditorTab.MAGIC)));
                 nodeInstance.execute(context);
             } catch (CalculationCapacityOverException c) {
                 player.sendSystemMessage(Component.literal("《告》個体名" + player.getName() + "の演算容量が限界を超過。術式暴走が発生"));

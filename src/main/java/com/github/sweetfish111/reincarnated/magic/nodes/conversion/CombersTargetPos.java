@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.conversion;
 
+import com.github.sweetfish111.reincarnated.magic.CasterSnapshot;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import net.minecraft.world.entity.Entity;
@@ -20,11 +21,13 @@ public class CombersTargetPos extends AbstractMagicNode {
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
-        Entity targetEntity = pullEntity(0, context);
-        if(targetEntity != null){
-            Vec3 targetPos = targetEntity.position();
-            return targetPos;
+        Object target = pullData(0, context);
+        if(target instanceof Entity e){
+            return e.getPosition(1);
+        }else if(target instanceof CasterSnapshot c){
+            return c.position();
+        }else{
+            return null;
         }
-        return null;
     }
 }

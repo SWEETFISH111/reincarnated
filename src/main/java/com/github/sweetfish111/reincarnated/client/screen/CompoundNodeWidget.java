@@ -54,12 +54,15 @@ public class CompoundNodeWidget extends AbstructDraggingNodeWidget {
     public String getCustomName(){return this.customName;}
 
     public void openContents(){
-        MagiculeCircuit newCircuit = parentScreen.getThisLayerManager().getWorkCircuit();
+        MagiculeCircuit parentCircuit = parentScreen.getThisLayerManager().getWorkCircuit();
         MagiculeCircuit contentCircuit = nodeData.getCompoundCircuit();
-        newCircuit.getNodes().addAll(contentCircuit.getNodes());
-        newCircuit.getCompoundNodes().addAll(contentCircuit.getCompoundNodes());
-        newCircuit.getWires().addAll(contentCircuit.getWires());
-        newCircuit.removeNodeAndWires(this.id);
+
+        parentCircuit.getNodes().addAll(contentCircuit.getNodes());
+        parentCircuit.getCompoundNodes().addAll(contentCircuit.getCompoundNodes());
+        parentCircuit.getWires().addAll(contentCircuit.getWires());
+        parentCircuit.getNodeParameters().putAll(contentCircuit.getNodeParameters());
+        parentCircuit.removeNodeAndWires(this.id);
+
         parentScreen.rebuildNodeWidgets();
     }
 

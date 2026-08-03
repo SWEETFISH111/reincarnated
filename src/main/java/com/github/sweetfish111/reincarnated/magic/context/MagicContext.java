@@ -2,6 +2,7 @@ package com.github.sweetfish111.reincarnated.magic.context;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
+import com.github.sweetfish111.reincarnated.magic.CasterSnapshot;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,6 +15,7 @@ public class MagicContext {
     final ServerPlayer caster;
     private final MagiculeCircuit circuit;
     private final Map<UUID, AbstractMagicNode> runtimeCircuit;
+    private final CasterSnapshot snapshot;
     private final Map<UUID, Map<Integer, Double>> LocalVariable = new HashMap<>();
     private final Map<String, Object> magicValue = new HashMap<>();
     private final ExecutionTrace trace = new ExecutionTrace();
@@ -26,6 +28,7 @@ public class MagicContext {
         this.runtimeCircuit = runtimeCircuit;
         this.caster = caster;
         this.level = caster.level();
+        this.snapshot = CasterSnapshot.capture(caster);
     }
 
     public ServerLevel getLevel() {
@@ -50,8 +53,7 @@ public class MagicContext {
     public Object getMagicValue(String key){
         return this.magicValue.get(key);
     }
-    public int getCurrentCount(){return this.currentCount;}
-    public int getMaxLimit(){return this.MAX_LIMIT;}
+    public CasterSnapshot getSnapshot(){return this.snapshot;}
     public Map<UUID, AbstractMagicNode> getRuntimeCircuit(){return this.runtimeCircuit;}
     public AbstractMagicNode getRuntimeNode(UUID id){return this.runtimeCircuit.get(id);}
 

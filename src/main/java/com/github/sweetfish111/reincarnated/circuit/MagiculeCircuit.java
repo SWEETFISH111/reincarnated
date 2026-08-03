@@ -18,7 +18,6 @@ public class MagiculeCircuit {
     private final List<WireData> wires = new ArrayList<>();
     private Map<UUID, Map<String, Object>> nodeParameters = new HashMap<>();
 
-    public MagiculeCircuit(){}
 
     public void addNode(NodeData node){
         this.nodes.add(node);
@@ -90,8 +89,8 @@ public class MagiculeCircuit {
     public Map<UUID, Map<String, Object>> getNodeParameters(){return this.nodeParameters;}
     private Object searchParamInCompounds(List<CompoundNodeData> compounds, UUID nodeId, String key){
         for(CompoundNodeData cNode : compounds){
-            if(cNode.innerNodeParameters.containsKey(nodeId)){
-                Map<String, Object> params = cNode.innerNodeParameters.get(nodeId);
+            if(cNode.getCompoundCircuit().getNodeParameters().containsKey(nodeId)){
+                Map<String, Object> params = cNode.getCompoundCircuit().getNodeParameters().get(nodeId);
                 if(params.containsKey(key)){
                     return params.get(key);
                 }
@@ -164,10 +163,11 @@ public class MagiculeCircuit {
                 innerNodes,
                 innerCompoundNodes,
                 innerWires,
+                innerNodeParams,
                 minX,minY
         );
 
-        compoundNode.innerNodeParameters.putAll(innerNodeParams);
+        compoundNode.getCompoundCircuit().getNodeParameters().putAll(innerNodeParams);
 
         this.compoundNodes.add(compoundNode);
     }
@@ -368,7 +368,7 @@ public class MagiculeCircuit {
 
         // 4. InnerNodeParameters
         ListTag innerParamsTag = new ListTag();
-        for(Map.Entry<UUID, Map<String, Object>> entry : cNode.innerNodeParameters.entrySet()){
+        for(Map.Entry<UUID, Map<String, Object>> entry : cNode.getCompoundCircuit().getNodeParameters().entrySet()){
             CompoundTag pEntryTag = new CompoundTag();
             pEntryTag.putString("NodeId", entry.getKey().toString());
             CompoundTag pTag = new CompoundTag();
@@ -487,10 +487,11 @@ public class MagiculeCircuit {
                 innerNodes,
                 innerCompoundNodes,
                 innerWires,
+                innerNodeParams,
                 x,
                 y
         );
-        compoundNode.innerNodeParameters.putAll(innerNodeParams);
+        compoundNode.getCompoundCircuit().getNodeParameters().putAll(innerNodeParams);
         return compoundNode;
     }
 
@@ -549,15 +550,15 @@ public class MagiculeCircuit {
         public final UUID id;
         public final String customName;
         MagiculeCircuit compoundCircuit = new MagiculeCircuit();
-        public final Map<UUID, Map<String, Object>> innerNodeParameters = new HashMap<>();
         public int x, y;
 
-        public CompoundNodeData(UUID id, String customName, List<MagiculeCircuit.NodeData> innerNodes,List<MagiculeCircuit.CompoundNodeData> innerCompoundNodes, List<MagiculeCircuit.WireData> innerWires, int x, int y){
+        public CompoundNodeData(UUID id, String customName, List<MagiculeCircuit.NodeData> innerNodes,List<MagiculeCircuit.CompoundNodeData> innerCompoundNodes, List<MagiculeCircuit.WireData> innerWires, Map<UUID, Map<String, Object>> innerNodeParameters, int x, int y){
             this.id = id;
             this.customName = customName;
             this.compoundCircuit.setNodes(innerNodes);
             this.compoundCircuit.setCompoundNodes(innerCompoundNodes);
             this.compoundCircuit.setWires(innerWires);
+            this.compoundCircuit.getNodeParameters().putAll(innerNodeParameters);
             this.x = x;
             this.y = y;
         }

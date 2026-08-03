@@ -49,8 +49,8 @@ public class MagicCompiler {
             compileNodes(innerCircuit, instancedNodes);
 
             // パラメータの復元
-            if(data.innerNodeParameters != null){
-                for(Map.Entry<UUID, Map<String, Object>> entry : data.innerNodeParameters.entrySet()){
+            if(data.getCompoundCircuit().getNodeParameters() != null){
+                for(Map.Entry<UUID, Map<String, Object>> entry : data.getCompoundCircuit().getNodeParameters().entrySet()){
                     UUID nId = entry.getKey();
                     if (entry.getValue() != null) {
                         for(Map.Entry<String, Object> paramEntry : entry.getValue().entrySet()){
@@ -85,8 +85,8 @@ public class MagicCompiler {
         for(MagiculeCircuit.NodeData node : target.getCompoundCircuit().getNodes()){
             if(node.type == proxyType){
                 double val = 0.0;
-                if(target.innerNodeParameters != null && target.innerNodeParameters.get(node.id) != null){
-                    Object obj = target.innerNodeParameters.get(node.id).get("value");
+                if(target.getCompoundCircuit().getNodeParameters() != null && target.getCompoundCircuit().getNodeParameters().get(node.id) != null){
+                    Object obj = target.getCompoundCircuit().getNodeParameters().get(node.id).get("value");
                     if(obj instanceof Number n) {
                         val = n.doubleValue();
                     }

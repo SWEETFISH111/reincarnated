@@ -15,7 +15,7 @@ public class RepeatNode extends AbstractMagicNode {
     public void execute(MagicContext context) {
         super.execute(context);
         int totalCount = (int)pullDouble(1, context);
-        double intervalTicks = pullDouble(2, context);
+        double intervalTime = pullDouble(2, context);
 
         context.setNodeLocalVariable(this.id, 0, 0);
         if(getNextNode(0) != null) {
@@ -23,16 +23,18 @@ public class RepeatNode extends AbstractMagicNode {
         }
         totalCount--;
 
-        UUID nextNodeId = ((AbstractMagicNode)(this.getNextNode(0))).getId();
-        if(totalCount >= 1){
-            TimerCastingManager.registerTimer(
-                    nextNodeId,
-                    this.id,
-                    context,
-                    (int)intervalTicks * 20,
-                    (int)intervalTicks * 20,
-                    totalCount - 1
-            );
+        AbstractMagicNode nextNode = (AbstractMagicNode)(this.getNextNode(0));
+        if(nextNode != null) {
+            if (totalCount >= 1) {
+                TimerCastingManager.registerTimer(
+                        nextNode.getId(),
+                        this.id,
+                        context,
+                        (int) (intervalTime * 20),
+                        (int) (intervalTime * 20),
+                        totalCount - 1
+                );
+            }
         }
     }
 

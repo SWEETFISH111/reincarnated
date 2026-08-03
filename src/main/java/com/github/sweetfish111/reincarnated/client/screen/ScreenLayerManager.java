@@ -126,7 +126,7 @@ public class ScreenLayerManager {
                 innerCircuit.addWire(wireData.sourceId, wireData.sourcePortIndex, wireData.targetId, wireData.targetPortIndex, wireData.isDataFlow);
             }
 
-            for(Map.Entry<UUID, Map<String, Object>> entry : compoundData.innerNodeParameters.entrySet()){
+            for(Map.Entry<UUID, Map<String, Object>> entry : compoundData.getCompoundCircuit().getNodeParameters().entrySet()){
                 UUID nId = entry.getKey();
                 for(Map.Entry<String, Object> paramEntry : entry.getValue().entrySet()){
                     innerCircuit.setNodeParam(nId, paramEntry.getKey(), paramEntry.getValue());
@@ -156,7 +156,7 @@ public class ScreenLayerManager {
                 cNode.getCompoundCircuit().getNodes().clear();
                 cNode.getCompoundCircuit().getCompoundNodes().clear();
                 cNode.getCompoundCircuit().getWires().clear();
-                cNode.innerNodeParameters.clear();
+                cNode.getCompoundCircuit().getNodeParameters().clear();
 
                 for(AbstructDraggingNodeWidget widget : nodeWidgets){
                     if(widget instanceof CompoundNodeWidget compoundWidget){
@@ -175,7 +175,7 @@ public class ScreenLayerManager {
 
                         Object val = widget.getContentWidget() != null ? widget.getContentWidget().getCurrentValue() : null;
                         if(val != null){
-                            cNode.innerNodeParameters.computeIfAbsent(widget.getId(), k -> new HashMap<>()).put("value", val);
+                            cNode.getCompoundCircuit().getNodeParameters().computeIfAbsent(widget.getId(), k -> new HashMap<>()).put("value", val);
                         }
                     }
                 }

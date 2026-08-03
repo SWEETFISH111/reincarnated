@@ -2,6 +2,7 @@ package com.github.sweetfish111.reincarnated.magic.nodes;
 
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.magic.CasterSnapshot;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.core.BlockPos;
@@ -62,10 +63,6 @@ public abstract class AbstractMagicNode implements MagicNode{
             case BlockPos pos -> Vec3.atBottomCenterOf(pos);
             default -> null;
         };
-    }
-    protected Entity pullEntity(int myInputPortIndex, MagicContext context){
-        Object rawData = pullData(myInputPortIndex, context);
-        return (Entity) rawData;
     }
     protected double pullDouble(int myInputPortIndex, MagicContext context){
         Object rawData = pullData(myInputPortIndex, context);

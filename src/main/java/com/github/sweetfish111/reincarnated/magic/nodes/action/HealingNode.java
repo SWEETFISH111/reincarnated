@@ -20,7 +20,9 @@ public class HealingNode extends AbstractMagicNode {
         double healingAmount = pullDouble(2, context);
         masoCost = BASECOST * (float) healingAmount;
         super.execute(context);
-        LivingEntity targetEntity = (LivingEntity) pullEntity(1, context);
-        targetEntity.setHealth(targetEntity.getHealth() + (float) healingAmount);
+        Object target = pullData(1, context);
+        if(target instanceof LivingEntity targetEntity) {
+            targetEntity.setHealth(targetEntity.getHealth() + (float) healingAmount);
+        }
     }
 }

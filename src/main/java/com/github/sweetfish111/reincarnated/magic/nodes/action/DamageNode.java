@@ -25,14 +25,14 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
         double damageAmount = pullDouble(2, context);
         masoCost = BASECOST * (float) damageAmount;
         super.execute(context);
-        Entity targetEntity = pullEntity(1, context);
-
-        DamageSource source = new DamageSource(
-                context.getCaster().level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.MAGIC),
-                null,context.getCaster(),null
-        );
-        targetEntity.hurtServer(context.getLevel(), source, (float) damageAmount);
-
+        Object target = pullData(1, context);
+        if(target instanceof Entity targetEntity){
+            DamageSource source = new DamageSource(
+                    context.getCaster().level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.MAGIC),
+                    null,context.getCaster(),null
+            );
+            targetEntity.hurtServer(context.getLevel(), source, (float) damageAmount);
+        }
     }
 
     @Override

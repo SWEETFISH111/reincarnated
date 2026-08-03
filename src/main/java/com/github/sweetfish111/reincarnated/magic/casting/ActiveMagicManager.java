@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.magic;
+package com.github.sweetfish111.reincarnated.magic.casting;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
@@ -23,7 +23,7 @@ public class ActiveMagicManager {
     private static final Map<UUID, List<ActiveNodeEntry>> activeRegistry = new ConcurrentHashMap<>();
 
     /**
-     * 常駐ノードのエントリークラス（スロットリングやタイマー制御もここで持たせると超便利！）
+     * 常駐ノードのエントリークラス
      */
     public static class ActiveNodeEntry {
         private final UUID nodeId;

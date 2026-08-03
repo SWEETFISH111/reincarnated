@@ -39,7 +39,10 @@ public enum MagiculeNodeType {
     ),
     CASTER_POS("caster_pos", "return caster",
             new PortDataType[]{},
-            new PortDataType[]{PortDataType.ENTITY}
+            new PortDataType[]{PortDataType.ENTITY},
+            ContentWidgetType.SWITCH,
+            new PortDataType[]{},
+            1
     ),
     OFFSET("offset", "offset",
             new PortDataType[]{PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
@@ -176,7 +179,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.ANY},
             ContentWidgetType.NUMBER_INPUT,
             null,
-            0,
+            1,
             List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     OUTPUT_PROXY("output_proxy", "output proxy",
@@ -184,7 +187,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{},
             ContentWidgetType.NUMBER_INPUT,
             null,
-            0,
+            1,
             List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     );
 

@@ -1,17 +1,16 @@
 package com.github.sweetfish111.reincarnated.magic.casting;
 
+import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class TimerCastingManager {
     private static final List<TimerMagicTask> timerTasks = new ArrayList<>();
@@ -53,6 +52,14 @@ public class TimerCastingManager {
                     task.resetTimer();
                 } else {
                     iterator.remove();
+                    Map<UUID, AbstractMagicNode> instancedNode = task.getContext().getRuntimeCircuit();
+                    AbstractMagicNode repeatNode = instancedNode.get(task.getRepeatNodeId());
+                    if(repeatNode != null){
+                        MagicNode nextNode = repeatNode.getNextNode(2);
+                        if(nextNode != null){
+                            executeNextNode(task.getContext().getCaster(), ((AbstractMagicNode)nextNode).getId(), task.getContext());
+                        }
+                    }
                 }
             }
         }

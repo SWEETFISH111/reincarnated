@@ -154,6 +154,12 @@ public class MagicEditorScreen extends Screen {
         }
     }
 
+    @Override
+    public void tick() {
+        super.tick();
+        this.thisLayerManager.tick();
+    }
+
     //レンダリングメソッド
     @Override
     public void extractRenderState(GuiGraphicsExtractor guiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
@@ -186,7 +192,25 @@ public class MagicEditorScreen extends Screen {
                 nodeWidget.getContentWidget().getContentWidget().extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseY, partialTick);
             }
         }
+
+
         guiGraphicsExtractor.pose().popMatrix();
+
+
+
+        String errorMsg = this.thisLayerManager.getErrorMessage();
+        if (errorMsg != null) {
+            int screenWidth = this.width;
+
+            // 画面中央上部に赤字でアナウンスを表示
+            guiGraphicsExtractor.centeredText(
+                    this.font,
+                    Component.literal(errorMsg),
+                    screenWidth / 2,
+                    40, // 画面上からの高さ
+                    0xFFFF5555 // 赤色のカラーコード
+            );
+        }
         for(Button btn : thisLayerManager.getTabBtns()){
             btn.extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseY, partialTick);
         }

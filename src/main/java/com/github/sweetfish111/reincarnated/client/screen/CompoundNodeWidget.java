@@ -66,6 +66,12 @@ public class CompoundNodeWidget extends AbstructDraggingNodeWidget {
         parentScreen.rebuildNodeWidgets();
     }
 
+    public void renderLockedOverLay(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick){
+        if(this.nodeData.isLocked()){
+            graphics.centeredText(Minecraft.getInstance().font, "locked", this.getX(), this.getY(), 0xFFF4E511);
+        }
+    }
+
     @Override
     public void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.extractWidgetRenderState(guiGraphics, mouseX, mouseY, partialTick);
@@ -77,6 +83,7 @@ public class CompoundNodeWidget extends AbstructDraggingNodeWidget {
 
         // タイトル文字の描画
         guiGraphics.centeredText(Minecraft.getInstance().font, this.customName, this.getX() + (this.width / 2), this.getY() + 16, 0xFFFFFF55);
+        renderLockedOverLay(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override

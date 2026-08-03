@@ -18,6 +18,8 @@ public class ScreenLayerManager {
     private PlayerMagicData magicData;
     private List<Button> tabBtns = new ArrayList<>();
     private Button backBtn;
+    private String errorMessage = null;
+    private int errorTimer = 0;
 
 
     public void init(PlayerMagicData magicData) {
@@ -26,12 +28,27 @@ public class ScreenLayerManager {
         this.workCircuit = this.magicData.getCircuit(this.currentTab);
     }
 
+    public String getErrorMessage(){return this.errorMessage;}
     public List<Button> getTabBtns(){return this.tabBtns;}
     public Button getBackBtn(){return this.backBtn;}
     public EditorTab getCurrentTab(){return this.currentTab;}
     public MagiculeCircuit getWorkCircuit(){return this.workCircuit;}
     public Deque<CircuitLayer> getLayerStack(){return this.layerStack;}
     public void setBackBtn(Button backBtn) {this.backBtn = backBtn;}
+
+    public void triggerError(String message){
+        this.errorMessage = message;
+        this.errorTimer = 60;
+    }
+
+    public void tick(){
+        if (this.errorTimer > 0) {
+            this.errorTimer--;
+            if (this.errorTimer <= 0) {
+                this.errorMessage = null;
+            }
+        }
+    }
 
     public void switchTab(EditorTab tab) {
         if(this.currentTab == tab)return;
@@ -111,6 +128,12 @@ public class ScreenLayerManager {
     }
 
     public boolean diveLayer(AbstructDraggingNodeWidget node, List<AbstructDraggingNodeWidget> nodeWidgets){
+        if(node instanceof CompoundNodeWidget cNode){
+            if (cNode.getLinkedData().isLocked()) {
+                triggerError("告。より上位の権限レベルを検出。この回路を解析できません。");
+                return false;
+            }
+        }
         MagiculeCircuit.CompoundNodeData compoundData = findCompoundDataById(node.getId());
         if(compoundData != null){
             saveCurrentTabCircuit(nodeWidgets);

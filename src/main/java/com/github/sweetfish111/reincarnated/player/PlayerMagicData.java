@@ -4,10 +4,9 @@ import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PlayerMagicData {
     private final Map<EditorTab, MagiculeCircuit> circuits = new EnumMap<>(EditorTab.class);
@@ -22,6 +21,16 @@ public class PlayerMagicData {
     // 成長係数（チューニング用）
     private static final double MAX_SCALE_FACTOR = 5.0;
     private static final double REGEN_SCALE_FACTOR = 0.5;
+
+    private final Set<String> unlockedConditionKeys = new HashSet<>();
+
+    public boolean hasUnlocked(String key){
+        return this.unlockedConditionKeys.contains(key);
+    }
+
+    public void unlock(String key){
+        this.unlockedConditionKeys.add(key);
+    }
 
     public PlayerMagicData(){
         for(EditorTab tab : EditorTab.values()){
@@ -61,6 +70,14 @@ public class PlayerMagicData {
         masoTag.putFloat("totalRegeneratedMaso", totalRegeneratedMaso);
         masoTag.putFloat("totalConsumedMaso", totalConsumedMaso);
         rootTag.put("maso", masoTag);
+
+        ListTag unlockedKeys = new ListTag();
+        for (String key : this.unlockedConditionKeys){
+            unlockedKeys.add(StringTag.valueOf(key));
+        }
+
+        rootTag.put("unlockedKeys", unlockedKeys);
+
         return rootTag;
     }
 
@@ -81,6 +98,12 @@ public class PlayerMagicData {
             currentMaso = masoTag.getFloat("currentMaso").orElse(20f);
             totalRegeneratedMaso = masoTag.getFloat("totalRegeneratedMaso").orElse(0f);
             totalConsumedMaso = masoTag.getFloat("totalConsumedMaso").orElse(0f);
+        }
+        ListTag unlockedKeys = rootTag.getListOrEmpty("unlockedKeys");
+        if(unlockedKeys != null){
+            for (int i = 0; i < unlockedKeys.size(); i++){
+                unlockedConditionKeys.add(unlockedKeys.getStringOr(i, null));
+            }
         }
     }
 }

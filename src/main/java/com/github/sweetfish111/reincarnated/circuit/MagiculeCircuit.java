@@ -164,6 +164,8 @@ public class MagiculeCircuit {
                 minX,minY
         );
 
+        compoundNode.setLocked(false);
+
         compoundNode.getCompoundCircuit().getNodeParameters().putAll(innerNodeParams);
 
         this.compoundNodes.add(compoundNode);
@@ -330,6 +332,14 @@ public class MagiculeCircuit {
         cnTag.putString("Name", cNode.customName);
         cnTag.putInt("X", cNode.x);
         cnTag.putInt("Y", cNode.y);
+        cnTag.putBoolean("IsLocked", cNode.isLocked);
+
+        //UnlockConditionKeys
+        ListTag unlockKeys = new ListTag();
+        for(String key : cNode.unlockConditionKey){
+            unlockKeys.add(StringTag.valueOf(key));
+        }
+        cnTag.put("UnlockKeys", unlockKeys);
 
         // 1. InnerNodes
         ListTag innerNodeTag = new ListTag();
@@ -392,6 +402,15 @@ public class MagiculeCircuit {
         List<CompoundNodeData> innerCompoundNodes = new ArrayList<>();
         List<MagiculeCircuit.WireData> innerWires = new ArrayList<>();
         Map<UUID, Map<String, Object>> innerNodeParams = new HashMap<>();
+        boolean isLocked = c.getBoolean("IsLocked").orElse(true);
+        List<String> unlockKeys = new ArrayList<>();
+
+        ListTag keysList = c.getList("UnlockKeys").orElse(null);
+        if(keysList != null){
+            for(int i = 0; i < keysList.size(); i++){
+                unlockKeys.add(keysList.getString(i).orElse(null));
+            }
+        }
 
 
         Optional<ListTag> innerNodesTag = c.getList("InnerNodes");
@@ -548,6 +567,8 @@ public class MagiculeCircuit {
         public final String customName;
         MagiculeCircuit compoundCircuit = new MagiculeCircuit();
         public int x, y;
+        private boolean isLocked = true;
+        private List<String> unlockConditionKey = new ArrayList<>();
 
         public CompoundNodeData(UUID id, String customName, List<MagiculeCircuit.NodeData> innerNodes,List<MagiculeCircuit.CompoundNodeData> innerCompoundNodes, List<MagiculeCircuit.WireData> innerWires, Map<UUID, Map<String, Object>> innerNodeParameters, int x, int y){
             this.id = id;
@@ -560,6 +581,9 @@ public class MagiculeCircuit {
             this.y = y;
         }
 
+        public boolean isLocked(){return this.isLocked;}
+        public void setLocked(boolean locked){this.isLocked = locked;}
+        public List<String> getUnlockConditionKey(){return this.unlockConditionKey;}
         public MagiculeCircuit getCompoundCircuit(){return this.compoundCircuit;}
     }
 

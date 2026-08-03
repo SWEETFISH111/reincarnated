@@ -8,6 +8,10 @@ public enum MagiculeNodeType {
             new PortDataType[]{},
             new PortDataType[]{PortDataType.EXEC}
     ),
+    ON_TICK("on_tick", "on tick",
+            new PortDataType[]{PortDataType.EXEC, PortDataType.BOOLEAN, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC}
+    ),
     LIGHTNING("lightning", "lightning",
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE},
             new PortDataType[]{PortDataType.EXEC},
@@ -95,6 +99,10 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER, PortDataType.EXEC},
             null,null,
             8
+    ),
+    TOGGLE("toggle", "toggle",
+            new PortDataType[]{PortDataType.EXEC},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.BOOLEAN}
     ),
     DELAY("delay", "delay",
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},

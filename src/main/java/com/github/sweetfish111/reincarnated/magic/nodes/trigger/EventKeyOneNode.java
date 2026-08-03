@@ -12,7 +12,7 @@ public class EventKeyOneNode extends AbstractMagicNode {
 
     @Override
     public void execute(MagicContext context) {
-        super.execute(context);
+        context.incrementAndCheck();
         pushExecute(context);
     }
 

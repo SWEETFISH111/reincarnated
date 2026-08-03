@@ -27,9 +27,6 @@ public class MagiculeCircuit {
         this.wires.removeIf(wire ->
                 wire.targetId.equals(targetNodeId) && wire.targetPortIndex == targetPortIndex
         );
-        this.wires.removeIf(wire ->
-                wire.sourceId.equals(sorceNodeId) && wire.sourcePortIndex == sourcePortIndex
-        );
         this.wires.add(new WireData(sorceNodeId, sourcePortIndex, targetNodeId, targetPortIndex, isDataFlow));
     }
 

@@ -16,11 +16,16 @@ public class onTickNode extends AbstractMagicNode {
 
     @Override
     public void execute(MagicContext context) {
-        super.execute(context);
-        if(!ready){
-            double intervalTime = pullDouble(1, context);
-            ActiveMagicManager.registerActiveNode(context.getCaster(), this.id, this, (int)intervalTime * 20);
+        context.incrementAndCheck();
+        boolean b = pullBoolean(1, context);
+        if(b){
+            if(!ready){
+                double intervalTime = pullDouble(2, context);
+                ActiveMagicManager.registerActiveNode(context.getCaster(), this.id, this, (int)intervalTime * 20);
+            }
+            pushExecute(context);
+        }else{
+            ActiveMagicManager.unregisterActiveNode(context.getCaster(), this.id);
         }
-        pushExecute(context);
     }
 }

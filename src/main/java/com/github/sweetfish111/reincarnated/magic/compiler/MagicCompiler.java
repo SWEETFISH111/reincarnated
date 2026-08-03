@@ -3,9 +3,11 @@ package com.github.sweetfish111.reincarnated.magic.compiler;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
+import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.DamageNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.HealingNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.DelayNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.control.toggleNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookForwardNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookTargetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.ReturnCaster;
@@ -20,6 +22,7 @@ import com.github.sweetfish111.reincarnated.magic.nodes.conversion.OffsetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.IfNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.RepeatNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.trigger.onTickNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.BooleanNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.NumberNode;
 import net.minecraft.server.level.ServerPlayer;
@@ -247,6 +250,8 @@ public class MagicCompiler {
             case "damage":return new DamageNode(nodeId);
             case "healing":return new HealingNode(nodeId);
             case "delay":return new DelayNode(nodeId);
+            case "on_tick":return new onTickNode(nodeId);
+            case "toggle":return new toggleNode(nodeId);
             default : return null;
         }
     }

@@ -4,17 +4,26 @@ import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.fml.common.Mod;
 
 import java.util.*;
 
 public class NodePaletteWidget {
-    private enum ContextMenuFacts{DELETE, COPY, COLLAPSE, OPEN};
-    private final MagicEditorScreen paretScreen;
+
+    public static class PaletteItem {
+        private final Component displayName;
+        private final Runnable onClickAction;
+
+        public PaletteItem(Component displayName, Runnable onClickAction) {
+            this.displayName = displayName;
+            this.onClickAction = onClickAction;
+        }
+
+        public Component getDisplayName() { return displayName; }
+        public void execute() { onClickAction.run(); }
+    }
+
+    private final MagicEditorScreen parentScreen;
     private boolean isOpen = false;
     private int screenX = 0;
     private int screenY = 0;
@@ -29,9 +38,11 @@ public class NodePaletteWidget {
     private static final int MAX_VISIBLE_ITEMS = 6;
     private int scrollOffset = 0;
 
-    //コンストラクタ
+    private List<PaletteItem> paletteItems = new ArrayList<>();
+
+    // コンストラクタ
     public NodePaletteWidget(MagicEditorScreen parentScreen){
-        this.paretScreen = parentScreen;
+        this.parentScreen = parentScreen;
     }
 
     public void openPalette(int sX, int sY, double cX, double cY) {
@@ -42,37 +53,73 @@ public class NodePaletteWidget {
         this.spawnCanvasX = cX;
         this.spawnCanvasY = cY;
         this.scrollOffset = 0;
+        this.paletteItems = createPaletteFactory();z
     }
 
     public void openContextMenu(int sX, int sY, Set<AbstructDraggingNodeWidget> target){
         this.isOpen = true;
-        this.menuHeight = calcMenuHeight(2);
-        this.contextMenuTargets = target;
+        this.contextMenuTargets = target != null ? target : new HashSet<>();
         this.screenX = sX;
         this.screenY = sY;
         this.scrollOffset = 0;
+        this.paletteItems = createPaletteFactory();
     }
 
-    private List<MagiculeNodeType> getAvailableNodeTypes() {
-        List<MagiculeNodeType> available = new ArrayList<>();
-        EditorTab currentTab = paretScreen.getThisLayerManager().getCurrentTab();
+    private List<PaletteItem> createPaletteFactory(){
+        List<PaletteItem> items = new ArrayList<>();
 
-        for (MagiculeNodeType type : MagiculeNodeType.values()){
-            if(type.isAvailableFor(currentTab)){
-                available.add(type);
+        if(!contextMenuTargets.isEmpty()){
+            items.add(new PaletteItem(Component.literal("Delete"), () -> {
+                for (AbstructDraggingNodeWidget node : contextMenuTargets) {
+                    this.parentScreen.deleteNode(node);
+                }
+            }));
+
+            items.add(new PaletteItem(Component.literal("Copy"), () -> {
+                for (AbstructDraggingNodeWidget node : contextMenuTargets) {
+                    this.parentScreen.copyNode(node);
+                }
+            }));
+
+            items.add(new PaletteItem(Component.literal("Collapse"), () -> {
+                this.parentScreen.openCompoundNamingPopup();
+                List<UUID> targetNodes = new ArrayList<>();
+                for (AbstructDraggingNodeWidget node : this.contextMenuTargets) {
+                    targetNodes.add(node.getId());
+                }
+                this.parentScreen.setCollapseTargets(targetNodes);
+            }));
+
+            boolean hasCompound = contextMenuTargets.stream().anyMatch(n -> n instanceof CompoundNodeWidget);
+            if (hasCompound) {
+                items.add(new PaletteItem(Component.literal("Open"), () -> {
+                    for (AbstructDraggingNodeWidget node : contextMenuTargets) {
+                        if (node instanceof CompoundNodeWidget cNode) {
+                            cNode.openContents();
+                        }
+                    }
+                }));
+            }
+        } else {
+            EditorTab currentTab = parentScreen.getThisLayerManager().getCurrentTab();
+            for (MagiculeNodeType type : MagiculeNodeType.values()) {
+                if (type.isAvailableFor(currentTab)) {
+                    items.add(new PaletteItem(Component.literal(type.displayName), () -> {
+                        this.parentScreen.spawnNode(type, this.spawnCanvasX, this.spawnCanvasY);
+                    }));
+                }
             }
         }
-        return available;
+        return items;
     }
 
-    private int calcMenuHeight(int size){return Math.min(size, MAX_VISIBLE_ITEMS) * ITEM_HEIGHT;}
+    private int calcMenuHeight(int size){
+        return Math.min(size, MAX_VISIBLE_ITEMS) * ITEM_HEIGHT;
+    }
 
     public boolean isOpen(){
         return this.isOpen;
     }
-    public Set<AbstructDraggingNodeWidget> getContextMenuTargets(){return this.contextMenuTargets;}
-
-    public void setContextMenuTarget(Set<AbstructDraggingNodeWidget> nodes){this.contextMenuTargets = nodes;}
 
     public void close(){
         this.isOpen = false;
@@ -82,55 +129,19 @@ public class NodePaletteWidget {
         this.contextMenuTargets.clear();
     }
 
-    public boolean mouseClicked(double mouseX, double mouseY, int button){
-        if(!this.isOpen) return false;
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (!this.isOpen) return false;
 
-        List<MagiculeNodeType> availableTypes = getAvailableNodeTypes();
-        menuHeight = calcMenuHeight(availableTypes.size());
+        int visibleCount = Math.min(paletteItems.size(), MAX_VISIBLE_ITEMS);
+        menuHeight = calcMenuHeight(visibleCount);
 
-        if(button == 0){
-            if(!this.contextMenuTargets.isEmpty()){
-                if(mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= screenY && mouseY <= screenY + menuHeight){
-                    int index = (int)((mouseY - screenY) / ITEM_HEIGHT + scrollOffset);
-                    if(index == 0){
-                        for(AbstructDraggingNodeWidget node : contextMenuTargets){
-                            this.paretScreen.deleteNode(node);
-                        }
-                        close();
-                        return true;
-                    }else if(index == 1){
-                        for(AbstructDraggingNodeWidget node : contextMenuTargets){
-                            this.paretScreen.copyNode(node);
-                        }
-
-                        close();
-                        return true;
-                    }else if(index == 2){
-                        this.paretScreen.openCompoundNamingPopup();
-                        List<UUID> targetNodes = new ArrayList<>();
-                        for(AbstructDraggingNodeWidget node : this.contextMenuTargets){
-                            targetNodes.add(node.getId());
-                        }
-                        this.paretScreen.setCollapseTargets(targetNodes);
-                        close();
-                        return true;
-                    } else if (index == 3) {
-                        for (AbstructDraggingNodeWidget node : this.contextMenuTargets){
-                            if(node instanceof CompoundNodeWidget cNode){
-                                cNode.openContents();
-                            }
-                        }
-                    }
-                }
-            }else{
-                if (mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= screenY && mouseY <= screenY + menuHeight){
-                    int index = (int)((mouseY - screenY) / ITEM_HEIGHT + scrollOffset);
-                    if (index >= 0 && index < availableTypes.size()){
-                        MagiculeNodeType selectedType = availableTypes.get(index);
-                        this.paretScreen.spawnNode(selectedType, this.spawnCanvasX, this.spawnCanvasY);
-                        close();
-                        return true;
-                    }
+        if (button == 0) {
+            if (mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= screenY && mouseY <= screenY + menuHeight) {
+                int clickedIndex = (int) ((mouseY - screenY) / ITEM_HEIGHT) + scrollOffset;
+                if (clickedIndex >= 0 && clickedIndex < paletteItems.size()) {
+                    paletteItems.get(clickedIndex).execute();
+                    close();
+                    return true;
                 }
             }
         }
@@ -142,10 +153,8 @@ public class NodePaletteWidget {
     public boolean mouseScrolled(double mouseX, double mouseY, double delta){
         if (!isOpen) return false;
 
-        List<MagiculeNodeType> types = getAvailableNodeTypes();
-        int maxScroll = (!contextMenuTargets.isEmpty()) ? 0 : Math.max(0, types.size() - MAX_VISIBLE_ITEMS);
+        int maxScroll = Math.max(0, paletteItems.size() - MAX_VISIBLE_ITEMS);
 
-        // delta > 0 は上スクロール、delta < 0 は下スクロール
         if (delta > 0) {
             this.scrollOffset = Math.max(0, this.scrollOffset - 1);
         } else if (delta < 0) {
@@ -154,69 +163,33 @@ public class NodePaletteWidget {
         return true;
     }
 
-    public void render(GuiGraphicsExtractor guiGraphicsExtractor, int mouseX, int mouseY){
-        if(!this.isOpen) return;
+    public void render(GuiGraphicsExtractor guiGraphicsExtractor, int mouseX, int mouseY) {
+        if (!this.isOpen) return;
 
-        List<MagiculeNodeType> availableTypes = getAvailableNodeTypes();
-        int visibleCount;
-        if(!contextMenuTargets.isEmpty()){
-            int i = 0;
-            for(AbstructDraggingNodeWidget nods : contextMenuTargets){
-                if(nods instanceof DraggableNodeWidget){
-                    i ++;
-                }
-            }
-            if(i == 0){
-                visibleCount = ContextMenuFacts.values().length;
-            }else{
-                visibleCount = ContextMenuFacts.values().length - 1;
-            }
-        }else{
-            visibleCount = availableTypes.size();
-        }
-        visibleCount = Math.min(visibleCount, MAX_VISIBLE_ITEMS);
+        int visibleCount = Math.min(paletteItems.size(), MAX_VISIBLE_ITEMS);
+        menuHeight = calcMenuHeight(visibleCount);
 
-        if (!contextMenuTargets.isEmpty()) {
-            ContextMenuFacts[] facts = ContextMenuFacts.values();
-            menuHeight = calcMenuHeight(facts.length);
+        guiGraphicsExtractor.fill(screenX, screenY, screenX + MENU_WIDTH, screenY + menuHeight, 0xDD000000);
+        guiGraphicsExtractor.outline(screenX, screenY, MENU_WIDTH, menuHeight, 0xFFFFFFFF);
+        guiGraphicsExtractor.enableScissor(screenX, screenY, screenX + MENU_WIDTH, screenY + menuHeight);
 
-            guiGraphicsExtractor.fill(screenX, screenY, screenX + MENU_WIDTH, screenY + menuHeight, 0xDD000000);
-            guiGraphicsExtractor.outline(screenX, screenY, MENU_WIDTH, menuHeight, 0xFFFFFFFF);
-            guiGraphicsExtractor.enableScissor(screenX, screenY, screenX + MENU_WIDTH, screenY + menuHeight);
+        for (int i = 0; i < visibleCount; i++) {
+            int itemIndex = i + scrollOffset;
+            if (itemIndex >= paletteItems.size()) break;
 
-            for (int i = 0; i < visibleCount; i++) {
-                int itemIndex = i + scrollOffset;
-                if (itemIndex >= facts.length) break;
+            int itemY = screenY + (i * ITEM_HEIGHT);
+            int color = (mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= itemY && mouseY <= itemY + ITEM_HEIGHT) ? 0xFFFFFF00 : 0xFFFFFFFF;
 
-                int itemY = screenY + (i * ITEM_HEIGHT);
-                int color = (mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= itemY && mouseY <= itemY + ITEM_HEIGHT) ? 0xFFFFFF00 : 0xFFFFFFFF;
-
-                guiGraphicsExtractor.centeredText(Minecraft.getInstance().font, facts[itemIndex].toString(), screenX + (MENU_WIDTH / 2), itemY + ITEM_HEIGHT / 4, color);
-            }
-        } else {
-
-            guiGraphicsExtractor.fill(screenX, screenY, screenX + MENU_WIDTH, screenY + menuHeight, 0xDD000000);
-            guiGraphicsExtractor.outline(screenX, screenY, MENU_WIDTH, menuHeight, 0xFFFFFFFF);
-            guiGraphicsExtractor.enableScissor(screenX, screenY, screenX + MENU_WIDTH, screenY + menuHeight);
-
-            for (int i = 0; i < visibleCount; i++) {
-                // 2. スクロールオフセットを考慮したインデックス取得
-                int itemIndex = i + scrollOffset;
-                if (itemIndex >= availableTypes.size()) break;
-
-                int itemY = screenY + (i * ITEM_HEIGHT);
-                int color = (mouseX >= screenX && mouseX <= screenX + MENU_WIDTH && mouseY >= itemY && mouseY <= itemY + ITEM_HEIGHT) ? 0xFFFFFF00 : 0xFFFFFFFF;
-
-                guiGraphicsExtractor.centeredText(Minecraft.getInstance().font, availableTypes.get(itemIndex).displayName, screenX + (MENU_WIDTH / 2), itemY + ITEM_HEIGHT / 4, color);
-            }
+            guiGraphicsExtractor.centeredText(Minecraft.getInstance().font, paletteItems.get(itemIndex).getDisplayName(), screenX + (MENU_WIDTH / 2), itemY + ITEM_HEIGHT / 4, color);
         }
 
-        if(availableTypes.size() > MAX_VISIBLE_ITEMS && contextMenuTargets.isEmpty()){
-            int barHeight = Math.max(4, (menuHeight * MAX_VISIBLE_ITEMS) / availableTypes.size());
-            int maxScroll = availableTypes.size() - MAX_VISIBLE_ITEMS;
+        guiGraphicsExtractor.disableScissor();
+
+        if (paletteItems.size() > MAX_VISIBLE_ITEMS) {
+            int barHeight = Math.max(4, (menuHeight * MAX_VISIBLE_ITEMS) / paletteItems.size());
+            int maxScroll = paletteItems.size() - MAX_VISIBLE_ITEMS;
             int barY = screenY + (scrollOffset * (menuHeight - barHeight)) / maxScroll;
 
-            // 右端に薄いバーを描画
             guiGraphicsExtractor.fill(screenX + MENU_WIDTH - 3, barY, screenX + MENU_WIDTH - 1, barY + barHeight, 0xAAAAAAAA);
         }
     }

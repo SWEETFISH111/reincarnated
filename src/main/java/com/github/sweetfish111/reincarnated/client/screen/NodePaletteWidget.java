@@ -53,7 +53,7 @@ public class NodePaletteWidget {
         this.spawnCanvasX = cX;
         this.spawnCanvasY = cY;
         this.scrollOffset = 0;
-        this.paletteItems = createPaletteFactory();z
+        this.paletteItems = createPaletteFactory();
     }
 
     public void openContextMenu(int sX, int sY, Set<AbstructDraggingNodeWidget> target){

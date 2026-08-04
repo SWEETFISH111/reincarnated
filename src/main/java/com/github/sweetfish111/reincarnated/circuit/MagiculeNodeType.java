@@ -9,8 +9,26 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC}
     ),
     ON_TICK("on_tick", "on tick",
-            new PortDataType[]{PortDataType.EXEC, PortDataType.BOOLEAN, PortDataType.NUMBER},
-            new PortDataType[]{PortDataType.EXEC}
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.SKILL)
+    ),
+    ON_XP_PICKUP("on_xp_pickup", "on xp pickup",
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
+            List.of(EditorTab.SKILL)
+    ),
+    ON_DAMAGE("on_damage", "on damage",
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.SKILL)
+    ),
+    SHOOT_PROJECTILE("shoot_projectile", "shoot projectile",
+            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE,PortDataType.ENTITY},
+            ContentWidgetType.SWITCH,
+            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
+            1
     ),
     LIGHTNING("lightning", "lightning",
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE},
@@ -172,10 +190,6 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
             new PortDataType[]{PortDataType.BOOLEAN},
             List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
-    ),
-    SHOOT_PROJECTILE("shoot_projectile", "shoot projectile",
-            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER},
-            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE,PortDataType.ENTITY}
     ),
     COMPOUND("compound", "塊",
             new PortDataType[]{},

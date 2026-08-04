@@ -1,6 +1,8 @@
 package com.github.sweetfish111.reincarnated.magic.casting;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
+import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
+import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
@@ -50,8 +52,10 @@ public class ActiveMagicManager {
             try {
                 // 実行用のコンテキストを生成（術者やレベル情報を内包）
                 PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-                MagicContext context = new MagicContext(player, magicData.getCircuit(EditorTab.MAGIC), MagicCompiler.compileCircuit(magicData.getCircuit(EditorTab.MAGIC)));
-                nodeInstance.execute(context);
+                RuntimeMagicCircuit runtimeMagicCircuit = MagicCompiler.compileCircuit(player, magicData.getCircuit(EditorTab.MAGIC));
+                if(runtimeMagicCircuit != null){
+                    MagicContext context = new MagicContext(magicData.getCircuit(EditorTab.MAGIC), runtimeMagicCircuit);
+                }
             } catch (CalculationCapacityOverException c) {
                 player.sendSystemMessage(Component.literal("《告》個体名" + player.getName() + "の演算容量が限界を超過。術式暴走が発生"));
                 player.level().explode(player, player.getX(), player.getY(), player.getZ(), 10.0f, Level.ExplosionInteraction.TNT);
@@ -108,6 +112,20 @@ public class ActiveMagicManager {
                     entry.execute(player);
                 }
             }
+        }
+    }
+
+    public static void executeEventTrigger(ServerPlayer player, EditorTab tab, String triggerNodeType, Map<String, Object> eventData) {
+        PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        if (magicData == null) return;
+
+        // 指定されたタブの回路とコンパイル済みデータを取り出す
+        MagiculeCircuit circuit = magicData.getCircuit(tab);
+        RuntimeMagicCircuit runtimeCircuit = MagicCompiler.compileCircuit(player, circuit);
+
+        if(runtimeCircuit != null){
+            MagicContext context = new MagicContext(circuit, runtimeCircuit);
+            runtimeCircuit.execute(context);
         }
     }
 }

@@ -3,7 +3,6 @@ package com.github.sweetfish111.reincarnated.magic.compiler;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
-import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.DamageNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.HealingNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.DelayNode;
@@ -14,7 +13,6 @@ import com.github.sweetfish111.reincarnated.magic.nodes.sensor.ReturnCaster;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.ExplosionNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.SummonLightningNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.math.*;
-import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.CombersLookDirection;
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.CombersTargetPos;
@@ -22,7 +20,7 @@ import com.github.sweetfish111.reincarnated.magic.nodes.conversion.OffsetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.IfNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.RepeatNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.trigger.onTickNode;
+import com.github.sweetfish111.reincarnated.magic.slill.node.trigger.onTickNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.BooleanNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.NumberNode;
 import net.minecraft.server.level.ServerPlayer;
@@ -188,7 +186,7 @@ public class MagicCompiler {
         }
     }
 
-    public static Map<UUID, AbstractMagicNode> compileCircuit(MagiculeCircuit circuit){
+    public static RuntimeMagicCircuit compileCircuit(ServerPlayer player, MagiculeCircuit circuit){
         Map<UUID, AbstractMagicNode> instancedNodes = new HashMap<>();
         List<MagiculeCircuit.WireData> allWires = new ArrayList<>();
 
@@ -199,23 +197,17 @@ public class MagicCompiler {
         compileNodes(circuit, instancedNodes);
         compileCompoundNodes(circuit, instancedNodes, allWires);
         compileWires(circuit, instancedNodes, allWires);
-        return instancedNodes;
-    }
-    public static void compileAndExecute(MagicContext context){
-        Map<UUID, AbstractMagicNode> instancedNodes = compileCircuit(context.getCircuit());
+        AbstractMagicNode startNode = null;
 
-        if (context.getCircuit().getNodes() != null) {
-            for (MagiculeCircuit.NodeData data : context.getCircuit().getNodes()){
-                if(data.type == MagiculeNodeType.EVENT_KEY_ONE){
-                    AbstractMagicNode startNode = instancedNodes.get(data.id);
-                    if(startNode != null){
-                        RuntimeMagicCircuit runtimeCircuit = new RuntimeMagicCircuit(context.getCaster().getUUID(), instancedNodes, startNode);
-                        startNode.execute(context);
-                        break;
-                    }
-                }
+        for(Map.Entry<UUID, AbstractMagicNode> entry : instancedNodes.entrySet()){
+            if(entry.getValue().isTrigger()){
+                startNode = entry.getValue();
             }
         }
+        if(startNode != null){
+            return new RuntimeMagicCircuit(player, instancedNodes, startNode);
+        }
+        return null;
     }
 
     public static MagicNode createNodeInstance(String typeId, UUID nodeId){

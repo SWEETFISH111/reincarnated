@@ -10,12 +10,10 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -32,6 +30,8 @@ public class CustomMagicProjectileEntity extends ThrowableProjectile implements 
 
     private MagicNode nextNode;
     private MagicContext context;
+    private double gravity = 0.03;
+    private int livingtickTime = 10 * 20;
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
@@ -58,6 +58,11 @@ public class CustomMagicProjectileEntity extends ThrowableProjectile implements 
         return EntityDimensions.scalable(size, size);
     }
 
+    public void setLivingTime(double time){
+        double tickTime = time * 20;
+        this.livingtickTime = (int)tickTime;
+    }
+
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         if(DATA_SIZE.equals(key)){
@@ -67,13 +72,45 @@ public class CustomMagicProjectileEntity extends ThrowableProjectile implements 
     }
 
     @Override
+    public void tick() {
+        super.tick();
+        AABB searchBox = this.getBoundingBox();
+        Entity hitEntity = null;
+
+        for (Entity entity : this.level().getEntities(this, searchBox)) {
+            // 術者自身や、アイテムなどの当たりたくないものを除外する条件分岐
+            hitEntity = entity;
+            break; // 最初に見つかったヒット対象を確定
+        }
+
+        // 3. 接触するエンティティがいたら、着弾処理（爆発・ダメージ・消滅）を走らせる
+        if (hitEntity != null) {
+            this.onHit(new EntityHitResult(hitEntity)); // 独自のヒット処理
+            this.discard(); // エンティティを消滅させる（despawn）
+        }
+
+        if(livingtickTime > 0){
+            livingtickTime--;
+        }else{
+            this.onHit(new HitResult(this.position()) {
+                @Override
+                public Type getType() {
+                    return null;
+                }
+            });
+            this.discard();
+        }
+
+    }
+
+    @Override
     protected void onHit(HitResult hitResult) {
         super.onHit(hitResult);
 
         if(!this.level().isClientSide() && this.level() instanceof ServerLevel serverLevel){
             if(this.context != null && this.nextNode != null){
                 Vec3 hitPos = hitResult.getLocation();
-                MagicContext newContext = new MagicContext(context.getCaster(), context.getCircuit(), context.getRuntimeCircuit());
+                MagicContext newContext = new MagicContext(context.getCircuit(), context.getRuntimeCircuit());
                 newContext.setMagicValue("hit_pos", hitPos);
 
                 if(hitResult instanceof EntityHitResult entityHitResult){

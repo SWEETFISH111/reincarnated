@@ -18,7 +18,9 @@ public abstract class AbstractMagicNode implements MagicNode{
     protected final Map<Integer, List<MagicNode>> outputConnections = new HashMap<>();
     protected UUID id;
     protected float masoCost;
+    protected boolean isTrigger = false;
     protected ServerPlayer caster;
+    protected Map<String, Object> eventData = null;
 
     public AbstractMagicNode(UUID id){
         masoCost = 0.2f;
@@ -47,6 +49,9 @@ public abstract class AbstractMagicNode implements MagicNode{
         }
         return connections.getFirst();
     }
+    public boolean isTrigger(){return this.isTrigger;}
+    public void setEventData(Map<String, Object> data){this.eventData = data;}
+
 
     protected Object pullData(int myInputPortIndex, MagicContext context){
         DataLink link = dataInputs.get(myInputPortIndex);

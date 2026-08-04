@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.magic.nodes.trigger;
+package com.github.sweetfish111.reincarnated.magic.slill.node.trigger;
 
 import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
@@ -12,6 +12,7 @@ public class onTickNode extends AbstractMagicNode {
 
     public onTickNode(UUID id) {
         super(id);
+        this.isTrigger = true;
     }
 
     @Override
@@ -24,6 +25,7 @@ public class onTickNode extends AbstractMagicNode {
                 ActiveMagicManager.registerActiveNode(context.getCaster(), this.id, this, (int)intervalTime * 20);
             }
             pushExecute(context);
+            System.out.println("onticknode:hakka");
         }else{
             ActiveMagicManager.unregisterActiveNode(context.getCaster(), this.id);
         }

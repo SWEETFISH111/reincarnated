@@ -1,12 +1,13 @@
-package com.github.sweetfish111.reincarnated.magic.nodes.trigger;
+package com.github.sweetfish111.reincarnated.magic.slill.node.trigger;
 
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 
 import java.util.UUID;
 
-public class EventKeyOneNode extends AbstractMagicNode {
-    public EventKeyOneNode(UUID id) {
+public class OnXpPickupNode extends AbstractMagicNode {
+
+    public OnXpPickupNode(UUID id){
         super(id);
         this.isTrigger = true;
     }
@@ -18,7 +19,8 @@ public class EventKeyOneNode extends AbstractMagicNode {
     }
 
     @Override
-    public Object getOutputData(int portIndex, MagicContext context){
-        return null;
+    public Object getOutputData(int portIndex, MagicContext context) {
+        context.incrementAndCheck();
+        return this.eventData.get("xp_amount");
     }
 }

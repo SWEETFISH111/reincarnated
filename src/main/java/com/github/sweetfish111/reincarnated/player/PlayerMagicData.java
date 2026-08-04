@@ -32,12 +32,22 @@ public class PlayerMagicData {
         this.unlockedConditionKeys.add(key);
     }
 
+    private String currentUniqueSkill = "greedy";
+
+    private double predatorScore = 0.0;    // 生体キル・直接捕食の蓄積
+    private double scavengerScore = 0.0;  // 落ちている死体・残滓の回収蓄積
+    private double greedScore = 0.0;      // 魔素の搾取・リソース循環の蓄積
+    private double usurpScore = 0.0;      // 上位者への挑戦・回路解析・トレースの蓄積
+
     public PlayerMagicData(){
         for(EditorTab tab : EditorTab.values()){
             circuits.put(tab, new MagiculeCircuit());
         }
     }
 
+    public String getCurrentUniqueSkill() {
+        return currentUniqueSkill;
+    }
     public MagiculeCircuit getCircuit(EditorTab tab){
         return circuits.computeIfAbsent(tab, k -> new MagiculeCircuit());
     }
@@ -55,6 +65,50 @@ public class PlayerMagicData {
     public void setCircuits(EditorTab tab, MagiculeCircuit circuit){
         this.circuits.put(tab,circuit);
     }
+
+
+    public void addPredatorScore(double amount) {
+        this.predatorScore += amount;
+        checkEvolution();
+    }
+
+    public void addScavengerScore(double amount) {
+        this.scavengerScore += amount;
+        checkEvolution();
+    }
+
+    public void addGreedScore(double amount) {
+        this.greedScore += amount;
+        checkEvolution();
+    }
+
+    public void addUsurpScore(double amount) {
+        this.usurpScore += amount;
+        checkEvolution();
+    }
+
+
+    private void checkEvolution() {
+        // すでに貪欲者から進化している場合はスキップ
+        if (!currentUniqueSkill.equals("greedy")) return;
+
+        double threshold = 100.0; // 覚醒に必要な閾値（調整可能）
+
+        if (predatorScore >= threshold) {
+            currentUniqueSkill = "predator";
+            // TODO: 「捕食者」覚醒時の演出やスキルタブの特殊ノード解放処理
+        } else if (scavengerScore >= threshold) {
+            currentUniqueSkill = "scavenger";
+            // TODO: 「飢餓者」覚醒時
+        } else if (greedScore >= threshold) {
+            currentUniqueSkill = "greed";
+            // TODO: 「強欲者」覚醒時
+        } else if (usurpScore >= threshold) {
+            currentUniqueSkill = "usurper";
+            // TODO: 「簒奪者」覚醒時
+        }
+    }
+
 
     public CompoundTag saveToNBT(){
         CompoundTag rootTag = new CompoundTag();

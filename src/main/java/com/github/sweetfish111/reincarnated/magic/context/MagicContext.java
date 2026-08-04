@@ -1,6 +1,7 @@
 package com.github.sweetfish111.reincarnated.magic.context;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
+import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
 import com.github.sweetfish111.reincarnated.magic.CasterSnapshot;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
@@ -14,7 +15,7 @@ import java.util.UUID;
 public class MagicContext {
     final ServerPlayer caster;
     private final MagiculeCircuit circuit;
-    private final Map<UUID, AbstractMagicNode> runtimeCircuit;
+    private final RuntimeMagicCircuit runtimeCircuit;
     private final CasterSnapshot snapshot;
     private final Map<UUID, Map<Integer, Double>> LocalVariable = new HashMap<>();
     private final Map<String, Object> magicValue = new HashMap<>();
@@ -23,10 +24,10 @@ public class MagicContext {
     private int currentCount = 0;
     private static final int MAX_LIMIT = 1000;
 
-    public MagicContext(ServerPlayer caster, MagiculeCircuit circuit, Map<UUID, AbstractMagicNode> runtimeCircuit) {
+    public MagicContext(MagiculeCircuit circuit, RuntimeMagicCircuit runtimeCircuit) {
         this.circuit = circuit;
         this.runtimeCircuit = runtimeCircuit;
-        this.caster = caster;
+        this.caster = runtimeCircuit.getCaster();
         this.level = caster.level();
         this.snapshot = CasterSnapshot.capture(caster);
     }
@@ -54,8 +55,8 @@ public class MagicContext {
         return this.magicValue.get(key);
     }
     public CasterSnapshot getSnapshot(){return this.snapshot;}
-    public Map<UUID, AbstractMagicNode> getRuntimeCircuit(){return this.runtimeCircuit;}
-    public AbstractMagicNode getRuntimeNode(UUID id){return this.runtimeCircuit.get(id);}
+    public RuntimeMagicCircuit getRuntimeCircuit(){return this.runtimeCircuit;}
+    public AbstractMagicNode getRuntimeNode(UUID id){return this.runtimeCircuit.getInstancedNode(id);}
 
     public void setNodeLocalVariable(UUID nodeId, int portIndex, double value) {
         this.LocalVariable

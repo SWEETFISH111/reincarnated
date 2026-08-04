@@ -52,7 +52,7 @@ public class TimerCastingManager {
                     task.resetTimer();
                 } else {
                     iterator.remove();
-                    Map<UUID, AbstractMagicNode> instancedNode = task.getContext().getRuntimeCircuit();
+                    Map<UUID, AbstractMagicNode> instancedNode = task.getContext().getRuntimeCircuit().getInstancedNodes();
                     AbstractMagicNode repeatNode = instancedNode.get(task.getRepeatNodeId());
                     if(repeatNode != null){
                         MagicNode nextNode = repeatNode.getNextNode(2);

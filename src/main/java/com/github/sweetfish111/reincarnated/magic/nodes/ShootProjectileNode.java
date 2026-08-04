@@ -22,7 +22,8 @@ public class ShootProjectileNode extends AbstractMagicNode{
         Vec3 direction = pullVector3(2, context);
         double speed = pullDouble(3, context);
         double size = pullDouble(4, context);
-        size = (size != 0) ? 1 : size;
+        double livingTime = pullDouble(5, context);
+        size = (size == 0) ? 1 : size;
 
         masoCost = (float)speed * (float) size;
         super.execute(context);
@@ -45,6 +46,12 @@ public class ShootProjectileNode extends AbstractMagicNode{
                 reincarnatedEntityTypes.CUSTOM_MAGIC_PROJECTILE.get(),
                 level
         );
+        Object rawData = context.getCircuit().getNodeParam(this.id, "value", false);
+        if(rawData instanceof Boolean b){
+            projectile.setNoGravity(b);
+        }
+
+        projectile.setLivingTime(livingTime);
 
         if (size > 0) {
             projectile.setSize((float) size);

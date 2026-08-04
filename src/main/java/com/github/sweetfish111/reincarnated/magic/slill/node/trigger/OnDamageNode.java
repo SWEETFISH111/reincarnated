@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.magic.nodes.trigger;
+package com.github.sweetfish111.reincarnated.magic.slill.node.trigger;
 
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
@@ -10,6 +10,7 @@ import java.util.UUID;
 public class OnDamageNode extends AbstractMagicNode {
     public OnDamageNode(UUID id) {
         super(id);
+        this.isTrigger = true;
     }
 
     public void trigger(MagicContext context, float damageAmount, Entity attacker) {

@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.casting;
 
+import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,7 +14,7 @@ public class DelayCastingTask {
     private final MagicContext context;
     private final UUID nextNodeId;
     private int delayTicks;
-    private Map<UUID, AbstractMagicNode> runtimeCircuit;
+    private RuntimeMagicCircuit runtimeCircuit;
     private boolean ready = false;
 
     public DelayCastingTask(UUID playerId, ServerPlayer player, MagicContext context, UUID nextNodeId, int delayTicks){

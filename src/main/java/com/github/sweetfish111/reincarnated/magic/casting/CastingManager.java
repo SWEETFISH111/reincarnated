@@ -1,6 +1,7 @@
 package com.github.sweetfish111.reincarnated.magic.casting;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
+import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
@@ -18,10 +19,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 //魔法の計算コストから詠唱時間を算出して実際に発動させるクラス
 public class CastingManager {
@@ -43,14 +41,8 @@ public class CastingManager {
 
 
         if (hasChantCancellation || totalCalcCost <= 0) {
-            try {
-                MagicCompiler.compileAndExecute(context);
-            } catch (CalculationCapacityOverException c) {
-                context.getCaster().sendSystemMessage(Component.literal("《告》個体名" + context.getCaster().getName() + "の演算容量が限界を超過。術式暴走が発生"));
-                triggerThermalRunawayPenalty(context.getCaster().level(), context.getCaster());
-            } catch (MasoShortageException m) {
-                context.getCaster().sendSystemMessage(Component.literal("《告》個体名" + context.getCaster().getName().getString() + "の魔素残量が低下。術式を維持できません"));
-            }
+            RuntimeMagicCircuit runtimeMagicCircuit = MagicCompiler.compileCircuit(context.getCaster(), context.getCircuit());
+            Objects.requireNonNull(runtimeMagicCircuit).execute(context);
             return;
         }
 
@@ -64,19 +56,8 @@ public class CastingManager {
         if(task == null)return;
 
         if(task.isReady()){
-            try{
-                MagicCompiler.compileAndExecute(task.getContext());
-            }catch(CalculationCapacityOverException c){
-                player.sendSystemMessage(Component.literal("《告》個体名" + player.getName().getString() + "の演算容量が限界を超過。術式暴走が発生"));
-                triggerThermalRunawayPenalty(player.level(), player);
-            }catch (MasoShortageException m){
-                player.sendSystemMessage(Component.literal("《告》個体名" + player.getName().getString() + "の魔素残量が低下。術式を維持できません"));
-
-            }finally {
-                activeCasts.remove(player.getUUID());
-            }
-        }else {
-
+            RuntimeMagicCircuit runtimeMagicCircuit = MagicCompiler.compileCircuit(task.getContext().getCaster(), task.getContext().getCircuit());
+            Objects.requireNonNull(runtimeMagicCircuit).execute(task.getContext());
         }
 
         activeCasts.remove(player.getUUID());

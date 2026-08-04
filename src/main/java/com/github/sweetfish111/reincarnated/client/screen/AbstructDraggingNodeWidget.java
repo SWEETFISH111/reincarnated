@@ -93,7 +93,7 @@ public abstract class AbstructDraggingNodeWidget extends AbstractWidget {
         this.outputPorts.clear();
 
         int maxPorts = Math.max(inputPorts.toArray().length, outputPorts.toArray().length);
-        this.height = 20 + (maxPorts * 15) + 5;
+        this.height = (maxPorts == 0) ? 40 : 20 + (maxPorts * 15) + 5;
 
         for(int i = 0; i < inputPorts.toArray().length; i++){
             this.inputPorts.add(new NodePort(this, PortType.INPUT, i, inputPorts.get(i)));

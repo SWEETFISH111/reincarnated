@@ -1,9 +1,9 @@
-package com.github.sweetfish111.reincarnated.magic.slill;
+package com.github.sweetfish111.reincarnated.magic.slill.node.conversion;
 
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.MasoAmount;
-import com.github.sweetfish111.reincarnated.magic.nodes.XpAmount;
+import com.github.sweetfish111.reincarnated.magic.MasoAmount;
+import com.github.sweetfish111.reincarnated.magic.XpAmount;
 
 import java.util.UUID;
 

@@ -2,12 +2,12 @@ package com.github.sweetfish111.reincarnated.magic.nodes;
 
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
-import com.github.sweetfish111.reincarnated.magic.CasterSnapshot;
+import com.github.sweetfish111.reincarnated.magic.MasoAmount;
+import com.github.sweetfish111.reincarnated.magic.XpAmount;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;

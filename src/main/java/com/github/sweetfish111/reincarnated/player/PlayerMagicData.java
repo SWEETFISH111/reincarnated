@@ -33,6 +33,7 @@ public class PlayerMagicData {
     }
 
     private String currentUniqueSkill = "greedy";
+    private UUID uniqueSkillId = null;
 
     private double predatorScore = 0.0;    // 生体キル・直接捕食の蓄積
     private double scavengerScore = 0.0;  // 落ちている死体・残滓の回収蓄積
@@ -43,13 +44,20 @@ public class PlayerMagicData {
         for(EditorTab tab : EditorTab.values()){
             circuits.put(tab, new MagiculeCircuit());
         }
+        uniqueSkillId = DefaultCircuitBuilder.buildDefaultSkillCircuit(circuits.get(EditorTab.SKILL));
     }
 
     public String getCurrentUniqueSkill() {
         return currentUniqueSkill;
     }
     public MagiculeCircuit getCircuit(EditorTab tab){
-        return circuits.computeIfAbsent(tab, k -> new MagiculeCircuit());
+        MagiculeCircuit circuit = circuits.get(tab);
+
+        if(this.currentUniqueSkill.equals("greedy") && tab == EditorTab.SKILL && uniqueSkillId == null){
+            uniqueSkillId = DefaultCircuitBuilder.buildDefaultSkillCircuit(circuit);
+        }
+
+        return circuit;
     }
 
     public float getMaxMaso(){
@@ -129,6 +137,9 @@ public class PlayerMagicData {
         masoTag.putFloat("totalConsumedMaso", totalConsumedMaso);
         rootTag.put("maso", masoTag);
 
+        rootTag.putString("currentUniqueSkill", currentUniqueSkill);
+        rootTag.putString("uniqueskillId", uniqueSkillId.toString());
+
         ListTag unlockedKeys = new ListTag();
         for (String key : this.unlockedConditionKeys){
             unlockedKeys.add(StringTag.valueOf(key));
@@ -157,11 +168,24 @@ public class PlayerMagicData {
             totalRegeneratedMaso = masoTag.getFloat("totalRegeneratedMaso").orElse(0f);
             totalConsumedMaso = masoTag.getFloat("totalConsumedMaso").orElse(0f);
         }
+
+        if (rootTag.contains("currentUniqueSkill")) {
+            currentUniqueSkill = rootTag.getStringOr("currentUniqueSkill", "greedy");
+        }
+
+        uniqueSkillId = UUID.fromString(rootTag.getStringOr("uniqueskillId", null));
+
         ListTag unlockedKeys = rootTag.getListOrEmpty("unlockedKeys");
         if(unlockedKeys != null){
             for (int i = 0; i < unlockedKeys.size(); i++){
                 unlockedConditionKeys.add(unlockedKeys.getStringOr(i, null));
             }
         }
+
+        MagiculeCircuit skillCircuit = this.circuits.get(EditorTab.SKILL);
+        if (this.currentUniqueSkill.equals("greedy") && uniqueSkillId == null) {
+            this.uniqueSkillId = DefaultCircuitBuilder.buildDefaultSkillCircuit(skillCircuit);
+        }
+
     }
 }

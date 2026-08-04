@@ -101,8 +101,8 @@ public class MagiculeCircuit {
     }
     public List<CompoundNodeData> getCompoundNodes(){return this.compoundNodes;}
 
-    public void collapseNodes(List<UUID> targetNodeIds, String customName){
-        if(targetNodeIds.isEmpty())return;
+    public UUID collapseNodes(List<UUID> targetNodeIds, String customName){
+        if(targetNodeIds.isEmpty())return null;
 
         List<NodeData> innerNodes = new ArrayList<>();
         List<CompoundNodeData> innerCompoundNodes = new ArrayList<>();
@@ -138,7 +138,7 @@ public class MagiculeCircuit {
             }
         }
 
-        if(innerNodes.isEmpty() && innerCompoundNodes.isEmpty()) return;
+        if(innerNodes.isEmpty() && innerCompoundNodes.isEmpty()) return null;
 
         Iterator<WireData> wireIterator = this.wires.iterator();
         while(wireIterator.hasNext()){
@@ -169,6 +169,8 @@ public class MagiculeCircuit {
         compoundNode.getCompoundCircuit().getNodeParameters().putAll(innerNodeParams);
 
         this.compoundNodes.add(compoundNode);
+
+        return compoundNode.id;
     }
 
     // 消す系

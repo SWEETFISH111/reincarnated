@@ -21,6 +21,7 @@ public abstract class AbstractMagicNode implements MagicNode{
     protected boolean isTrigger = false;
     protected ServerPlayer caster;
     protected Map<String, Object> eventData = null;
+    protected String triggerType = null;
 
     public AbstractMagicNode(UUID id){
         masoCost = 0.2f;
@@ -50,6 +51,7 @@ public abstract class AbstractMagicNode implements MagicNode{
         return connections.getFirst();
     }
     public boolean isTrigger(){return this.isTrigger;}
+    public String getTriggerType(){return this.triggerType;}
     public void setEventData(Map<String, Object> data){this.eventData = data;}
 
 

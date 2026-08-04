@@ -11,6 +11,7 @@ public class OnDamageNode extends AbstractMagicNode {
     public OnDamageNode(UUID id) {
         super(id);
         this.isTrigger = true;
+        this.triggerType = "on_damage";
     }
 
     public void trigger(MagicContext context, float damageAmount, Entity attacker) {

@@ -10,6 +10,7 @@ public class OnXpPickupNode extends AbstractMagicNode {
     public OnXpPickupNode(UUID id){
         super(id);
         this.isTrigger = true;
+        this.triggerType = "on_xp_pickup";
     }
 
     @Override

@@ -2,12 +2,14 @@ package com.github.sweetfish111.reincarnated.magic.casting;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
+import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
+import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.network.chat.Component;
@@ -15,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
+import javax.swing.text.html.parser.Entity;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -53,9 +56,8 @@ public class ActiveMagicManager {
                 // 実行用のコンテキストを生成（術者やレベル情報を内包）
                 PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
                 RuntimeMagicCircuit runtimeMagicCircuit = MagicCompiler.compileCircuit(player, magicData.getCircuit(EditorTab.MAGIC));
-                if(runtimeMagicCircuit != null){
-                    MagicContext context = new MagicContext(magicData.getCircuit(EditorTab.MAGIC), runtimeMagicCircuit);
-                }
+                MagicContext context = new MagicContext(magicData.getCircuit(EditorTab.MAGIC), runtimeMagicCircuit);
+                runtimeMagicCircuit.execute(context);
             } catch (CalculationCapacityOverException c) {
                 player.sendSystemMessage(Component.literal("《告》個体名" + player.getName() + "の演算容量が限界を超過。術式暴走が発生"));
                 player.level().explode(player, player.getX(), player.getY(), player.getZ(), 10.0f, Level.ExplosionInteraction.TNT);
@@ -122,6 +124,14 @@ public class ActiveMagicManager {
         // 指定されたタブの回路とコンパイル済みデータを取り出す
         MagiculeCircuit circuit = magicData.getCircuit(tab);
         RuntimeMagicCircuit runtimeCircuit = MagicCompiler.compileCircuit(player, circuit);
+
+        for(Map.Entry<UUID, AbstractMagicNode> entry : runtimeCircuit.getInstancedNodes().entrySet()){
+            AbstractMagicNode node = entry.getValue();
+            if(Objects.equals(node.getTriggerType(), triggerNodeType)){
+                node.setEventData(eventData);
+                node.execute(new MagicContext(circuit, runtimeCircuit));
+            }
+        }
 
         if(runtimeCircuit != null){
             MagicContext context = new MagicContext(circuit, runtimeCircuit);

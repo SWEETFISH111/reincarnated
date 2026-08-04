@@ -9,6 +9,7 @@ public class EventKeyOneNode extends AbstractMagicNode {
     public EventKeyOneNode(UUID id) {
         super(id);
         this.isTrigger = true;
+        this.triggerType = "event_key_one";
     }
 
     @Override

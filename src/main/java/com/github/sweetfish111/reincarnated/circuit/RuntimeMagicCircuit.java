@@ -10,18 +10,20 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.common.conditions.ICondition;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class RuntimeMagicCircuit {
     private final ServerPlayer player;
     private final Map<UUID, AbstractMagicNode> instancedNodes; // 実体ノードのマップ
-    private final AbstractMagicNode startNode;                   // 起点となるノード
+    private final Set<AbstractMagicNode> startNodes = new HashSet<>();                   // 起点となるノード
 
-    public RuntimeMagicCircuit(ServerPlayer player, Map<UUID, AbstractMagicNode> instancedNodes, AbstractMagicNode startNode) {
+    public RuntimeMagicCircuit(ServerPlayer player, Map<UUID, AbstractMagicNode> instancedNodes, Set<AbstractMagicNode> startNodes) {
         this.player = player;
         this.instancedNodes = instancedNodes;
-        this.startNode = startNode;
+        this.startNodes.addAll(startNodes);
     }
 
     public AbstractMagicNode getInstancedNode(UUID id){return this.instancedNodes.get(id);}
@@ -30,14 +32,14 @@ public class RuntimeMagicCircuit {
 
     // 魔法の発動（実行開始）
     public void execute(MagicContext context) {
-        if (startNode != null) {
-            try {
-                startNode.execute(context);;
-            } catch (CalculationCapacityOverException c) {
-                context.getCaster().sendSystemMessage(Component.literal("《告》個体名" + context.getCaster().getName() + "の演算容量が限界を超過。術式暴走が発生"));
-            } catch (MasoShortageException m) {
-                context.getCaster().sendSystemMessage(Component.literal("《告》個体名" + context.getCaster().getName().getString() + "の魔素残量が低下。術式を維持できません"));
+        try {
+            for (AbstractMagicNode startNode : startNodes) {
+                startNode.execute(context);
             }
+        } catch (CalculationCapacityOverException c) {
+            context.getCaster().sendSystemMessage(Component.literal("《告》個体名" + context.getCaster().getName() + "の演算容量が限界を超過。術式暴走が発生"));
+        } catch (MasoShortageException m) {
+            context.getCaster().sendSystemMessage(Component.literal("《告》個体名" + context.getCaster().getName().getString() + "の魔素残量が低下。術式を維持できません"));
         }
     }
 
@@ -49,9 +51,5 @@ public class RuntimeMagicCircuit {
         }
     }
 
-    public void triggerEvent(MagicContext context, Map<String, Object>eventData){
-        startNode.setEventData(eventData);
-        execute(context);
-    }
 }
 

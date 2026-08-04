@@ -20,6 +20,7 @@ import com.github.sweetfish111.reincarnated.magic.nodes.conversion.OffsetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.IfNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.RepeatNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
+import com.github.sweetfish111.reincarnated.magic.slill.node.trigger.OnXpPickupNode;
 import com.github.sweetfish111.reincarnated.magic.slill.node.trigger.onTickNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.BooleanNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.NumberNode;
@@ -197,17 +198,14 @@ public class MagicCompiler {
         compileNodes(circuit, instancedNodes);
         compileCompoundNodes(circuit, instancedNodes, allWires);
         compileWires(circuit, instancedNodes, allWires);
-        AbstractMagicNode startNode = null;
+        Set<AbstractMagicNode> startNode = new HashSet<>();
 
         for(Map.Entry<UUID, AbstractMagicNode> entry : instancedNodes.entrySet()){
             if(entry.getValue().isTrigger()){
-                startNode = entry.getValue();
+                startNode.add(entry.getValue());
             }
         }
-        if(startNode != null){
-            return new RuntimeMagicCircuit(player, instancedNodes, startNode);
-        }
-        return null;
+        return new RuntimeMagicCircuit(player, instancedNodes, startNode);
     }
 
     public static MagicNode createNodeInstance(String typeId, UUID nodeId){
@@ -244,6 +242,7 @@ public class MagicCompiler {
             case "delay":return new DelayNode(nodeId);
             case "on_tick":return new onTickNode(nodeId);
             case "toggle":return new toggleNode(nodeId);
+            case "on_xp_pickup":return  new OnXpPickupNode(nodeId);
             default : return null;
         }
     }

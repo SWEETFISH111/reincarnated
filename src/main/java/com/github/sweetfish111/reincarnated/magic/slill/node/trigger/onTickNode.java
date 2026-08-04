@@ -13,6 +13,7 @@ public class onTickNode extends AbstractMagicNode {
     public onTickNode(UUID id) {
         super(id);
         this.isTrigger = true;
+        this.triggerType = "on_tick";
     }
 
     @Override

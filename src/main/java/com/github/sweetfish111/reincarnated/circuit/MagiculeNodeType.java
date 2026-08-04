@@ -15,7 +15,7 @@ public enum MagiculeNodeType {
     ),
     ON_XP_PICKUP("on_xp_pickup", "on xp pickup",
             new PortDataType[]{},
-            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.EXP},
             List.of(EditorTab.SKILL)
     ),
     ON_DAMAGE("on_damage", "on damage",
@@ -55,6 +55,11 @@ public enum MagiculeNodeType {
             null, null,
             5
     ),
+    ADD_MASO("add_maso", "add maso",
+            new PortDataType[]{PortDataType.EXEC, PortDataType.MASO},
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.SKILL)
+    ),
     GET_LOOK_TARGET("get_look_target","look_target",
             new PortDataType[]{},
             new PortDataType[]{PortDataType.ENTITY}
@@ -80,14 +85,6 @@ public enum MagiculeNodeType {
             null,
             5
     ),
-    NUMBER("number", "number",
-            new PortDataType[]{},
-            new PortDataType[]{PortDataType.NUMBER},
-            ContentWidgetType.NUMBER_INPUT,
-            null,
-            1,
-            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
-    ),
     COMBERS_TARGET_POS("combers_target_pos", "target pos",
             new PortDataType[]{PortDataType.ENTITY},
             new PortDataType[]{PortDataType.VECTORE},
@@ -98,19 +95,16 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.ENTITY},
             new PortDataType[]{PortDataType.VECTORE}
     ),
+    CONBERS_XP_TO_MASO("combers_xp_to_maso", "xp to maso",
+            new PortDataType[]{PortDataType.EXP},
+            new PortDataType[]{PortDataType.MASO},
+            List.of(EditorTab.SKILL)
+    ),
     IF("if", "IF",
             new PortDataType[]{PortDataType.EXEC,PortDataType.BOOLEAN},
             new PortDataType[]{PortDataType.EXEC, PortDataType.EXEC},
             null, null,
             20
-    ),
-    BOOLEAN("boolean", "boolean",
-            new PortDataType[]{},
-            new PortDataType[]{PortDataType.BOOLEAN},
-            ContentWidgetType.SWITCH,
-            null,
-            1,
-            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     REPEAT("repeat", "repeat",
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER, PortDataType.NUMBER},
@@ -125,6 +119,22 @@ public enum MagiculeNodeType {
     DELAY("delay", "delay",
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC}
+    ),
+    NUMBER("number", "number",
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.NUMBER},
+            ContentWidgetType.NUMBER_INPUT,
+            null,
+            1,
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
+    ),
+    BOOLEAN("boolean", "boolean",
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.BOOLEAN},
+            ContentWidgetType.SWITCH,
+            null,
+            1,
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     ADD("add", "add",
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},

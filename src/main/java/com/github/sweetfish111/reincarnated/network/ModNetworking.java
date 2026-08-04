@@ -88,6 +88,7 @@ public class ModNetworking {
             });
         }));
 
+        //魔素をサーバーとクライアントで同期する。
         registrar.playToClient(SyncMasoPayload.TYPE, SyncMasoPayload.STREAM_CODEC,((payload, context) ->{
             context.enqueueWork(() -> {
                 if(FMLEnvironment.getDist().isClient()){

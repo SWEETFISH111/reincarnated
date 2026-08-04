@@ -23,7 +23,7 @@ public class CausalityObserver {
         if (event.getEntity() instanceof ServerPlayer player) {
             int xpAmount = event.getOrb().getValue();
 
-            Map<String, Object> data = Map.of("xp_amount", (float) xpAmount);
+            Map<String, Object> data = Map.of("xp_amount", (double) xpAmount);
             ActiveMagicManager.executeEventTrigger(player, EditorTab.SKILL, "on_xp_pickup", data);
 
             // プレイヤーの魂データを取り出して「貪欲者」としての理を進行させる

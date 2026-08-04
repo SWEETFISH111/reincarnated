@@ -24,8 +24,8 @@ public class MasoRegenHandler {
 
                 magicData.currentMaso += regenPerTick;
                 magicData.totalRegeneratedMaso += regenPerTick;
-                PacketDistributor.sendToPlayer(player, new SyncMasoPayload(magicData.getMaxMaso(), magicData.currentMaso));
             }
+            PacketDistributor.sendToPlayer(player, new SyncMasoPayload(magicData.getMaxMaso(), magicData.currentMaso));
         }
     }
 }

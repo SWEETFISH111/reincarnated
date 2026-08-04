@@ -85,6 +85,20 @@ public abstract class AbstractMagicNode implements MagicNode{
         }
         return false;
     }
+    protected XpAmount pullXp(int myInputPortIndex, MagicContext context){
+        Object rawData = pullData(myInputPortIndex,context);
+        if(rawData instanceof XpAmount xp){
+            return xp;
+        }
+        return new XpAmount(0);
+    }
+    protected MasoAmount pullMaso(int myInputPortIndex, MagicContext context){
+        Object rawData = pullData(myInputPortIndex,context);
+        if(rawData instanceof MasoAmount maso){
+            return maso;
+        }
+        return new MasoAmount(0);
+    }
 
     public void executeOutputPort(int outputPortIndex, MagicContext context){
         List<MagicNode> nextNodes = outputConnections.get(outputPortIndex);

@@ -87,6 +87,10 @@ public class PlayerMagicData {
         checkEvolution();
     }
 
+    public void addCurretMaso(double d){
+        currentMaso += (float) d;
+    }
+
 
     private void checkEvolution() {
         // すでに貪欲者から進化している場合はスキップ

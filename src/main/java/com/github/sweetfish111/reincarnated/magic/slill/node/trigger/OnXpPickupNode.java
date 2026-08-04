@@ -2,6 +2,7 @@ package com.github.sweetfish111.reincarnated.magic.slill.node.trigger;
 
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.XpAmount;
 
 import java.util.UUID;
 
@@ -22,6 +23,6 @@ public class OnXpPickupNode extends AbstractMagicNode {
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         context.incrementAndCheck();
-        return this.eventData.get("xp_amount");
+        return new XpAmount((double) this.eventData.get("xp_amount"));
     }
 }

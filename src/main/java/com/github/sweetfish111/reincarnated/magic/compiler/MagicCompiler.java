@@ -20,6 +20,8 @@ import com.github.sweetfish111.reincarnated.magic.nodes.conversion.OffsetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.IfNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.RepeatNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
+import com.github.sweetfish111.reincarnated.magic.slill.ConbersXpToMaso;
+import com.github.sweetfish111.reincarnated.magic.slill.node.AddMasoNode;
 import com.github.sweetfish111.reincarnated.magic.slill.node.trigger.OnXpPickupNode;
 import com.github.sweetfish111.reincarnated.magic.slill.node.trigger.onTickNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.BooleanNode;
@@ -243,6 +245,8 @@ public class MagicCompiler {
             case "on_tick":return new onTickNode(nodeId);
             case "toggle":return new toggleNode(nodeId);
             case "on_xp_pickup":return  new OnXpPickupNode(nodeId);
+            case "combers_xp_to_maso":return new ConbersXpToMaso(nodeId);
+            case "add_maso":return new AddMasoNode(nodeId);
             default : return null;
         }
     }

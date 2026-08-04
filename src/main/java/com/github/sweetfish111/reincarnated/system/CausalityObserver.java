@@ -1,9 +1,12 @@
 package com.github.sweetfish111.reincarnated.system;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
+import com.github.sweetfish111.reincarnated.event.PlayerUniqueSkillAcquiredEvent;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -53,5 +56,6 @@ public class CausalityObserver {
             // プレイヤーが漁る・近づく等の判定のフック（後ほど拡張可能）
         }
     }
+
 }
 

@@ -2,6 +2,8 @@ package com.github.sweetfish111.reincarnated.client.screen;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
+import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
@@ -102,11 +104,17 @@ public class NodePaletteWidget {
             }
         } else {
             EditorTab currentTab = parentScreen.getThisLayerManager().getCurrentTab();
+            var player = Minecraft.getInstance().player;
+            PlayerMagicData magicData = (player != null) ? player.getData(ModAttachments.PLAYER_MAGIC_DATA) : null;
+
+
             for (MagiculeNodeType type : MagiculeNodeType.values()) {
                 if (type.isAvailableFor(currentTab)) {
-                    items.add(new PaletteItem(Component.literal(type.displayName), () -> {
-                        this.parentScreen.spawnNode(type, this.spawnCanvasX, this.spawnCanvasY);
-                    }));
+                    if (magicData == null || magicData.isNodeTypeUnlocked(currentTab, type)) {
+                        items.add(new PaletteItem(Component.literal(type.displayName), () -> {
+                            this.parentScreen.spawnNode(type, this.spawnCanvasX, this.spawnCanvasY);
+                        }));
+                    }
                 }
             }
         }

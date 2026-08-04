@@ -2,6 +2,7 @@ package com.github.sweetfish111.reincarnated.init;
 
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -32,7 +33,6 @@ public class ModAttachments {
                                 @Override
                                 public PlayerMagicData read(IAttachmentHolder holder, ValueInput input) {
                                     PlayerMagicData data = new PlayerMagicData();
-
                                     // ValueInput から CompoundTag を読み込んで復元
                                     input.read("magic_data", CompoundTag.CODEC).ifPresent(data::loadFromNBT);
                                     return data;

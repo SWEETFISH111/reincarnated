@@ -3,6 +3,9 @@ package com.github.sweetfish111.reincarnated.player;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
+import com.github.sweetfish111.reincarnated.event.PlayerUniqueSkillAcquiredEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.ArrayList;
 import java.util.List;

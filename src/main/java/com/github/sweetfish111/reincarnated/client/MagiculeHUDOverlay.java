@@ -22,8 +22,8 @@ public class MagiculeHUDOverlay {
         String text = String.format("魔素: %.1f / %.1f", current, max);
 
         // 画面の左上（またはお好みの位置）にテキストを描画
-        int x = (int)(event.getGuiGraphics().guiWidth() * (60f / 100f));
-        int y = (int)(event.getGuiGraphics().guiHeight() * (80f / 100f));
+        int x = (int)(event.getGuiGraphics().guiWidth() * (85f / 100f));
+        int y = (int)(event.getGuiGraphics().guiHeight() * (95f / 100f));
         int color = (current >= max) ? 0xFFFFFFFF : 0xFF55FFFF;
         event.getGuiGraphics().centeredText(
                 Minecraft.getInstance().font,

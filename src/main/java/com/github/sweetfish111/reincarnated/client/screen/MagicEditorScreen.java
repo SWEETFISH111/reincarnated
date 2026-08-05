@@ -103,6 +103,7 @@ public class MagicEditorScreen extends Screen {
     public void rebuildNodeWidgets(){
         System.out.println("MagicEditorScreen_rebuild_start : " + thisLayerManager.getWorkCircuit());
         clearCanvasWidgets();
+        palette.close();
         for(MagiculeCircuit.NodeData nodeData : thisLayerManager.getWorkCircuit().getNodes()){
             AbstructDraggingNodeWidget nodeWidget = new DraggableNodeWidget(
                     this,

@@ -55,26 +55,85 @@ public class PlayerMagicData {
 
         // 👑 初期状態のデフォルトノードを付与
         addDefaultUnlockedNodes(EditorTab.SKILL);
+        addDefaultUnlockedNodes(EditorTab.MAGIC);
+        addDefaultUnlockedNodes(EditorTab.ARTS);
     }
 
     /**
      * デフォルトで解放しておく計算ノード群を登録する共通メソッド
      */
     private void addDefaultUnlockedNodes(EditorTab tab) {
-        Set<MagiculeNodeType> types = unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>());
-        types.add(MagiculeNodeType.ADD);
-        types.add(MagiculeNodeType.AND);
-        types.add(MagiculeNodeType.DIVIDE);
-        types.add(MagiculeNodeType.EQUAL);
-        types.add(MagiculeNodeType.GREATER_THAN);
-        types.add(MagiculeNodeType.GRATER_OR_EQUAL);
-        types.add(MagiculeNodeType.LESS_THAN);
-        types.add(MagiculeNodeType.LESS_OR_EQUAL);
-        types.add(MagiculeNodeType.MODULO);
-        types.add(MagiculeNodeType.MULTIPLY);
-        types.add(MagiculeNodeType.NOT);
-        types.add(MagiculeNodeType.OR);
-        types.add(MagiculeNodeType.SUBTACT);
+        if(tab == EditorTab.SKILL) {
+            Set<MagiculeNodeType> types = unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>());
+            //math
+            types.add(MagiculeNodeType.ADD);
+            types.add(MagiculeNodeType.AND);
+            types.add(MagiculeNodeType.DIVIDE);
+            types.add(MagiculeNodeType.EQUAL);
+            types.add(MagiculeNodeType.GREATER_THAN);
+            types.add(MagiculeNodeType.GRATER_OR_EQUAL);
+            types.add(MagiculeNodeType.LESS_THAN);
+            types.add(MagiculeNodeType.LESS_OR_EQUAL);
+            types.add(MagiculeNodeType.MODULO);
+            types.add(MagiculeNodeType.MULTIPLY);
+            types.add(MagiculeNodeType.NOT);
+            types.add(MagiculeNodeType.OR);
+            types.add(MagiculeNodeType.SUBTACT);
+        } else if (tab == EditorTab.MAGIC) {
+            Set<MagiculeNodeType> types = unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>());
+            //action
+            types.add(MagiculeNodeType.DAMAGE);
+            types.add(MagiculeNodeType.EXPLOSION);
+            types.add(MagiculeNodeType.HEALING);
+            types.add(MagiculeNodeType.LIGHTNING);
+            //controll
+            types.add(MagiculeNodeType.DELAY);
+            types.add(MagiculeNodeType.IF);
+            types.add(MagiculeNodeType.REPEAT);
+            types.add(MagiculeNodeType.TOGGLE);
+            //conversion
+            types.add(MagiculeNodeType.COMBERS_LOOK_DIRECTION);
+            types.add(MagiculeNodeType.COMBERS_TARGET_POS);
+            types.add(MagiculeNodeType.OFFSET);
+            //sensor
+            types.add(MagiculeNodeType.GET_LOOK_FORWARD);
+            types.add(MagiculeNodeType.GET_LOOK_TARGET);
+            types.add(MagiculeNodeType.CASTER_POS);
+            //trigger
+            types.add(MagiculeNodeType.EVENT_KEY_ONE);
+            types.add(MagiculeNodeType.NUMBER);
+            types.add(MagiculeNodeType.BOOLEAN);
+            //math
+            types.add(MagiculeNodeType.ADD);
+            types.add(MagiculeNodeType.AND);
+            types.add(MagiculeNodeType.DIVIDE);
+            types.add(MagiculeNodeType.EQUAL);
+            types.add(MagiculeNodeType.GREATER_THAN);
+            types.add(MagiculeNodeType.GRATER_OR_EQUAL);
+            types.add(MagiculeNodeType.LESS_THAN);
+            types.add(MagiculeNodeType.LESS_OR_EQUAL);
+            types.add(MagiculeNodeType.MODULO);
+            types.add(MagiculeNodeType.MULTIPLY);
+            types.add(MagiculeNodeType.NOT);
+            types.add(MagiculeNodeType.OR);
+            types.add(MagiculeNodeType.SUBTACT);
+        } else if (tab == EditorTab.ARTS) {
+            Set<MagiculeNodeType> types = unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>());
+            //math
+            types.add(MagiculeNodeType.ADD);
+            types.add(MagiculeNodeType.AND);
+            types.add(MagiculeNodeType.DIVIDE);
+            types.add(MagiculeNodeType.EQUAL);
+            types.add(MagiculeNodeType.GREATER_THAN);
+            types.add(MagiculeNodeType.GRATER_OR_EQUAL);
+            types.add(MagiculeNodeType.LESS_THAN);
+            types.add(MagiculeNodeType.LESS_OR_EQUAL);
+            types.add(MagiculeNodeType.MODULO);
+            types.add(MagiculeNodeType.MULTIPLY);
+            types.add(MagiculeNodeType.NOT);
+            types.add(MagiculeNodeType.OR);
+            types.add(MagiculeNodeType.SUBTACT);
+        }
     }
 
     public String getCurrentUniqueSkill() {
@@ -267,8 +326,9 @@ public class PlayerMagicData {
 
         // 👑 【マイグレーション】もしアプデ前のデータで未解放ノードのタグが存在しない場合は、デフォルトを自動付与
         if (!hasLoadedUnlockedNodes) {
-
+            addDefaultUnlockedNodes(EditorTab.MAGIC);
             addDefaultUnlockedNodes(EditorTab.SKILL);
+            addDefaultUnlockedNodes(EditorTab.ARTS);
         }
 
         MagiculeCircuit skillCircuit = this.circuits.get(EditorTab.SKILL);

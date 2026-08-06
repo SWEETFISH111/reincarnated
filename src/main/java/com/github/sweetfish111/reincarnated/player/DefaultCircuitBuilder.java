@@ -4,6 +4,7 @@ package com.github.sweetfish111.reincarnated.player;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.event.PlayerUniqueSkillAcquiredEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.common.NeoForge;
 
@@ -44,7 +45,7 @@ public class DefaultCircuitBuilder {
         nodes.add(xpToMaso.id);
         nodes.add(addMaso.id);
 
-        UUID greedyId = circuit.collapseNodes(nodes, "貪欲者");
+        UUID greedyId = circuit.collapseNodes(nodes, Component.translatable("name.reincarnated.first_uniqueSkill").getString());
 
         return greedyId;
     }

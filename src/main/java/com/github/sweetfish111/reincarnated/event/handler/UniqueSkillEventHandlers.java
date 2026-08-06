@@ -21,13 +21,12 @@ public class UniqueSkillEventHandlers {
         if ("greedy".equals(skillName)) {
             String playerName = player.getName().getString();
 
-            Component message = Component.empty()
-                    .append(Component.literal("《告》個体名 ").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal(playerName).withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD))
-                    .append(Component.literal(" に ").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("¶§!?#@%").withStyle(ChatFormatting.OBFUSCATED, ChatFormatting.RED))
-                    .append(Component.literal(" の因子を確認。ユニークスキル『貪欲者』を獲得……成功しました。").withStyle(ChatFormatting.DARK_PURPLE));
+            Component formattedPlayerName = Component.literal(playerName).withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD);
+            Component obfuscatedFactror = Component.literal("¶§!?#@%").withStyle(ChatFormatting.OBFUSCATED, ChatFormatting.RED);
 
+            Component message = Component.translatable("message.reincarnated.unique_skill_acquired",
+                    formattedPlayerName,
+                    obfuscatedFactror).withStyle(ChatFormatting.DARK_PURPLE);
             player.sendSystemMessage(message);
         }
     }

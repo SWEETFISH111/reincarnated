@@ -55,7 +55,7 @@ public class CompoundNodeWidget extends AbstructDraggingNodeWidget {
 
     public void openContents(){
         if (this.getLinkedData().isLocked()) {
-            parentScreen.getThisLayerManager().triggerError("告。より上位の権限レベルを検出。この回路を解析できません。");
+            parentScreen.getThisLayerManager().triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
             return;
         }
         MagiculeCircuit parentCircuit = parentScreen.getThisLayerManager().getWorkCircuit();

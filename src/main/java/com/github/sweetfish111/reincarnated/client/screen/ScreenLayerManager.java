@@ -4,6 +4,8 @@ import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.common.Mod;
@@ -36,8 +38,8 @@ public class ScreenLayerManager {
     public Deque<CircuitLayer> getLayerStack(){return this.layerStack;}
     public void setBackBtn(Button backBtn) {this.backBtn = backBtn;}
 
-    public void triggerError(String message){
-        this.errorMessage = message;
+    public void triggerError(MutableComponent message){
+        this.errorMessage = message.getString();
         this.errorTimer = 60;
     }
 
@@ -130,7 +132,7 @@ public class ScreenLayerManager {
     public boolean diveLayer(AbstructDraggingNodeWidget node, List<AbstructDraggingNodeWidget> nodeWidgets){
         if(node instanceof CompoundNodeWidget cNode){
             if (cNode.getLinkedData().isLocked()) {
-                triggerError("告。より上位の権限レベルを検出。この回路を解析できません。");
+                triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
                 return false;
             }
         }

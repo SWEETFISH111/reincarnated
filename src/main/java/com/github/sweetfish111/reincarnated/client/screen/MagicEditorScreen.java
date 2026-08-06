@@ -1,9 +1,12 @@
 package com.github.sweetfish111.reincarnated.client.screen;
 
 import com.github.sweetfish111.reincarnated.circuit.*;
+import com.github.sweetfish111.reincarnated.item.GrimoireItem;
+import com.github.sweetfish111.reincarnated.item.ReincarnatedItems;
 import com.github.sweetfish111.reincarnated.network.payload.ExportSpellPalyload;
 import com.github.sweetfish111.reincarnated.network.payload.SaveCircuitPayload;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
+import com.github.sweetfish111.reincarnated.reincarnated;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -13,10 +16,13 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomData;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.common.Mod;
@@ -34,6 +40,8 @@ public class MagicEditorScreen extends Screen {
     private EditBox popupBox;
 
     private Button exportBtn;
+    private Button importBtn;
+
     private boolean isNamingCompound;
     private final List<UUID> collapseTargets = new ArrayList<>();
 
@@ -99,7 +107,6 @@ public class MagicEditorScreen extends Screen {
             ItemStack heldItem = minecraft.player.getMainHandItem();
 
             if (heldItem.is(Items.BOOK)) {
-                System.out.println("ugoiteruyo");
                 // 右上に「エクスポート」ボタンを追加
                 exportBtn = Button.builder(Component.literal("💾 焼き付け"), button -> {
                     // 現在のワークスペースの回路をNBT化
@@ -112,8 +119,17 @@ public class MagicEditorScreen extends Screen {
                     }
                 }).bounds(posX, posY, buttonWidth, buttonHeight).build();
 
-                System.out.println(exportBtn.toString());
                 this.addRenderableWidget(exportBtn);
+            }else if(heldItem.is(ReincarnatedItems.GRIMOIRE)){
+                  CustomData data = heldItem.get(DataComponents.CUSTOM_DATA);
+                CompoundTag circuitTag = data.copyTag();
+                importBtn = Button.builder(Component.literal("魔道書から学ぶ"), button -> {
+                    MagiculeCircuit currentCircuit = this.thisLayerManager.getWorkCircuit();
+                    currentCircuit.loadFromNBT(circuitTag);
+                    rebuildNodeWidgets();
+                }).bounds(posX, posY, buttonWidth, buttonHeight).build();
+
+                this.addRenderableWidget(importBtn);
             }
         }
 
@@ -254,6 +270,9 @@ public class MagicEditorScreen extends Screen {
         if(exportBtn != null){
             exportBtn.extractRenderState(guiGraphicsExtractor, mouseX, mouseY, partialTick);
         }
+        if(importBtn != null){
+            importBtn.extractRenderState(guiGraphicsExtractor, mouseX, mouseY, partialTick);
+        }
         for(Button btn : thisLayerManager.getTabBtns()){
             btn.extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseY, partialTick);
         }
@@ -297,6 +316,11 @@ public class MagicEditorScreen extends Screen {
             return true;
         }
 
+        //importBtnのクリック判定
+        if(importBtn != null && importBtn.mouseClicked(event, doubleClick)){
+            return true;
+        }
+
         //パレットのクリック判定
         if(palette.isOpen()){
             palette.mouseClicked(rawX, rawY, event.button());
@@ -313,7 +337,6 @@ public class MagicEditorScreen extends Screen {
                 if(doubleClick && node instanceof CompoundNodeWidget cNode){
                     thisLayerManager.diveLayer(cNode, nodeWidgets);
                     rebuildNodeWidgets();
-                    System.out.println("MagicEditorScreen : doubleClick -> CompoundNodewidget");
                 }
 
                 if(event.hasControlDown()){
@@ -359,7 +382,6 @@ public class MagicEditorScreen extends Screen {
                         }
                         return true;
                     }else{
-                        System.out.println("MagicEditorScreen : kurikkusita ->" + node);
                         for(AbstructDraggingNodeWidget active : activeNodes){
                             active.setDragging(false);
                             active.setFocused(false);
@@ -405,7 +427,7 @@ public class MagicEditorScreen extends Screen {
         }else if(node instanceof CompoundNodeWidget cNode){
             if(cNode.getContentWidget() != null){
                 if (cNode.getLinkedData().isLocked()) {
-                    thisLayerManager.triggerError("告。より上位の権限レベルを検出。この回路を解析できません。");
+                    thisLayerManager.triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
                     return;
                 }
                 spawnNodeWithParam(MagiculeNodeType.COMPOUND, cNode.getX() + 10, cNode.getY() + 10, cNode.getContentWidget().getCurrentValue());
@@ -525,7 +547,7 @@ public class MagicEditorScreen extends Screen {
     public void deleteNode(AbstructDraggingNodeWidget node){
         if(node instanceof CompoundNodeWidget cNode){
             if (cNode.getLinkedData().isLocked()) {
-                thisLayerManager.triggerError("告。より上位の権限レベルを検出。この回路を解析できません。");
+                thisLayerManager.triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
                 return;
             }
         }
@@ -588,7 +610,7 @@ public class MagicEditorScreen extends Screen {
                 Minecraft.getInstance().font,
                 this.width / 2 - 60, this.height / 2 - 10,
                 120, 20,
-                Component.literal("カスタムネーム入力")
+                Component.literal("Enter Custom Name")
         );
         this.popupBox.setMaxLength(15);
         this.popupBox.setValue("MyCustomMagic");

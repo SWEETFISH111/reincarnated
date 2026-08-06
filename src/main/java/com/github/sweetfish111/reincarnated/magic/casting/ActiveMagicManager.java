@@ -18,6 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.neoforged.fml.common.Mod;
 
 import javax.swing.text.html.parser.Entity;
 import java.util.*;
@@ -113,20 +114,23 @@ public class ActiveMagicManager {
     public static void executeEventTrigger(IMagicCaster caster, EditorTab tab, String triggerNodeType, Map<String, Object> eventData) {
 
         // 指定されたタブの回路とコンパイル済みデータを取り出す
-        MagiculeCircuit circuit = caster.getCircuit();
-        RuntimeMagicCircuit runtimeCircuit = MagicCompiler.compileCircuit(caster, circuit);
+        if(caster instanceof PlayerCasterAdapter p) {
+            ServerPlayer player = (ServerPlayer) p.getCasterEntity();
+            MagiculeCircuit circuit = player.getData(ModAttachments.PLAYER_MAGIC_DATA).getCircuit(tab);
+            RuntimeMagicCircuit runtimeCircuit = MagicCompiler.compileCircuit(caster, circuit);
 
-        for(Map.Entry<UUID, AbstractMagicNode> entry : runtimeCircuit.getInstancedNodes().entrySet()){
-            AbstractMagicNode node = entry.getValue();
-            if(Objects.equals(node.getTriggerType(), triggerNodeType)){
-                node.setEventData(eventData);
-                node.execute(new MagicContext(circuit, runtimeCircuit));
+            for (Map.Entry<UUID, AbstractMagicNode> entry : runtimeCircuit.getInstancedNodes().entrySet()) {
+                AbstractMagicNode node = entry.getValue();
+                if (Objects.equals(node.getTriggerType(), triggerNodeType)) {
+                    node.setEventData(eventData);
+                    node.execute(new MagicContext(circuit, runtimeCircuit));
+                }
             }
-        }
 
-        if(runtimeCircuit != null){
-            MagicContext context = new MagicContext(circuit, runtimeCircuit);
-            runtimeCircuit.start(context);
+            if (runtimeCircuit != null) {
+                MagicContext context = new MagicContext(circuit, runtimeCircuit);
+                runtimeCircuit.start(context);
+            }
         }
     }
 }

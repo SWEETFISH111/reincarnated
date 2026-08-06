@@ -54,6 +54,10 @@ public class CompoundNodeWidget extends AbstructDraggingNodeWidget {
     public String getCustomName(){return this.customName;}
 
     public void openContents(){
+        if (this.getLinkedData().isLocked()) {
+            parentScreen.getThisLayerManager().triggerError("告。より上位の権限レベルを検出。この回路を解析できません。");
+            return;
+        }
         MagiculeCircuit parentCircuit = parentScreen.getThisLayerManager().getWorkCircuit();
         MagiculeCircuit contentCircuit = nodeData.getCompoundCircuit();
 

@@ -44,7 +44,7 @@ public class DefaultCircuitBuilder {
         nodes.add(xpToMaso.id);
         nodes.add(addMaso.id);
 
-        UUID greedyId = circuit.collapseNodes(nodes, "Greedy");
+        UUID greedyId = circuit.collapseNodes(nodes, "貪欲者");
 
         return greedyId;
     }

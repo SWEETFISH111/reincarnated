@@ -404,6 +404,10 @@ public class MagicEditorScreen extends Screen {
             }
         }else if(node instanceof CompoundNodeWidget cNode){
             if(cNode.getContentWidget() != null){
+                if (cNode.getLinkedData().isLocked()) {
+                    thisLayerManager.triggerError("告。より上位の権限レベルを検出。この回路を解析できません。");
+                    return;
+                }
                 spawnNodeWithParam(MagiculeNodeType.COMPOUND, cNode.getX() + 10, cNode.getY() + 10, cNode.getContentWidget().getCurrentValue());
             }else{
                 spawnNode(MagiculeNodeType.COMPOUND, cNode.getX() + 10, cNode.getY() + 10);
@@ -519,6 +523,12 @@ public class MagicEditorScreen extends Screen {
 
     //ノードの削除
     public void deleteNode(AbstructDraggingNodeWidget node){
+        if(node instanceof CompoundNodeWidget cNode){
+            if (cNode.getLinkedData().isLocked()) {
+                thisLayerManager.triggerError("告。より上位の権限レベルを検出。この回路を解析できません。");
+                return;
+            }
+        }
         this.nodeWidgets.remove(node);
         this.removeWidget(node);
         thisLayerManager.getWorkCircuit().removeNodeAndWires(node.getId());

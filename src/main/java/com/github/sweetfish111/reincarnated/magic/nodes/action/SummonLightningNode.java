@@ -30,7 +30,7 @@ public class SummonLightningNode extends AbstractMagicNode {
         System.out.println("[kaminari] shutoku sita zahyou:" + targetPos);
 
         // 2. 引っ張ってきた座標に雷を落とす！
-        if (targetPos != null && context.getCaster().level() instanceof ServerLevel serverLevel) {
+        if (targetPos != null && context.getCaster().getCasterLevel() instanceof ServerLevel serverLevel) {
             System.out.println("[kaminari] kaminari shoukann");
             Identifier lightningId = Identifier.parse("lightning_bolt");
             var optionalHolder = BuiltInRegistries.ENTITY_TYPE.get(lightningId);

@@ -26,12 +26,12 @@ public class GetLookForwardNode extends AbstractMagicNode {
             Object distanceData = pullData(0, context);
             double maxDistance = distanceData instanceof Number num ? num.doubleValue() : 16.0;
 
-            Vec3 eyePos = context.getCaster().getEyePosition();
-            Vec3 lookVec = context.getCaster().getLookAngle();
+            Vec3 eyePos = context.getCaster().getCasterEntity().getEyePosition();
+            Vec3 lookVec = context.getCaster().getCasterEntity().getLookAngle();
             Vec3 endPos = eyePos.add(lookVec.scale(maxDistance));
 
             if(context.getCircuit().getNodeParam(this.id, "value", false) instanceof Boolean b){
-                BlockHitResult blockHit = context.getCaster().level().clip(new ClipContext(eyePos, endPos, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, context.getCaster()));
+                BlockHitResult blockHit = context.getCaster().getCasterLevel().clip(new ClipContext(eyePos, endPos, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, context.getCaster().getCasterEntity()));
                 if(blockHit.getType() == HitResult.Type.BLOCK && b){
                     return blockHit.getBlockPos();
                 }

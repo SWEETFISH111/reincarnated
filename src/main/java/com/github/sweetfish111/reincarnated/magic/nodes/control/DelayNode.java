@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.control;
 
+import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.casting.CastingManager;
 import com.github.sweetfish111.reincarnated.magic.casting.DelayCastingManager;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
@@ -18,8 +19,8 @@ public class DelayNode extends AbstractMagicNode {
     @Override
     public void execute(MagicContext context) {
         super.execute(context);
-        ServerPlayer player = context.getCaster();
-        if (player == null) return;
+        IMagicCaster caster = context.getCaster();
+        if (caster == null) return;
 
         // ノードの設定パラメータから遅延ティック数を取り出す（例: デフォルト20Ticks = 1秒）
         double delaySeconds = pullDouble(1, context);
@@ -27,7 +28,7 @@ public class DelayNode extends AbstractMagicNode {
 
 
         // CastingManagerの待合室にタスクを預け、ここで同期ループを抜ける（ここで処理がストップする）
-        DelayCastingManager.scheduleDelay(player, ((AbstractMagicNode) (this.getNextNode(0))).getId(), context, delayTicks);
+        DelayCastingManager.scheduleDelay(caster, ((AbstractMagicNode) (this.getNextNode(0))).getId(), context, delayTicks);
     }
 
     @Override

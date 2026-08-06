@@ -1,7 +1,10 @@
 package com.github.sweetfish111.reincarnated.magic.casting;
 
+import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
+import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
+import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import net.minecraft.network.chat.Component;
@@ -16,23 +19,16 @@ public class DelayCastingManager {
     private static final java.util.List<DelayCastingTask> delayedTasks = new java.util.ArrayList<>();
 
 
-    public static void scheduleDelay(ServerPlayer player, UUID nextNodeId, MagicContext context, int delayTickes){
+    public static void scheduleDelay(IMagicCaster caster, UUID nextNodeId, MagicContext context, int delayTickes){
         if(delayTickes <= 0){
-            executeNextNode(player, nextNodeId, context);
+            executeNextNode(caster, nextNodeId, context);
             return;
         }
-        delayedTasks.add(new DelayCastingTask(player.getUUID(), player, context, nextNodeId, delayTickes));
+        delayedTasks.add(new DelayCastingTask(caster, context, nextNodeId, delayTickes));
     }
 
-    public static void executeNextNode(ServerPlayer player, UUID nextNodeId, MagicContext context){
-        try {
-            AbstractMagicNode nextNode = context.getRuntimeNode(nextNodeId);
-            nextNode.execute(context);
-        } catch (CalculationCapacityOverException c) {
-            context.getCaster().sendSystemMessage(Component.literal("《告》個体名" + context.getCaster().getName() + "の演算容量が限界を超過。術式暴走が発生"));
-        } catch (MasoShortageException m) {
-            context.getCaster().sendSystemMessage(Component.literal("《告》個体名" + context.getCaster().getName().getString() + "の魔素残量が低下。術式を維持できません"));
-        }
+    public static void executeNextNode(IMagicCaster caster, UUID nextNodeId, MagicContext context){
+        RuntimeMagicCircuit.executeNode(caster, nextNodeId, context);
     }
 
     public static void onServerTick(){
@@ -40,16 +36,16 @@ public class DelayCastingManager {
             Iterator<DelayCastingTask> delayIterator = delayedTasks.iterator();
             while (delayIterator.hasNext()) {
                 DelayCastingTask task = delayIterator.next();
-                ServerPlayer player = task.getPlayer();
+                IMagicCaster caster = task.getCaster();
 
-                if (player == null || player.isRemoved()) {
+                if (caster == null) {
                     delayIterator.remove();
                     continue;
                 }
 
                 // タイマーを進め、時間が来たら発動
                 if (task.tick()) {
-                    executeNextNode(player, task.getNextNodeId(), task.getContext());
+                    executeNextNode(caster, task.getNextNodeId(), task.getContext());
                     delayIterator.remove();
                 }
             }

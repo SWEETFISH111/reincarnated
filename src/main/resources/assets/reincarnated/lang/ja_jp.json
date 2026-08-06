@@ -1,8 +1,7 @@
 {
-  "itemGroup.reincarnated": "Reincarnated Mod Tab",
-  "item.reincarnated.grimoire": "Grimoire of Secrets",
-  "message.reincarnated.export_success": "Consumed a blank book and spun a new grimoire!",
-  "message.reincarnated.export_error": "Error: Please hold a blank book in your main hand.",
+  "item.reincarnated.grimoire": "秘術の魔導書",
+  "message.reincarnated.export_success": "白紙の本を消費し、新たな魔導書を紡ぎ出しました！",
+  "message.reincarnated.export_error": "エラー: メインハンドに白紙の本を持ってください。",
 
   "reincarnated.configuration.title": "reincarnated Configs",
   "reincarnated.configuration.section.reincarnated.common.toml": "reincarnated Configs",

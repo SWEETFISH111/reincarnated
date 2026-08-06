@@ -2,6 +2,7 @@ package com.github.sweetfish111.reincarnated;
 
 import com.github.sweetfish111.reincarnated.entity.reincarnatedEntityTypes;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.item.ReincarnatedItems;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -77,6 +78,8 @@ public class reincarnated {
         CREATIVE_MODE_TABS.register(modEventBus);
         // 🌀 【重要】カスタムエンティティのレジストリをイベントバスに刻む！
         reincarnatedEntityTypes.ENTITY_TYPES.register(modEventBus);
+        //追加アイテムのレジストリ
+        ReincarnatedItems.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (reincarnated) to respond directly to events.
@@ -118,5 +121,7 @@ public class reincarnated {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
     }
+
+
 
 }

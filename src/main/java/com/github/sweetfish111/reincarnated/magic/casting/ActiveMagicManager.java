@@ -7,6 +7,8 @@ import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
+import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
@@ -51,19 +53,10 @@ public class ActiveMagicManager {
             return false;
         }
 
-        public void execute(ServerPlayer player) {
-            try {
-                // 実行用のコンテキストを生成（術者やレベル情報を内包）
-                PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-                RuntimeMagicCircuit runtimeMagicCircuit = MagicCompiler.compileCircuit(player, magicData.getCircuit(EditorTab.MAGIC));
-                MagicContext context = new MagicContext(magicData.getCircuit(EditorTab.MAGIC), runtimeMagicCircuit);
-                runtimeMagicCircuit.execute(context);
-            } catch (CalculationCapacityOverException c) {
-                player.sendSystemMessage(Component.literal("《告》個体名" + player.getName() + "の演算容量が限界を超過。術式暴走が発生"));
-                player.level().explode(player, player.getX(), player.getY(), player.getZ(), 10.0f, Level.ExplosionInteraction.TNT);
-            } catch (MasoShortageException m) {
-                player.sendSystemMessage(Component.literal("《告》個体名" + player.getName().getString() + "の魔素残量が低下。術式を維持できません"));
-            }
+        public void execute(IMagicCaster caster) {
+            RuntimeMagicCircuit runtimeMagicCircuit = MagicCompiler.compileCircuit(caster, caster.getCircuit());
+            MagicContext context = new MagicContext(caster.getCircuit(), runtimeMagicCircuit);
+            runtimeMagicCircuit.start(context);
         }
 
         public UUID getNodeId() {
@@ -74,18 +67,18 @@ public class ActiveMagicManager {
     /**
      * プレイヤーが新しい常駐ノードを有効化したときに登録する
      */
-    public static void registerActiveNode(ServerPlayer player, UUID nodeId, MagicNode node, int intervalTicks) {
-        activeRegistry.computeIfAbsent(player.getUUID(), k -> new ArrayList<>())
+    public static void registerActiveNode(IMagicCaster caster, UUID nodeId, MagicNode node, int intervalTicks) {
+        activeRegistry.computeIfAbsent(caster.getCasterId(), k -> new ArrayList<>())
                 .removeIf(entry -> entry.getNodeId().equals(nodeId)); // 既存の重複を防ぐ
 
-        activeRegistry.get(player.getUUID()).add(new ActiveNodeEntry(nodeId, node, intervalTicks));
+        activeRegistry.get(caster.getCasterId()).add(new ActiveNodeEntry(nodeId, node, intervalTicks));
     }
 
     /**
      * 常駐ノードを無効化したとき（またはログアウト時）に解除する
      */
-    public static void unregisterActiveNode(ServerPlayer player, UUID nodeId) {
-        List<ActiveNodeEntry> entries = activeRegistry.get(player.getUUID());
+    public static void unregisterActiveNode(IMagicCaster caster, UUID nodeId) {
+        List<ActiveNodeEntry> entries = activeRegistry.get(caster.getCasterId());
         if (entries != null) {
             entries.removeIf(entry -> entry.getNodeId().equals(nodeId));
         }
@@ -111,19 +104,17 @@ public class ActiveMagicManager {
             for (ActiveNodeEntry entry : entries) {
                 // スロットリング（間引き処理）の判定を挟むことでサーバー負荷を劇的に軽減！
                 if (entry.shouldExecute()) {
-                    entry.execute(player);
+                    entry.execute(new PlayerCasterAdapter(player));
                 }
             }
         }
     }
 
-    public static void executeEventTrigger(ServerPlayer player, EditorTab tab, String triggerNodeType, Map<String, Object> eventData) {
-        PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-        if (magicData == null) return;
+    public static void executeEventTrigger(IMagicCaster caster, EditorTab tab, String triggerNodeType, Map<String, Object> eventData) {
 
         // 指定されたタブの回路とコンパイル済みデータを取り出す
-        MagiculeCircuit circuit = magicData.getCircuit(tab);
-        RuntimeMagicCircuit runtimeCircuit = MagicCompiler.compileCircuit(player, circuit);
+        MagiculeCircuit circuit = caster.getCircuit();
+        RuntimeMagicCircuit runtimeCircuit = MagicCompiler.compileCircuit(caster, circuit);
 
         for(Map.Entry<UUID, AbstractMagicNode> entry : runtimeCircuit.getInstancedNodes().entrySet()){
             AbstractMagicNode node = entry.getValue();
@@ -135,7 +126,7 @@ public class ActiveMagicManager {
 
         if(runtimeCircuit != null){
             MagicContext context = new MagicContext(circuit, runtimeCircuit);
-            runtimeCircuit.execute(context);
+            runtimeCircuit.start(context);
         }
     }
 }

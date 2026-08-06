@@ -3,7 +3,8 @@ package com.github.sweetfish111.reincarnated.magic.context;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
-import com.github.sweetfish111.reincarnated.magic.CasterSnapshot;
+import com.github.sweetfish111.reincarnated.magic.caster.CasterSnapshot;
+import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,7 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class MagicContext {
-    final ServerPlayer caster;
+    final IMagicCaster caster;
     private final MagiculeCircuit circuit;
     private final RuntimeMagicCircuit runtimeCircuit;
     private final CasterSnapshot snapshot;
@@ -28,7 +29,7 @@ public class MagicContext {
         this.circuit = circuit;
         this.runtimeCircuit = runtimeCircuit;
         this.caster = runtimeCircuit.getCaster();
-        this.level = caster.level();
+        this.level = caster.getCasterLevel();
         this.snapshot = CasterSnapshot.capture(caster);
     }
 
@@ -40,7 +41,7 @@ public class MagicContext {
         return this.circuit;
     }
 
-    public ServerPlayer getCaster() {
+    public IMagicCaster getCaster() {
         return this.caster;
     }
     public double getNodeLocalVariable(UUID nodeId, int portIndex){

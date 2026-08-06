@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.system;
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.event.PlayerUniqueSkillAcquiredEvent;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.ChatFormatting;
@@ -27,7 +28,7 @@ public class CausalityObserver {
             int xpAmount = event.getOrb().getValue();
 
             Map<String, Object> data = Map.of("xp_amount", (double) xpAmount);
-            ActiveMagicManager.executeEventTrigger(player, EditorTab.SKILL, "on_xp_pickup", data);
+            ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_xp_pickup", data);
 
             // プレイヤーの魂データを取り出して「貪欲者」としての理を進行させる
             PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);

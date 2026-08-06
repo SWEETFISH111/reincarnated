@@ -4,6 +4,7 @@ import com.github.sweetfish111.reincarnated.event.MasoShortageException;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.magic.MasoAmount;
 import com.github.sweetfish111.reincarnated.magic.XpAmount;
+import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.core.BlockPos;
@@ -130,15 +131,13 @@ public abstract class AbstractMagicNode implements MagicNode{
         executeOutputPort(outputPortIndex, context);
     }
 
-    protected void consumeMaso(float masoCost, ServerPlayer caster){
-        PlayerMagicData magicData = caster.getData(ModAttachments.PLAYER_MAGIC_DATA);
-        if(magicData.currentMaso >= masoCost){
-            magicData.currentMaso -= masoCost;
-            magicData.totalConsumedMaso += masoCost;
+    protected void consumeMaso(float masoCost, IMagicCaster caster){
+        if(caster.getMasoAmount() >= masoCost){
+            caster.consumeMaso(masoCost);
         }else{
-            throw new MasoShortageException(masoCost, magicData.currentMaso);
+            throw new MasoShortageException(masoCost, caster.getMasoAmount());
         }
-        System.out.println("AbstractMagicNode:cost_" + masoCost + " current_" + magicData.currentMaso);
+        System.out.println("AbstractMagicNode:cost_" + masoCost + " current_" + caster.getMasoAmount());
     }
 
     protected record DataLink(MagicNode sourceNode, int sourcePortIndex){}

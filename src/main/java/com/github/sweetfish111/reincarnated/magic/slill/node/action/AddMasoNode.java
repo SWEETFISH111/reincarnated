@@ -17,9 +17,8 @@ public class AddMasoNode extends AbstractMagicNode {
     public void execute(MagicContext context) {
         context.incrementAndCheck();
         MasoAmount maso = pullMaso(1, context);
-        PlayerMagicData magicData = context.getCaster().getData(ModAttachments.PLAYER_MAGIC_DATA);
-        magicData.addCurretMaso(maso.masoAmount());
-        magicData.totalRegeneratedMaso += (float) maso.masoAmount();
+        context.getCaster().addMaso((float) maso.masoAmount());
+        context.getCaster().addTotalRegeneratedMaso((float) maso.masoAmount());
         pushExecute(context);
     }
 

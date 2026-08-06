@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.magic.casting;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
+import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
@@ -20,15 +21,8 @@ public class TimerCastingManager {
         pendingTasks.add(new TimerMagicTask(nextNodeId, repeatNodeId, context, delayTicks, intervalTicks, count));
     }
 
-    public static void executeNextNode(ServerPlayer player, UUID nextNodeId, MagicContext context){
-        try {
-            AbstractMagicNode nextNode = context.getRuntimeNode(nextNodeId);
-            nextNode.execute(context);
-        } catch (CalculationCapacityOverException c) {
-            context.getCaster().sendSystemMessage(Component.literal("《告》個体名" + context.getCaster().getName() + "の演算容量が限界を超過。術式暴走が発生"));
-        } catch (MasoShortageException m) {
-            context.getCaster().sendSystemMessage(Component.literal("《告》個体名" + context.getCaster().getName().getString() + "の魔素残量が低下。術式を維持できません"));
-        }
+    public static void executeNextNode(IMagicCaster caster, UUID nextNodeId, MagicContext context){
+        RuntimeMagicCircuit.executeNode(caster, nextNodeId, context);
     }
 
     public static void onServerTick() {

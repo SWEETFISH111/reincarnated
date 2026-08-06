@@ -1,6 +1,7 @@
 package com.github.sweetfish111.reincarnated.client.screen;
 
 import com.github.sweetfish111.reincarnated.circuit.*;
+import com.github.sweetfish111.reincarnated.network.payload.ExportSpellPalyload;
 import com.github.sweetfish111.reincarnated.network.payload.SaveCircuitPayload;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.mojang.logging.LogUtils;
@@ -14,9 +15,12 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 
@@ -28,6 +32,8 @@ public class MagicEditorScreen extends Screen {
     private final List<AbstructDraggingNodeWidget> nodeWidgets = new ArrayList<>();
 
     private EditBox popupBox;
+
+    private Button exportBtn;
     private boolean isNamingCompound;
     private final List<UUID> collapseTargets = new ArrayList<>();
 
@@ -74,12 +80,43 @@ public class MagicEditorScreen extends Screen {
         Button backBtn = Button.builder(
                 Component.literal("<- 戻る"),
                 button -> goBackLayer()
-        ).bounds(350, 5, 60, 20).build();
+        ).bounds(this.width - 60 -20 -60, 5, 60, 20).build();
         thisLayerManager.setBackBtn(backBtn);
         addRenderableWidget(backBtn);
 
         thisLayerManager.updateBackButtonVisibility();
         this.addRenderableWidget(thisLayerManager.getBackBtn());
+
+        // 画面の右上座標を計算 (例: 画面右端から少し内側、上部から少し下)
+        int buttonWidth = 60;
+        int buttonHeight = 20;
+        int posX = this.width - buttonWidth - 10;
+        int posY = 10;
+
+        // プレイヤーが手に「白紙の本」を持っているかチェック
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player != null) {
+            ItemStack heldItem = minecraft.player.getMainHandItem();
+
+            if (heldItem.is(Items.BOOK)) {
+                System.out.println("ugoiteruyo");
+                // 右上に「エクスポート」ボタンを追加
+                exportBtn = Button.builder(Component.literal("💾 焼き付け"), button -> {
+                    // 現在のワークスペースの回路をNBT化
+                    CompoundTag circuitTag = this.thisLayerManager.getWorkCircuit().saveToNBT();
+
+                    // サーバーへパケット送信
+                    ExportSpellPalyload payload = new ExportSpellPalyload(circuitTag);
+                    if(net.minecraft.client.Minecraft.getInstance().getConnection() != null){
+                        net.minecraft.client.Minecraft.getInstance().getConnection().send(payload);
+                    }
+                }).bounds(posX, posY, buttonWidth, buttonHeight).build();
+
+                System.out.println(exportBtn.toString());
+                this.addRenderableWidget(exportBtn);
+            }
+        }
+
         rebuildNodeWidgets();
     }
 
@@ -194,7 +231,7 @@ public class MagicEditorScreen extends Screen {
             }
         }
 
-
+//        画面のズーム適用範囲外
         guiGraphicsExtractor.pose().popMatrix();
 
 
@@ -211,6 +248,11 @@ public class MagicEditorScreen extends Screen {
                     40, // 画面上からの高さ
                     0xFFFF5555 // 赤色のカラーコード
             );
+        }
+
+        //ボタン描画
+        if(exportBtn != null){
+            exportBtn.extractRenderState(guiGraphicsExtractor, mouseX, mouseY, partialTick);
         }
         for(Button btn : thisLayerManager.getTabBtns()){
             btn.extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseY, partialTick);
@@ -247,6 +289,11 @@ public class MagicEditorScreen extends Screen {
         }
 
         if(thisLayerManager.getBackBtn().mouseClicked(event, doubleClick)){
+            return true;
+        }
+
+        //exportBtnのクリック判定
+        if(exportBtn != null && exportBtn.mouseClicked(event, doubleClick)){
             return true;
         }
 

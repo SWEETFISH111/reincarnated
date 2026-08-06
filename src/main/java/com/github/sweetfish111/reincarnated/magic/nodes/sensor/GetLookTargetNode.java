@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.sensor;
 
+import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import net.minecraft.world.entity.Entity;
@@ -24,23 +25,23 @@ public class GetLookTargetNode extends AbstractMagicNode {
     public Object getOutputData(int portIndex, MagicContext context){
         super.getOutputData(portIndex, context);
         if(portIndex == 0){
-            Player player = context.getCaster();
+            Entity entity = context.getCaster().getCasterEntity();
             double maxDistance = 80.0D;
 
-            Vec3 eyePos = player.getEyePosition();
-            Vec3 lookVec = player.getLookAngle();
+            Vec3 eyePos = entity.getEyePosition();
+            Vec3 lookVec = entity.getLookAngle();
             Vec3 endPos = eyePos.add(lookVec.scale(maxDistance));
 
-            BlockHitResult blockHit = player.level().clip(new ClipContext(eyePos, endPos, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
+            BlockHitResult blockHit = entity.level().clip(new ClipContext(eyePos, endPos, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, entity));
             double hitDistance = blockHit.getType() != HitResult.Type.MISS ? blockHit.getLocation().distanceTo(eyePos) : maxDistance;
             Vec3 rayEnd = endPos.add(lookVec.scale(hitDistance));
 
-            AABB searchBox = player.getBoundingBox().expandTowards(lookVec.scale(maxDistance)).inflate(1.0D);
+            AABB searchBox = entity.getBoundingBox().expandTowards(lookVec.scale(maxDistance)).inflate(1.0D);
             EntityHitResult closestEntityHit = null;
             double closestDist = hitDistance;
 
-            for(Entity entity : player.level().getEntities(player, searchBox, e -> !e.isSpectator())){
-                AABB entityBox = entity.getBoundingBox().inflate(entity.getPickRadius());
+            for(Entity target : entity.level().getEntities(entity, searchBox, e -> !e.isSpectator())){
+                AABB entityBox = target.getBoundingBox().inflate(entity.getPickRadius());
 
                 Optional<Vec3> hitOpt = entityBox.clip(eyePos, rayEnd);
 

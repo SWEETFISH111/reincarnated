@@ -1,9 +1,11 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.action;
 
+import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.damagesource.DamageType;
@@ -27,10 +29,18 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
         super.execute(context);
         Object target = pullData(1, context);
         if(target instanceof Entity targetEntity){
-            DamageSource source = new DamageSource(
-                    context.getCaster().level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.MAGIC),
-                    null,context.getCaster(),null
-            );
+            DamageSource source;
+            if(context.getCaster().getCasterEntity() instanceof ServerPlayer player){
+                source = new DamageSource(
+                        context.getCaster().getCasterLevel().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.MAGIC),
+                        null, player,null
+                );
+            }else{
+                source = new DamageSource(
+                        context.getCaster().getCasterLevel().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.MAGIC),
+                        null, null,null
+                );
+            }
             targetEntity.hurtServer(context.getLevel(), source, (float) damageAmount);
         }
     }

@@ -1,6 +1,7 @@
 package com.github.sweetfish111.reincarnated.magic.casting;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
+import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,14 +11,14 @@ import java.util.UUID;
 //魔法の情報を記録して発動要求から実際の発動迄保持するクラス
 public class CastingTask {
     private final UUID playerId;
-    private final ServerPlayer player;
+    private final IMagicCaster caster;
     private final MagicContext context;
     private int remainingTicks;
     private boolean ready = false;
 
     public CastingTask(MagicContext context, int remainingTicks) {
-        this.playerId = context.getCaster().getUUID();
-        this.player = context.getCaster();
+        this.playerId = context.getCaster().getCasterId();
+        this.caster = context.getCaster();
         this.remainingTicks = remainingTicks;
         this.context = context;
     }
@@ -33,7 +34,7 @@ public class CastingTask {
     }
 
     public UUID getPlayerId() { return playerId; }
-    public ServerPlayer getPlayer() { return player; }
+    public IMagicCaster getPlayer() { return caster; }
     public MagicContext getContext(){return this.context;}
     public boolean isReady(){return this.ready;}
 

@@ -3,6 +3,8 @@ package com.github.sweetfish111.reincarnated.magic.compiler;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
+import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
+import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.DamageNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.HealingNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.DelayNode;
@@ -189,7 +191,7 @@ public class MagicCompiler {
         }
     }
 
-    public static RuntimeMagicCircuit compileCircuit(ServerPlayer player, MagiculeCircuit circuit){
+    public static RuntimeMagicCircuit compileCircuit(IMagicCaster caster, MagiculeCircuit circuit){
         Map<UUID, AbstractMagicNode> instancedNodes = new HashMap<>();
         List<MagiculeCircuit.WireData> allWires = new ArrayList<>();
 
@@ -207,7 +209,7 @@ public class MagicCompiler {
                 startNode.add(entry.getValue());
             }
         }
-        return new RuntimeMagicCircuit(player, instancedNodes, startNode);
+        return new RuntimeMagicCircuit(caster, instancedNodes, startNode);
     }
 
     public static MagicNode createNodeInstance(String typeId, UUID nodeId){

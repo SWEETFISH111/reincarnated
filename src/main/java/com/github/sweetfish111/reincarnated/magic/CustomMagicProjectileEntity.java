@@ -2,6 +2,8 @@ package com.github.sweetfish111.reincarnated.magic;
 
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
+import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
+import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
@@ -10,6 +12,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
 import net.minecraft.world.level.Level;
@@ -121,10 +124,16 @@ public class CustomMagicProjectileEntity extends ThrowableProjectile implements 
                     try{
                         nextNode.execute(newContext);
                     }catch (CalculationCapacityOverException c){
-                        context.getCaster().sendSystemMessage(Component.literal("《告》発射体が制御不能に陥りました"));
-                        context.getCaster().level().explode(context.getCaster(), hitPos.x, hitPos.y, hitPos.z, 10.0f, Level.ExplosionInteraction.TNT);
+                        IMagicCaster iMagicCaster = context.getCaster();
+                        if(iMagicCaster.getCasterEntity() instanceof ServerPlayer caster){
+                            caster.sendSystemMessage(Component.literal("《告》発射体が制御不能に陥りました"));
+                        }
+                        context.getCaster().getCasterLevel().explode(null, hitPos.x, hitPos.y, hitPos.z, 10.0f, Level.ExplosionInteraction.TNT);
                     }catch (MasoShortageException m){
-                        context.getCaster().sendSystemMessage(Component.literal("《告》個体名" + context.getCaster().getName().getString() + "の魔素残量が低下。発射体の術式を維持できません"));
+                        IMagicCaster iMagicCaster = context.getCaster();
+                        if(iMagicCaster.getCasterEntity() instanceof ServerPlayer caster){
+                            caster.sendSystemMessage(Component.literal("《告》個体名" + caster.getName().getString() + "の魔素残量が低下。発射体の術式を維持できません"));
+                        }
                     }
                 }
             }

@@ -1,9 +1,12 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.action;
 
+import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
 import java.util.UUID;
@@ -28,11 +31,11 @@ public class ExplosionNode extends AbstractMagicNode {
                 interaction = Level.ExplosionInteraction.TNT;
             }
         }
-        if(context.getCaster().level() instanceof ServerLevel serverLevel){
+        if(context.getCaster().getCasterLevel() instanceof ServerLevel serverLevel){
             float explosionPower = (float)rawData;
-
+            Entity sourceEntity = context.getCaster().getCasterEntity();
             serverLevel.explode(
-                    context.getCaster(),
+                    sourceEntity,
                     targetPos.getX(), targetPos.getY(), targetPos.getZ(),
                     explosionPower,
                     interaction

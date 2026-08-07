@@ -20,8 +20,8 @@ public class ReturnCaster extends AbstractMagicNode {
         super.getOutputData(portIndex, context);
         Object nodeParam = context.getCircuit().getNodeParam(this.id, "value", false);
         if(nodeParam instanceof Boolean b){
-            return b ? context.getSnapshot() : context.getCaster();
+            return b ? context.getSnapshot() : context.getCaster().getCasterEntity();
         }
-        return context.getCaster();
+        return context.getCaster().getCasterEntity();
     }
 }

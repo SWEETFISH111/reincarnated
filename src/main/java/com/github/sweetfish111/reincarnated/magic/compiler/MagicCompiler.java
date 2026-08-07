@@ -7,8 +7,7 @@ import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.DamageNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.HealingNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.control.DelayNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.control.toggleNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.control.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookForwardNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookTargetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.ReturnCaster;
@@ -19,8 +18,6 @@ import com.github.sweetfish111.reincarnated.magic.nodes.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.CombersLookDirection;
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.CombersTargetPos;
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.OffsetNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.control.IfNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.control.RepeatNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
 import com.github.sweetfish111.reincarnated.magic.slill.node.conversion.ConbersXpToMaso;
 import com.github.sweetfish111.reincarnated.magic.slill.node.action.AddMasoNode;
@@ -218,7 +215,7 @@ public class MagicCompiler {
             case "lightning":return new SummonLightningNode(nodeId);
             case "get_look_target":return new GetLookTargetNode(nodeId);
             case "explosion":return new ExplosionNode(nodeId);
-            case "caster_pos":return new ReturnCaster(nodeId);
+            case "return_caster":return new ReturnCaster(nodeId);
             case "offset":return new OffsetNode(nodeId);
             case "get_look_forward":return new GetLookForwardNode(nodeId);
             case "number":return new NumberNode(nodeId);
@@ -249,6 +246,7 @@ public class MagicCompiler {
             case "on_xp_pickup":return  new OnXpPickupNode(nodeId);
             case "combers_xp_to_maso":return new ConbersXpToMaso(nodeId);
             case "add_maso":return new AddMasoNode(nodeId);
+            case "while":return new WhileNode(nodeId);
             default : return null;
         }
     }

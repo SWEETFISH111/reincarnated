@@ -23,10 +23,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 //魔法の計算コストから詠唱時間を算出して実際に発動させるクラス
 public class CastingManager {
-    private static final Map<UUID, CastingTask>activeCasts = new HashMap<>();
+    private static final Map<UUID, CastingTask>activeCasts = new ConcurrentHashMap<>();
 
     public static void startCasting(MagicContext context) {
 
@@ -55,7 +56,7 @@ public class CastingManager {
         }
 
         // 3. 詠唱タスクをキューに登録
-        CastingTask task = new CastingTask(context, 20);
+        CastingTask task = new CastingTask(context, totalCalcCost);
         activeCasts.put(context.getCaster().getCasterId(), task);
     }
 
@@ -116,8 +117,8 @@ public class CastingManager {
         return false;
     }
 
-    public static void cancelCasting(ServerPlayer player) {
-        activeCasts.remove(player.getUUID());
+    public static void cancelCasting(UUID casterId) {
+        activeCasts.remove(casterId);
     }
 
 }

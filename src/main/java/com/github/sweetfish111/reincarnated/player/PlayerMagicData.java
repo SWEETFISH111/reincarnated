@@ -62,7 +62,7 @@ public class PlayerMagicData {
     /**
      * デフォルトで解放しておく計算ノード群を登録する共通メソッド
      */
-    private void addDefaultUnlockedNodes(EditorTab tab) {
+    public void addDefaultUnlockedNodes(EditorTab tab) {
         if(tab == EditorTab.SKILL) {
             Set<MagiculeNodeType> types = unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>());
             //math
@@ -86,11 +86,12 @@ public class PlayerMagicData {
             types.add(MagiculeNodeType.EXPLOSION);
             types.add(MagiculeNodeType.HEALING);
             types.add(MagiculeNodeType.LIGHTNING);
-            //controll
+            //control
             types.add(MagiculeNodeType.DELAY);
             types.add(MagiculeNodeType.IF);
             types.add(MagiculeNodeType.REPEAT);
             types.add(MagiculeNodeType.TOGGLE);
+            types.add(MagiculeNodeType.WHILE);
             //conversion
             types.add(MagiculeNodeType.COMBERS_LOOK_DIRECTION);
             types.add(MagiculeNodeType.COMBERS_TARGET_POS);
@@ -98,7 +99,7 @@ public class PlayerMagicData {
             //sensor
             types.add(MagiculeNodeType.GET_LOOK_FORWARD);
             types.add(MagiculeNodeType.GET_LOOK_TARGET);
-            types.add(MagiculeNodeType.CASTER_POS);
+            types.add(MagiculeNodeType.RETURN_CASTER);
             //trigger
             types.add(MagiculeNodeType.EVENT_KEY_ONE);
             types.add(MagiculeNodeType.NUMBER);
@@ -117,6 +118,9 @@ public class PlayerMagicData {
             types.add(MagiculeNodeType.NOT);
             types.add(MagiculeNodeType.OR);
             types.add(MagiculeNodeType.SUBTACT);
+            //proxy
+            types.add(MagiculeNodeType.INPUT_PROXY);
+            types.add(MagiculeNodeType.OUTPUT_PROXY);
         } else if (tab == EditorTab.ARTS) {
             Set<MagiculeNodeType> types = unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>());
             //math
@@ -324,12 +328,6 @@ public class PlayerMagicData {
             }
         }
 
-        // 👑 【マイグレーション】もしアプデ前のデータで未解放ノードのタグが存在しない場合は、デフォルトを自動付与
-        if (!hasLoadedUnlockedNodes) {
-            addDefaultUnlockedNodes(EditorTab.MAGIC);
-            addDefaultUnlockedNodes(EditorTab.SKILL);
-            addDefaultUnlockedNodes(EditorTab.ARTS);
-        }
 
         MagiculeCircuit skillCircuit = this.circuits.get(EditorTab.SKILL);
         if (this.currentUniqueSkill.equals("greedy") && uniqueSkillId == null) {

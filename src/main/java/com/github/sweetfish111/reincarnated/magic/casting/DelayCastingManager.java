@@ -14,9 +14,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DelayCastingManager {
-    private static final java.util.List<DelayCastingTask> delayedTasks = new java.util.ArrayList<>();
+    private static final java.util.List<DelayCastingTask> delayedTasks = new CopyOnWriteArrayList<>();
 
 
     public static void scheduleDelay(IMagicCaster caster, UUID nextNodeId, MagicContext context, int delayTickes){
@@ -29,6 +30,15 @@ public class DelayCastingManager {
 
     public static void executeNextNode(IMagicCaster caster, UUID nextNodeId, MagicContext context){
         RuntimeMagicCircuit.executeNode(caster, nextNodeId, context);
+    }
+
+    public static void cancelTasksForCaster(UUID casterUuid) {
+        if (casterUuid == null) return;
+
+        delayedTasks.removeIf(task -> {
+            IMagicCaster caster = task.getCaster();
+            return caster != null && caster.getCasterId().equals(casterUuid);
+        });
     }
 
     public static void onServerTick(){

@@ -22,6 +22,15 @@ public class TimerMagicTask {
         this.remainingCount = remainingCount;
     }
 
+    public TimerMagicTask(UUID nextNodeId, UUID repeatNodeId, MagicContext context, int remainingTicks, int intervalTicks){
+        this.nextNodeId = nextNodeId;
+        this.repeatNodeId = repeatNodeId;
+        this.context = context;
+        this.remainingTicks = remainingTicks;
+        this.intervalTicks = intervalTicks;
+        this.remainingCount = -1;
+    }
+
     public boolean tick(){
         if(remainingTicks > 0){
             remainingTicks--;
@@ -36,7 +45,12 @@ public class TimerMagicTask {
     }
 
     public boolean hasMore(){
-        return this.remainingCount > 0;
+        if(remainingCount >= 0){
+            return this.remainingCount > 0;
+        }else if(remainingCount < 0){
+            return true;
+        }
+        return false;
     }
 
     public UUID getNextNodeId(){
@@ -48,4 +62,5 @@ public class TimerMagicTask {
     }
     public UUID getRepeatNodeId(){return this.repeatNodeId;}
     public int getCurrentLoopIndex(){return this.currentLoopIndex;}
+    public int getRemainingCount(){return this.remainingCount;}
 }

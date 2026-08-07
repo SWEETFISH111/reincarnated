@@ -66,7 +66,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{},
             new PortDataType[]{PortDataType.ENTITY}
     ),
-    CASTER_POS("caster_pos", Component.translatable("node.reincarnated.caster_pos").getString(),
+    RETURN_CASTER("return_caster", Component.translatable("node.reincarnated.return_caster").getString(),
             new PortDataType[]{},
             new PortDataType[]{PortDataType.ENTITY},
             ContentWidgetType.SWITCH,
@@ -122,6 +122,9 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC}
     ),
+    WHILE("while", Component.translatable(  "node.reincarnated.while").getString(),
+            new PortDataType[]{PortDataType.EXEC,PortDataType.BOOLEAN, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC}),
     NUMBER("number", Component.translatable("node.reincarnated.number").getString(),
             new PortDataType[]{},
             new PortDataType[]{PortDataType.NUMBER},

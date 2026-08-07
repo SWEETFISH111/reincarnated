@@ -20,7 +20,7 @@ public abstract class AbstractMagicNode implements MagicNode{
     protected UUID id;
     protected float masoCost;
     protected boolean isTrigger = false;
-    protected ServerPlayer caster;
+    protected IMagicCaster caster;
     protected Map<String, Object> eventData = null;
     protected String triggerType = null;
 

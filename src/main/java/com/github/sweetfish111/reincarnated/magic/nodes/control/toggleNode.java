@@ -34,6 +34,7 @@ public class toggleNode extends AbstractMagicNode {
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
+        System.out.println("togglenode:" + result);
         return result;
     }
 }

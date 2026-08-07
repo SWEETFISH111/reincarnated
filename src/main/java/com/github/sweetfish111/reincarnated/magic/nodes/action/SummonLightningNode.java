@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.UUID;
 
 public class SummonLightningNode extends AbstractMagicNode {
-    float BASECOST = 2;
+    float BASECOST = 4;
 
     public SummonLightningNode(UUID id) {
         super(id);

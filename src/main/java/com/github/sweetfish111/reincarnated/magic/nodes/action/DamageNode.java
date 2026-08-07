@@ -16,7 +16,7 @@ import java.util.UUID;
 
 
 public class DamageNode extends AbstractMagicNode implements MagicNode {
-    float BASECOST = 3;
+    float BASECOST = 2;
 
     public DamageNode(UUID id) {
         super(id);

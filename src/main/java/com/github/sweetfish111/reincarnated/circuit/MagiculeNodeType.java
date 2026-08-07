@@ -8,7 +8,8 @@ import java.util.List;
 public enum MagiculeNodeType {
     EVENT_KEY_ONE("event_key_1", Component.translatable("node.reincarnated.event_key_1").getString(),
             new PortDataType[]{},
-            new PortDataType[]{PortDataType.EXEC}
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.MAGIC)
     ),
     ON_TICK("on_tick", Component.translatable("node.reincarnated.on_tick").getString(),
             new PortDataType[]{},
@@ -24,6 +25,11 @@ public enum MagiculeNodeType {
             new PortDataType[]{},
             new PortDataType[]{PortDataType.EXEC},
             List.of(EditorTab.SKILL)
+    ),
+    DIG("dig", Component.translatable("node.reincarnated.dig").getString(),
+            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE},
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.MAGIC)
     ),
     SHOOT_PROJECTILE("shoot_projectile", Component.translatable("node.reincarnated.shoot_projectile").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
@@ -84,7 +90,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.NUMBER},
             new PortDataType[]{PortDataType.VECTORE},
             ContentWidgetType.SWITCH,
-            null,
+            new PortDataType[]{PortDataType.NUMBER},
             5
     ),
     COMBERS_TARGET_POS("combers_target_pos", Component.translatable("node.reincarnated.combers_target_pos").getString(),
@@ -124,7 +130,9 @@ public enum MagiculeNodeType {
     ),
     WHILE("while", Component.translatable(  "node.reincarnated.while").getString(),
             new PortDataType[]{PortDataType.EXEC,PortDataType.BOOLEAN, PortDataType.NUMBER},
-            new PortDataType[]{PortDataType.EXEC}),
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.MAGIC)
+    ),
     NUMBER("number", Component.translatable("node.reincarnated.number").getString(),
             new PortDataType[]{},
             new PortDataType[]{PortDataType.NUMBER},

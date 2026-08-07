@@ -5,14 +5,11 @@ import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
-import com.github.sweetfish111.reincarnated.magic.nodes.action.DamageNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.action.HealingNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.action.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookForwardNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookTargetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.ReturnCaster;
-import com.github.sweetfish111.reincarnated.magic.nodes.action.ExplosionNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.action.SummonLightningNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.math.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.CombersLookDirection;
@@ -247,6 +244,7 @@ public class MagicCompiler {
             case "combers_xp_to_maso":return new ConbersXpToMaso(nodeId);
             case "add_maso":return new AddMasoNode(nodeId);
             case "while":return new WhileNode(nodeId);
+            case "dig":return new DigNode(nodeId);
             default : return null;
         }
     }

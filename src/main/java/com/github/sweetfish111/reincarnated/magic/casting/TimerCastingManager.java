@@ -45,10 +45,10 @@ public class TimerCastingManager {
             }
         }
 
-        // 3. タイマーの進行と実行（軽量なイテレート）
-        Iterator<TimerMagicTask> iterator = timerTasks.iterator();
-        while (iterator.hasNext()) {
-            TimerMagicTask task = iterator.next();
+        // 3. タイマーの進行と実行（拡張for文に変更し、終了したタスクは後からまとめて削除）
+        List<TimerMagicTask> finishedTasks = new ArrayList<>();
+
+        for (TimerMagicTask task : timerTasks) {
             if (task.tick()) {
                 MagicContext ctx = task.getContext();
                 UUID targetId = task.getNextNodeId();
@@ -61,7 +61,7 @@ public class TimerCastingManager {
                 if (task.hasMore()) {
                     task.resetTimer();
                 } else {
-                    iterator.remove();
+                    finishedTasks.add(task);
                     Map<UUID, AbstractMagicNode> instancedNode = task.getContext().getRuntimeCircuit().getInstancedNodes();
                     AbstractMagicNode repeatNode = instancedNode.get(task.getRepeatNodeId());
                     if(repeatNode != null){
@@ -72,6 +72,11 @@ public class TimerCastingManager {
                     }
                 }
             }
+        }
+
+        // 終了したタスクをまとめて削除
+        if (!finishedTasks.isEmpty()) {
+            timerTasks.removeAll(finishedTasks);
         }
     }
 

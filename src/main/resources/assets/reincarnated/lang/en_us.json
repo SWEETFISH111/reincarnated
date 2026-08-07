@@ -13,6 +13,7 @@
   "node.reincarnated.on_tick": "on tick",
   "node.reincarnated.on_xp_pickup": "on xp pickup",
   "node.reincarnated.on_damage": "on damage",
+  "node.reincarnated.dig": "dig",
   "node.reincarnated.shoot_projectile": "shoot projectile",
   "node.reincarnated.lightning": "lightning",
   "node.reincarnated.explosion": "explosion",

@@ -18,7 +18,7 @@ public class WhileNode extends AbstractMagicNode {
 
     @Override
     public void execute(MagicContext context) {
-        super.execute(context);
+        context.incrementAndCheck();
         boolean b = pullBoolean(1, context);
         reincarnated.LOGGER.info("whileNode:" + b);
         System.out.println("while");

@@ -86,6 +86,7 @@ public class PlayerMagicData {
             types.add(MagiculeNodeType.EXPLOSION);
             types.add(MagiculeNodeType.HEALING);
             types.add(MagiculeNodeType.LIGHTNING);
+            types.add(MagiculeNodeType.DIG);
             //control
             types.add(MagiculeNodeType.DELAY);
             types.add(MagiculeNodeType.IF);

@@ -7,34 +7,38 @@ import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import java.util.UUID;
 
 public class RepeatNode extends AbstractMagicNode {
-    public RepeatNode(UUID id){
+
+    public RepeatNode(UUID id) {
         super(id);
     }
 
     @Override
     public void execute(MagicContext context) {
         super.execute(context);
-        int totalCount = (int)pullDouble(1, context);
+
+        // 入力データの取得
+        int totalCount = (int) pullDouble(1, context);
         double intervalTime = pullDouble(2, context);
 
+        // ローカル変数の初期化（コンテキスト側でマップの初期化が必要な場合があります）
         context.setNodeLocalVariable(this.id, 0, 0);
-        if(getNextNode(0) != null) {
+
+        AbstractMagicNode nextNode = (AbstractMagicNode) this.getNextNode(0);
+        if (nextNode != null) {
             pushExecute(0, context);
         }
+
         totalCount--;
 
-        AbstractMagicNode nextNode = (AbstractMagicNode)(this.getNextNode(0));
-        if(nextNode != null) {
-            if (totalCount >= 1) {
-                TimerCastingManager.registerTimer(
-                        nextNode.getId(),
-                        this.id,
-                        context,
-                        (int) (intervalTime * 20),
-                        (int) (intervalTime * 20),
-                        totalCount - 1
-                );
-            }
+        if (nextNode != null && totalCount >= 1) {
+            TimerCastingManager.registerTimer(
+                    nextNode.getId(),
+                    this.id,
+                    context,
+                    (int) (intervalTime * 20),
+                    (int) (intervalTime * 20),
+                    totalCount - 1
+            );
         }
     }
 

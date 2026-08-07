@@ -16,6 +16,7 @@
   "node.reincarnated.lightning": "落雷",
   "node.reincarnated.explosion": "爆発",
   "node.reincarnated.damage": "瞬間ダメージ",
+  "node.reincarnated.dig": "掘削",
   "node.reincarnated.healing": "瞬間治癒",
   "node.reincarnated.add_maso": "魔素加算",
   "node.reincarnated.get_look_target": "視線の先の対象",

@@ -30,7 +30,6 @@ public enum MagiculeNodeType {
             new PortDataType[]{},
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             List.of(EditorTab.SKILL)
-
     ),
     ON_KILL("on_kill", Component.translatable("node.reincarnated.on_kill").getString(),
             new PortDataType[]{},
@@ -54,8 +53,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE},
             new PortDataType[]{PortDataType.EXEC},
             null,null,
-                    12,
-            List.of(EditorTab.MAGIC, EditorTab.SKILL)
+                    12
     ),
     EXPLOSION("explosion",Component.translatable("node.reincarnated.explosion").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER},
@@ -74,12 +72,13 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC, PortDataType.ENTITY, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC},
             null, null,
-            5
+            5,
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     ADD_MASO("add_maso", Component.translatable("node.reincarnated.add_maso").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.MASO},
             new PortDataType[]{PortDataType.EXEC},
-            List.of(EditorTab.SKILL)
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.SKILL)
     ),
     GET_LOOK_TARGET("get_look_target",Component.translatable("node.reincarnated.get_look_target").getString(),
             new PortDataType[]{},
@@ -119,7 +118,7 @@ public enum MagiculeNodeType {
     CONBERS_XP_TO_MASO("combers_xp_to_maso", Component.translatable("node.reincarnated.combers_xp_to_maso").getString(),
             new PortDataType[]{PortDataType.EXP},
             new PortDataType[]{PortDataType.MASO},
-            List.of(EditorTab.SKILL)
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     IF("if", Component.translatable("node.reincarnated.if").getString(),
             new PortDataType[]{PortDataType.EXEC,PortDataType.BOOLEAN},

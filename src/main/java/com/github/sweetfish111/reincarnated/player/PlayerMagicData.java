@@ -241,6 +241,7 @@ public class PlayerMagicData {
 
             unlockedNodeTypes.get(EditorTab.MAGIC).addAll(unlockNodeSet);
             unlockedNodeTypes.get(EditorTab.SKILL).addAll(unlockNodeSet);
+            unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.HEALING);
             unlockedNodeTypes.get(EditorTab.ARTS).addAll(unlockNodeSet);
 
             if (predatorScore >= threshold) {

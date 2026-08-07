@@ -510,6 +510,7 @@ public class MagiculeCircuit {
                 y
         );
         compoundNode.getCompoundCircuit().getNodeParameters().putAll(innerNodeParams);
+        compoundNode.setLocked(isLocked);
         return compoundNode;
     }
 

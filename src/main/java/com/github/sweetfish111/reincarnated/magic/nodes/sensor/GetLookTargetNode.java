@@ -50,7 +50,7 @@ public class GetLookTargetNode extends AbstractMagicNode {
 
                     if(dist < closestDist){
                         closestDist = dist;
-                        closestEntityHit = new EntityHitResult(entity, hitOpt.get());
+                        closestEntityHit = new EntityHitResult(target, hitOpt.get());
                     }
                 }
             }

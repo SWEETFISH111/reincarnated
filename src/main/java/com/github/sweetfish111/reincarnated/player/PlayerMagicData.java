@@ -35,14 +35,16 @@ public class PlayerMagicData {
     }
 
     private String currentUniqueSkill = "greedy";
+    private Set<String> evolvableUniqueSkills;
+
     private Set<String> unlockedSkills = new HashSet<>();
 
     private UUID uniqueSkillId = null;
 
+    private double greedyScore = 0.0;
     private double predatorScore = 0.0;    // 生体キル 捕食者蓄積
     private double scavengerScore = 0.0;  // 食事（とくに生肉）　飢餓者蓄積
-    private double greedScore = 0.0;      // 経験値取得量　強欲者蓄積
-    private double usurpScore = 0.0;      // オーバーチャージ（媽祖過剰状態）時間　簒奪者蓄積
+    private double greedScore = 0.0;      // オーバーチャージ（魔素過剰状態）時間　強欲者蓄積
 
     private final Map<EditorTab, Set<MagiculeNodeType>> unlockedNodeTypes = new EnumMap<>(EditorTab.class);
 
@@ -60,11 +62,17 @@ public class PlayerMagicData {
     }
 
     /**
-     * デフォルトで解放しておく計算ノード群を登録する共通メソッド
+     * デフォルトで解放しておくノード群を登録するメソッド
      */
     public void addDefaultUnlockedNodes(EditorTab tab) {
         if(tab == EditorTab.SKILL) {
             Set<MagiculeNodeType> types = unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>());
+            //trigger
+            types.add(MagiculeNodeType.ON_DAMAGE);
+            types.add(MagiculeNodeType.ON_EAT);
+            types.add(MagiculeNodeType.ON_KILL);
+            //Action
+            types.add(MagiculeNodeType.LIGHTNING);
             //math
             types.add(MagiculeNodeType.ADD);
             types.add(MagiculeNodeType.AND);
@@ -119,6 +127,8 @@ public class PlayerMagicData {
             types.add(MagiculeNodeType.NOT);
             types.add(MagiculeNodeType.OR);
             types.add(MagiculeNodeType.SUBTACT);
+            //生成物
+            types.add(MagiculeNodeType.SHOOT_PROJECTILE);
             //proxy
             types.add(MagiculeNodeType.INPUT_PROXY);
             types.add(MagiculeNodeType.OUTPUT_PROXY);
@@ -190,6 +200,11 @@ public class PlayerMagicData {
         unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>()).add(nodeType);
     }
 
+    public void addGreedyScore(double amount){
+        this.greedyScore += amount;
+        checkEvolution();
+    }
+
     public void addPredatorScore(double amount) {
         this.predatorScore += amount;
         checkEvolution();
@@ -205,11 +220,6 @@ public class PlayerMagicData {
         checkEvolution();
     }
 
-    public void addUsurpScore(double amount) {
-        this.usurpScore += amount;
-        checkEvolution();
-    }
-
     public void addCurretMaso(double d){
         currentMaso += (float) d;
     }
@@ -220,14 +230,26 @@ public class PlayerMagicData {
 
         double threshold = 100.0;
 
-        if (predatorScore >= threshold) {
-            currentUniqueSkill = "predator";
-        } else if (scavengerScore >= threshold) {
-            currentUniqueSkill = "scavenger";
-        } else if (greedScore >= threshold) {
-            currentUniqueSkill = "greed";
-        } else if (usurpScore >= threshold) {
-            currentUniqueSkill = "usurper";
+        if(greedyScore >= threshold){
+            MagiculeCircuit skillCircuit = this.getCircuit(EditorTab.SKILL);
+            skillCircuit.getCNode(uniqueSkillId).setLocked(false);
+
+            Set<MagiculeNodeType> unlockNodeSet = new HashSet<>();
+            unlockNodeSet.add(MagiculeNodeType.ON_XP_PICKUP);
+            unlockNodeSet.add(MagiculeNodeType.ADD_MASO);
+            unlockNodeSet.add(MagiculeNodeType.CONBERS_XP_TO_MASO);
+
+            unlockedNodeTypes.get(EditorTab.MAGIC).addAll(unlockNodeSet);
+            unlockedNodeTypes.get(EditorTab.SKILL).addAll(unlockNodeSet);
+            unlockedNodeTypes.get(EditorTab.ARTS).addAll(unlockNodeSet);
+
+            if (predatorScore >= threshold) {
+                evolvableUniqueSkills.add("predator");
+            } else if (scavengerScore >= threshold) {
+                evolvableUniqueSkills.add("scavenger");
+            } else if (greedScore >= threshold) {
+                evolvableUniqueSkills.add("greed");
+            }
         }
     }
 

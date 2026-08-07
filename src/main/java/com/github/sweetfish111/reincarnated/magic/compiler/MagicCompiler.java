@@ -18,8 +18,7 @@ import com.github.sweetfish111.reincarnated.magic.nodes.conversion.OffsetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
 import com.github.sweetfish111.reincarnated.magic.slill.node.conversion.ConbersXpToMaso;
 import com.github.sweetfish111.reincarnated.magic.slill.node.action.AddMasoNode;
-import com.github.sweetfish111.reincarnated.magic.slill.node.trigger.OnXpPickupNode;
-import com.github.sweetfish111.reincarnated.magic.slill.node.trigger.onTickNode;
+import com.github.sweetfish111.reincarnated.magic.slill.node.trigger.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.BooleanNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.NumberNode;
 import net.minecraft.server.level.ServerPlayer;
@@ -245,6 +244,9 @@ public class MagicCompiler {
             case "add_maso":return new AddMasoNode(nodeId);
             case "while":return new WhileNode(nodeId);
             case "dig":return new DigNode(nodeId);
+            case "on_eat":return new OnEatNode(nodeId);
+            case "on_kill":return new OnKillNode(nodeId);
+            case "on_damage":return new OnDamageNode(nodeId);
             default : return null;
         }
     }

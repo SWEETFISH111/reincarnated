@@ -1,18 +1,15 @@
 package com.github.sweetfish111.reincarnated.magic.slill.node.trigger;
 
-import com.github.sweetfish111.reincarnated.magic.DamageAmount;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
-import net.minecraft.world.entity.Entity;
 
 import java.util.UUID;
 
-
-public class OnDamageNode extends AbstractMagicNode {
-    public OnDamageNode(UUID id) {
+public class OnEatNode extends AbstractMagicNode {
+    public OnEatNode(UUID id) {
         super(id);
-        this.isTrigger = true;
-        this.triggerType = "on_damage";
+        isTrigger = true;
+        triggerType = "on_eat";
     }
 
     @Override
@@ -24,7 +21,10 @@ public class OnDamageNode extends AbstractMagicNode {
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
-        return new DamageAmount((double)eventData.get("damageAmount"));
+        Object o = this.eventData.get("satietyLevel");
+        if(o != null){
+            return o;
+        }
+        return 0;
     }
-
 }

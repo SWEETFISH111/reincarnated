@@ -23,8 +23,20 @@ public enum MagiculeNodeType {
     ),
     ON_DAMAGE("on_damage", Component.translatable("node.reincarnated.on_damage").getString(),
             new PortDataType[]{},
-            new PortDataType[]{PortDataType.EXEC},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             List.of(EditorTab.SKILL)
+    ),
+    ON_EAT("on_eat", Component.translatable("node.reincarnated.on_eat").getString(),
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
+            List.of(EditorTab.SKILL)
+
+    ),
+    ON_KILL("on_kill", Component.translatable("node.reincarnated.on_kill").getString(),
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
+            List.of(EditorTab.SKILL)
+
     ),
     DIG("dig", Component.translatable("node.reincarnated.dig").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE},
@@ -42,7 +54,8 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE},
             new PortDataType[]{PortDataType.EXEC},
             null,null,
-                    12
+                    12,
+            List.of(EditorTab.MAGIC, EditorTab.SKILL)
     ),
     EXPLOSION("explosion",Component.translatable("node.reincarnated.explosion").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER},

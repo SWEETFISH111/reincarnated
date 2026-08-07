@@ -25,6 +25,14 @@ public class MasoRegenHandler {
                 magicData.currentMaso += regenPerTick;
                 magicData.totalRegeneratedMaso += regenPerTick;
             }
+
+            if(current > max){
+                float attenuationPerTick = 0.1f;
+
+                magicData.currentMaso -= attenuationPerTick;
+                magicData.addGreedScore(0.005);
+            }
+
             PacketDistributor.sendToPlayer(player, new SyncMasoPayload(magicData.getMaxMaso(), magicData.currentMaso));
         }
     }

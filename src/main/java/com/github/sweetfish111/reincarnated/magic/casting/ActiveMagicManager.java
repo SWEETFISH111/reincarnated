@@ -125,10 +125,7 @@ public class ActiveMagicManager {
                     node.setEventData(eventData);
                     node.execute(new MagicContext(circuit, runtimeCircuit));
                 }
-            }
-
-            MagicContext context = new MagicContext(circuit, runtimeCircuit);
-            runtimeCircuit.start(context);
+            };
         }
     }
 }

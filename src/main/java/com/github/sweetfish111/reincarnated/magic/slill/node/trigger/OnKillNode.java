@@ -1,18 +1,15 @@
 package com.github.sweetfish111.reincarnated.magic.slill.node.trigger;
 
-import com.github.sweetfish111.reincarnated.magic.DamageAmount;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
-import net.minecraft.world.entity.Entity;
 
 import java.util.UUID;
 
-
-public class OnDamageNode extends AbstractMagicNode {
-    public OnDamageNode(UUID id) {
+public class OnKillNode extends AbstractMagicNode {
+    public OnKillNode(UUID id) {
         super(id);
-        this.isTrigger = true;
-        this.triggerType = "on_damage";
+        isTrigger = true;
+        triggerType = "on_kill";
     }
 
     @Override
@@ -24,7 +21,6 @@ public class OnDamageNode extends AbstractMagicNode {
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
-        return new DamageAmount((double)eventData.get("damageAmount"));
+        return this.eventData.get("killScore");
     }
-
 }

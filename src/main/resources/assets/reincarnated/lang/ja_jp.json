@@ -12,6 +12,8 @@
   "node.reincarnated.on_tick": "常時監視 (Tick)",
   "node.reincarnated.on_xp_pickup": "経験値獲得時",
   "node.reincarnated.on_damage": "被弾時",
+  "node.reincarnated.on_eat": "食事時",
+  "node.reincarnated.on_kill": "殺害時",
   "node.reincarnated.shoot_projectile": "魔弾発射",
   "node.reincarnated.lightning": "落雷",
   "node.reincarnated.explosion": "爆発",

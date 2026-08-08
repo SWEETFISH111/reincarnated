@@ -3,14 +3,15 @@ package com.github.sweetfish111.reincarnated.player;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
+import com.github.sweetfish111.reincarnated.magic.slill.SkillAccessLevel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
-import net.minecraft.server.level.ServerPlayer;
 
 import java.util.*;
 
 public class PlayerMagicData {
+    private static final int CURRENT_DATA_VERSION = 1;
     private final Map<EditorTab, MagiculeCircuit> circuits = new EnumMap<>(EditorTab.class);
     public float currentMaso = 20f;
 
@@ -25,17 +26,18 @@ public class PlayerMagicData {
     private static final double REGEN_SCALE_FACTOR = 0.5;
 
     private final Set<String> unlockedConditionKeys = new HashSet<>();
-
     public boolean hasUnlocked(String key){
         return this.unlockedConditionKeys.contains(key);
     }
-
     public void unlock(String key){
-        this.unlockedConditionKeys.add(key);
+        if (key != null && !key.isEmpty()) {
+            this.unlockedConditionKeys.add(key);
+        }
     }
 
     private String currentUniqueSkill = "greedy";
-    private Set<String> evolvableUniqueSkills;
+    private Set<String> evolvableUniqueSkills = new HashSet<>();
+    private final Map<String, SkillAccessLevel> skillPermissions = new HashMap<>();
 
     private Set<String> unlockedSkills = new HashSet<>();
 
@@ -44,7 +46,8 @@ public class PlayerMagicData {
     private double greedyScore = 0.0;
     private double predatorScore = 0.0;    // 生体キル 捕食者蓄積
     private double scavengerScore = 0.0;  // 食事（とくに生肉）　飢餓者蓄積
-    private double greedScore = 0.0;      // オーバーチャージ（魔素過剰状態）時間　強欲者蓄積
+    private double greedScore = 0.0;// オーバーチャージ（魔素過剰状態）時間　強欲者蓄積
+    private double usurperScore = 0.0; //格上（より攻撃力の高い相手）への攻撃回数　簒奪者蓄積
 
     private final Map<EditorTab, Set<MagiculeNodeType>> unlockedNodeTypes = new EnumMap<>(EditorTab.class);
 
@@ -53,8 +56,8 @@ public class PlayerMagicData {
             circuits.put(tab, new MagiculeCircuit());
             unlockedNodeTypes.put(tab, new HashSet<>());
         }
-        uniqueSkillId = DefaultCircuitBuilder.buildDefaultSkillCircuit(circuits.get(EditorTab.SKILL));
 
+        ensureUniqueSkillCircuit();
         // 👑 初期状態のデフォルトノードを付与
         addDefaultUnlockedNodes(EditorTab.SKILL);
         addDefaultUnlockedNodes(EditorTab.MAGIC);
@@ -68,11 +71,9 @@ public class PlayerMagicData {
         if(tab == EditorTab.SKILL) {
             Set<MagiculeNodeType> types = unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>());
             //trigger
-            types.add(MagiculeNodeType.ON_DAMAGE);
-            types.add(MagiculeNodeType.ON_EAT);
-            types.add(MagiculeNodeType.ON_KILL);
+
             //Action
-            types.add(MagiculeNodeType.LIGHTNING);
+
             //math
             types.add(MagiculeNodeType.ADD);
             types.add(MagiculeNodeType.AND);
@@ -87,6 +88,9 @@ public class PlayerMagicData {
             types.add(MagiculeNodeType.NOT);
             types.add(MagiculeNodeType.OR);
             types.add(MagiculeNodeType.SUBTACT);
+            //生成物
+
+            //proxy
         } else if (tab == EditorTab.MAGIC) {
             Set<MagiculeNodeType> types = unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>());
             //action
@@ -134,6 +138,10 @@ public class PlayerMagicData {
             types.add(MagiculeNodeType.OUTPUT_PROXY);
         } else if (tab == EditorTab.ARTS) {
             Set<MagiculeNodeType> types = unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>());
+            //trigger
+
+            //actioon
+
             //math
             types.add(MagiculeNodeType.ADD);
             types.add(MagiculeNodeType.AND);
@@ -148,6 +156,9 @@ public class PlayerMagicData {
             types.add(MagiculeNodeType.NOT);
             types.add(MagiculeNodeType.OR);
             types.add(MagiculeNodeType.SUBTACT);
+            //生成物
+
+            //proxy
         }
     }
 
@@ -156,12 +167,25 @@ public class PlayerMagicData {
     }
     public MagiculeCircuit getCircuit(EditorTab tab){
         MagiculeCircuit circuit = circuits.get(tab);
+        return circuit;
+    }
 
-        if(this.currentUniqueSkill.equals("greedy") && tab == EditorTab.SKILL && uniqueSkillId == null){
-            uniqueSkillId = DefaultCircuitBuilder.buildDefaultSkillCircuit(circuit);
+    private void ensureUniqueSkillCircuit(){
+        if (!this.currentUniqueSkill.equals("greedy")) return;
+
+        MagiculeCircuit skillCircuit = circuits.get(EditorTab.SKILL);
+        var node = (uniqueSkillId != null) ? skillCircuit.getCNode(uniqueSkillId) : null;
+
+        if (node == null) {
+            // 未構築、またはID残存だがノード実体が消えた壊れたデータ → 再構築
+            uniqueSkillId = DefaultCircuitBuilder.buildDefaultSkillCircuit(skillCircuit);
+            node = skillCircuit.getCNode(uniqueSkillId);
         }
 
-        return circuit;
+        if (node.getSkillId() == null) {
+            node.setSkillId("greedy");
+            setSkillAccessLevel("greedy", SkillAccessLevel.DENIED);
+        }
     }
 
     public float getMaxMaso(){
@@ -220,6 +244,11 @@ public class PlayerMagicData {
         checkEvolution();
     }
 
+    public void addUsurperScore(double amount){
+        this.usurperScore += amount;
+        checkEvolution();
+    }
+
     public void addCurretMaso(double d){
         currentMaso += (float) d;
     }
@@ -228,19 +257,19 @@ public class PlayerMagicData {
     private void checkEvolution() {
         if (!currentUniqueSkill.equals("greedy")) return;
 
-        double threshold = 100.0;
+        double threshold = 100;
 
         if(greedyScore >= threshold){
             MagiculeCircuit skillCircuit = this.getCircuit(EditorTab.SKILL);
-            skillCircuit.getCNode(uniqueSkillId).setLocked(false);
+            setSkillAccessLevel("greedy", SkillAccessLevel.READ_ONLY);
 
             Set<MagiculeNodeType> unlockNodeSet = new HashSet<>();
-            unlockNodeSet.add(MagiculeNodeType.ON_XP_PICKUP);
             unlockNodeSet.add(MagiculeNodeType.ADD_MASO);
             unlockNodeSet.add(MagiculeNodeType.CONBERS_XP_TO_MASO);
 
             unlockedNodeTypes.get(EditorTab.MAGIC).addAll(unlockNodeSet);
             unlockedNodeTypes.get(EditorTab.SKILL).addAll(unlockNodeSet);
+            unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.ON_XP_PICKUP);
             unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.HEALING);
             unlockedNodeTypes.get(EditorTab.ARTS).addAll(unlockNodeSet);
 
@@ -250,13 +279,43 @@ public class PlayerMagicData {
                 evolvableUniqueSkills.add("scavenger");
             } else if (greedScore >= threshold) {
                 evolvableUniqueSkills.add("greed");
+            } else if (usurperScore >= threshold){
+                evolvableUniqueSkills.add("usurper");
             }
+        }
+    }
+
+    public SkillAccessLevel getSkillAccessLevel(String skillId) {
+        return skillPermissions.getOrDefault(skillId, SkillAccessLevel.DENIED);
+    }
+
+    /** スキルのアクセスレベルを昇格/降格（例: 解析完了で READ_ONLY -> EDITABLE へ） */
+    public void setSkillAccessLevel(String skillId, SkillAccessLevel level) {
+        skillPermissions.put(skillId, level);
+    }
+
+    // NBTセーブ処理
+    public CompoundTag savePermissionsNBT() {
+        CompoundTag permTag = new CompoundTag();
+        skillPermissions.forEach((skillId, level) -> {
+            permTag.putInt(skillId, level.getLevel());
+        });
+        return permTag;
+    }
+
+    // NBTロード処理
+    public void loadPermissionsNBT(CompoundTag permTag) {
+        skillPermissions.clear();
+        for (String skillId : permTag.keySet()) {
+            skillPermissions.put(skillId, SkillAccessLevel.fromIndex(permTag.getInt(skillId).orElse(0)));
         }
     }
 
 
     public CompoundTag saveToNBT(){
         CompoundTag rootTag = new CompoundTag();
+
+        rootTag.putInt("data_version", CURRENT_DATA_VERSION);
 
         for(Map.Entry<EditorTab, MagiculeCircuit> entry : this.circuits.entrySet()){
             EditorTab tab = entry.getKey();
@@ -269,6 +328,7 @@ public class PlayerMagicData {
         masoTag.putFloat("totalRegeneratedMaso", totalRegeneratedMaso);
         masoTag.putFloat("totalConsumedMaso", totalConsumedMaso);
         rootTag.put("maso", masoTag);
+        rootTag.put("permission", savePermissionsNBT());
 
         rootTag.putString("currentUniqueSkill", currentUniqueSkill);
         if (uniqueSkillId != null) {
@@ -298,6 +358,8 @@ public class PlayerMagicData {
     public void loadFromNBT(CompoundTag rootTag){
         if(rootTag == null || rootTag.isEmpty()) return;
 
+        int version = rootTag.getInt("data_version").orElse(0);
+
         for(EditorTab tab : EditorTab.values()){
             if(rootTag.contains(tab.name())){
                 rootTag.getCompound(tab.name()).ifPresent(tabTag ->{
@@ -314,6 +376,10 @@ public class PlayerMagicData {
             totalConsumedMaso = masoTag.getFloat("totalConsumedMaso").orElse(0f);
         }
 
+        if(rootTag.contains("permission")){
+            loadPermissionsNBT(rootTag.getCompoundOrEmpty("permission"));
+        }
+
         if (rootTag.contains("currentUniqueSkill")) {
             currentUniqueSkill = rootTag.getStringOr("currentUniqueSkill", "greedy");
         }
@@ -328,16 +394,17 @@ public class PlayerMagicData {
         ListTag unlockedKeys = rootTag.getListOrEmpty("unlockedKeys");
         if(unlockedKeys != null){
             for (int i = 0; i < unlockedKeys.size(); i++){
-                unlockedConditionKeys.add(unlockedKeys.getStringOr(i, null));
+                String key = unlockedKeys.getStringOr(i, null);
+                if (key != null && !key.isEmpty()) {
+                    unlockedConditionKeys.add(key);
+                }
             }
         }
 
-        boolean hasLoadedUnlockedNodes = false;
         if (rootTag.contains("unlockedNodeTypes")) {
             CompoundTag unlockedNodesTag = rootTag.getCompound("unlockedNodeTypes").orElse(new CompoundTag());
             for (EditorTab tab : EditorTab.values()) {
                 if (unlockedNodesTag.contains(tab.name())) {
-                    hasLoadedUnlockedNodes = true;
                     ListTag listTag = unlockedNodesTag.getListOrEmpty(tab.name());
                     Set<MagiculeNodeType> set = unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>());
                     for (int i = 0; i < listTag.size(); i++) {
@@ -353,9 +420,12 @@ public class PlayerMagicData {
         }
 
 
-        MagiculeCircuit skillCircuit = this.circuits.get(EditorTab.SKILL);
-        if (this.currentUniqueSkill.equals("greedy") && uniqueSkillId == null) {
-            this.uniqueSkillId = DefaultCircuitBuilder.buildDefaultSkillCircuit(skillCircuit);
+        ensureUniqueSkillCircuit();
+        if(version < 1){
+            migrateV0toV1();
         }
+    }
+    private void migrateV0toV1(){
+        //tokuninasi
     }
 }

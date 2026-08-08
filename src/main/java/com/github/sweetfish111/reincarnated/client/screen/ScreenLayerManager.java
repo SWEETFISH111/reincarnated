@@ -2,6 +2,7 @@ package com.github.sweetfish111.reincarnated.client.screen;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
+import com.github.sweetfish111.reincarnated.magic.slill.SkillAccessLevel;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -129,9 +130,10 @@ public class ScreenLayerManager {
         return null;
     }
 
-    public boolean diveLayer(AbstructDraggingNodeWidget node, List<AbstructDraggingNodeWidget> nodeWidgets){
+    public boolean diveLayer(AbstructDraggingNodeWidget node, List<AbstructDraggingNodeWidget> nodeWidgets, PlayerMagicData magicData){
         if(node instanceof CompoundNodeWidget cNode){
-            if (cNode.getLinkedData().isLocked()) {
+            SkillAccessLevel access = cNode.getLinkedData().getAccessLevelFor(magicData);
+            if (!access.canViewInner()) {
                 triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
                 return false;
             }

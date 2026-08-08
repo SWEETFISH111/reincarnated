@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.client.screen;
 import com.github.sweetfish111.reincarnated.circuit.*;
 import com.github.sweetfish111.reincarnated.item.GrimoireItem;
 import com.github.sweetfish111.reincarnated.item.ReincarnatedItems;
+import com.github.sweetfish111.reincarnated.magic.slill.SkillAccessLevel;
 import com.github.sweetfish111.reincarnated.network.payload.ExportSpellPalyload;
 import com.github.sweetfish111.reincarnated.network.payload.SaveCircuitPayload;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
@@ -61,6 +62,7 @@ public class MagicEditorScreen extends Screen {
         this.magicData = magicData;
     }
 
+    public PlayerMagicData getMagicData(){return this.magicData;}
     public ScreenLayerManager getThisLayerManager(){return this.thisLayerManager;}
     public void setCollapseTargets(List<UUID> collapseTargets){
         this.collapseTargets.clear();
@@ -335,7 +337,7 @@ public class MagicEditorScreen extends Screen {
                 nodeWidgets.add(node);
 
                 if(doubleClick && node instanceof CompoundNodeWidget cNode){
-                    thisLayerManager.diveLayer(cNode, nodeWidgets);
+                    thisLayerManager.diveLayer(cNode, nodeWidgets, magicData);
                     rebuildNodeWidgets();
                 }
 
@@ -426,14 +428,41 @@ public class MagicEditorScreen extends Screen {
             }
         }else if(node instanceof CompoundNodeWidget cNode){
             if(cNode.getContentWidget() != null){
-                if (cNode.getLinkedData().isLocked()) {
+                SkillAccessLevel currentAccess = cNode.getLinkedData().getAccessLevelFor(magicData);
+                if (!currentAccess.canModify()) {
                     thisLayerManager.triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
                     return;
                 }
-                spawnNodeWithParam(MagiculeNodeType.COMPOUND, cNode.getX() + 10, cNode.getY() + 10, cNode.getContentWidget().getCurrentValue());
+                MagiculeCircuit.CompoundNodeData clonedData = new MagiculeCircuit.CompoundNodeData(
+                        UUID.randomUUID(),
+                        cNode.getCustomName(),
+                        cNode.getLinkedData().getCompoundCircuit().getNodes(),
+                        cNode.getLinkedData().getCompoundCircuit().getCompoundNodes(),
+                        cNode.getLinkedData().getCompoundCircuit().getWires(),
+                        cNode.getLinkedData().getCompoundCircuit().getNodeParameters(),
+                        cNode.getX() + 10,
+                        cNode.getY() + 10
+                );
+                this.thisLayerManager.getWorkCircuit().addCompoundNode(clonedData);
             }else{
-                spawnNode(MagiculeNodeType.COMPOUND, cNode.getX() + 10, cNode.getY() + 10);
+                SkillAccessLevel currentAccess = cNode.getLinkedData().getAccessLevelFor(magicData);
+                if (!currentAccess.canModify()) {
+                    thisLayerManager.triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
+                    return;
+                }
+                MagiculeCircuit.CompoundNodeData clonedData = new MagiculeCircuit.CompoundNodeData(
+                        UUID.randomUUID(),
+                        cNode.getCustomName(),
+                        cNode.getLinkedData().getCompoundCircuit().getNodes(),
+                        cNode.getLinkedData().getCompoundCircuit().getCompoundNodes(),
+                        cNode.getLinkedData().getCompoundCircuit().getWires(),
+                        cNode.getLinkedData().getCompoundCircuit().getNodeParameters(),
+                        cNode.getX() + 10,
+                        cNode.getY() + 10
+                );
+                this.thisLayerManager.getWorkCircuit().addCompoundNode(clonedData);
             }
+            rebuildNodeWidgets();
         }
     }
 
@@ -546,7 +575,8 @@ public class MagicEditorScreen extends Screen {
     //ノードの削除
     public void deleteNode(AbstructDraggingNodeWidget node){
         if(node instanceof CompoundNodeWidget cNode){
-            if (cNode.getLinkedData().isLocked()) {
+            SkillAccessLevel access = cNode.getLinkedData().getAccessLevelFor(magicData);
+            if (!access.canModify()) {
                 thisLayerManager.triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
                 return;
             }

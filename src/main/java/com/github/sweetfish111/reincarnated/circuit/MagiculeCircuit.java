@@ -2,6 +2,8 @@ package com.github.sweetfish111.reincarnated.circuit;
 
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
+import com.github.sweetfish111.reincarnated.magic.slill.SkillAccessLevel;
+import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
@@ -100,6 +102,8 @@ public class MagiculeCircuit {
         return null;
     }
     public List<CompoundNodeData> getCompoundNodes(){return this.compoundNodes;}
+
+    public void addCompoundNode(CompoundNodeData cData){this.compoundNodes.add(cData);}
 
     public UUID collapseNodes(List<UUID> targetNodeIds, String customName){
         if(targetNodeIds.isEmpty())return null;
@@ -335,6 +339,7 @@ public class MagiculeCircuit {
         cnTag.putInt("X", cNode.x);
         cnTag.putInt("Y", cNode.y);
         cnTag.putBoolean("IsLocked", cNode.isLocked);
+        cnTag.putString("SkillId", cNode.skillId);
 
         //UnlockConditionKeys
         ListTag unlockKeys = new ListTag();
@@ -405,6 +410,7 @@ public class MagiculeCircuit {
         List<MagiculeCircuit.WireData> innerWires = new ArrayList<>();
         Map<UUID, Map<String, Object>> innerNodeParams = new HashMap<>();
         boolean isLocked = c.getBoolean("IsLocked").orElse(true);
+        String skillId = c.getString("SkillId").orElse("");
         List<String> unlockKeys = new ArrayList<>();
 
         ListTag keysList = c.getList("UnlockKeys").orElse(null);
@@ -511,6 +517,7 @@ public class MagiculeCircuit {
         );
         compoundNode.getCompoundCircuit().getNodeParameters().putAll(innerNodeParams);
         compoundNode.setLocked(isLocked);
+        compoundNode.setSkillId(skillId);
         return compoundNode;
     }
 
@@ -572,6 +579,7 @@ public class MagiculeCircuit {
         public int x, y;
         private boolean isLocked = true;
         private List<String> unlockConditionKey = new ArrayList<>();
+        private String skillId = "";
 
         public CompoundNodeData(UUID id, String customName, List<MagiculeCircuit.NodeData> innerNodes,List<MagiculeCircuit.CompoundNodeData> innerCompoundNodes, List<MagiculeCircuit.WireData> innerWires, Map<UUID, Map<String, Object>> innerNodeParameters, int x, int y){
             this.id = id;
@@ -584,6 +592,14 @@ public class MagiculeCircuit {
             this.y = y;
         }
 
+        public String getSkillId(){return skillId;}
+        public void setSkillId(String skillId){this.skillId = skillId;}
+        public SkillAccessLevel getAccessLevelFor(PlayerMagicData playerLimits){
+            if (skillId == null || skillId.isEmpty()) {
+                return SkillAccessLevel.EDITABLE; // カスタムマクロは常にフルアクセス
+            }
+            return playerLimits.getSkillAccessLevel(skillId);
+        }
         public boolean isLocked(){return this.isLocked;}
         public void setLocked(boolean locked){this.isLocked = locked;}
         public List<String> getUnlockConditionKey(){return this.unlockConditionKey;}

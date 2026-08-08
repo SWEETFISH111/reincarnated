@@ -10,7 +10,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
@@ -19,6 +21,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerXpEvent;
 
 import java.util.Map;
@@ -83,6 +86,21 @@ public class CausalityObserver {
             ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_damage", data);
         }
 
+    }
+
+    @SubscribeEvent
+    public static void onAttackStronger(AttackEntityEvent event){
+        if(event.getEntity() instanceof ServerPlayer player){
+            LivingEntity target = (LivingEntity) event.getTarget();
+            double atackerAtk = player.getAttributeValue(Attributes.ATTACK_DAMAGE);
+            double targetAtk = target.getAttributeValue(Attributes.ATTACK_DAMAGE);
+            if(targetAtk > atackerAtk){
+                ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_Attack_stronger", null);
+
+                PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+                magicData.addUsurperScore(0.5);
+            }
+        }
     }
 }
 

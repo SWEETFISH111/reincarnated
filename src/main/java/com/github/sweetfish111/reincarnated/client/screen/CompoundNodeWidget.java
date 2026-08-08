@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.client.screen;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.circuit.PortDataType;
+import com.github.sweetfish111.reincarnated.magic.slill.SkillAccessLevel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -54,7 +55,8 @@ public class CompoundNodeWidget extends AbstructDraggingNodeWidget {
     public String getCustomName(){return this.customName;}
 
     public void openContents(){
-        if (this.getLinkedData().isLocked()) {
+        SkillAccessLevel access = this.getLinkedData().getAccessLevelFor(parentScreen.getMagicData());
+        if (!access.canModify()) {
             parentScreen.getThisLayerManager().triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
             return;
         }
@@ -71,8 +73,15 @@ public class CompoundNodeWidget extends AbstructDraggingNodeWidget {
     }
 
     public void renderLockedOverLay(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick){
-        if(this.nodeData.isLocked()){
-            graphics.centeredText(Minecraft.getInstance().font, "locked", this.getX(), this.getY(), 0xFFF4E511);
+        SkillAccessLevel access = this.getLinkedData().getAccessLevelFor(parentScreen.getMagicData());
+        String text = "locked";
+        if (access.canModify()) {
+            text = null;
+        }else if (access.canViewInner()) {
+            text = "read_only";
+        }
+        if (text != null) {
+            graphics.centeredText(Minecraft.getInstance().font, text, this.getX(), this.getY(), 0xFFF4E511);
         }
     }
 

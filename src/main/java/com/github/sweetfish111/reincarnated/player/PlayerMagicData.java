@@ -182,7 +182,7 @@ public class PlayerMagicData {
             node = skillCircuit.getCNode(uniqueSkillId);
         }
 
-        if (node.getSkillId() == null) {
+        if (node.getSkillId() == null || node.getSkillId().isEmpty()) {
             node.setSkillId("greedy");
             setSkillAccessLevel("greedy", SkillAccessLevel.DENIED);
         }

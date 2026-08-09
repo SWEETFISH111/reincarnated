@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.client.screen;
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -70,6 +71,12 @@ public class NodePaletteWidget {
     private List<PaletteItem> createPaletteFactory(){
         List<PaletteItem> items = new ArrayList<>();
 
+        if(!contextMenuTargets.isEmpty() && contextMenuTargets.size() == 1){
+            Optional<AbstructDraggingNodeWidget> optNode = contextMenuTargets.stream().findFirst();
+            if(optNode.isPresent() && optNode.get() instanceof CompoundNodeWidget c && c.getLinkedData().getSkillId().equals("greedy")){
+                return openContextMenuForNode(optNode.get(), items);
+            }
+        }
         if(!contextMenuTargets.isEmpty()){
             items.add(new PaletteItem(Component.literal("Delete"), () -> {
                 for (AbstructDraggingNodeWidget node : contextMenuTargets) {
@@ -119,6 +126,37 @@ public class NodePaletteWidget {
             }
         }
         return items;
+    }
+
+    // ノードを右クリックしたときにメニュー項目を組み立てる処理
+    public List<PaletteItem> openContextMenuForNode(AbstructDraggingNodeWidget nodeWidget, List<PaletteItem> items) {
+        items.clear();
+
+        // スキルタブかつ対象ノードが「貪欲者(greedy)」の場合
+        if (this.parentScreen.getThisLayerManager().getCurrentTab() == EditorTab.SKILL && nodeWidget instanceof CompoundNodeWidget c && "greedy".equals(c.getLinkedData().getSkillId())) {
+            PlayerMagicData magicData = this.parentScreen.getMagicData();
+            Set<String> evolvables = magicData.getEvolvableUniqueSkills();
+
+            if (!evolvables.isEmpty()) {
+                this.paletteItems.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.possible_to_evolve"), () -> {}));
+
+                for (String evolvableId : evolvables) {
+
+                    // クリックされたら進化実行（サーバーへ進化申請パケットを送信）
+                    if(evolvableId.equals("predator")){
+                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_predator"), () ->{}));
+                    }else if(evolvableId.equals("scavenger")){
+                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_scavenger"), () ->{}));
+                    }else if(evolvableId.equals("hoarder")){
+                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_hoarder"), () ->{}));
+                    }else if(evolvableId.equals("usurper")){
+                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_usurper"), () ->{}));
+                    }
+                }
+            }
+            return items;
+        }
+        return null;
     }
 
     private int calcMenuHeight(int size){

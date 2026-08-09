@@ -6,6 +6,7 @@ import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
+import com.github.sweetfish111.reincarnated.reincarnated;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -36,13 +37,14 @@ public class CausalityObserver {
         if (event.getEntity() instanceof ServerPlayer player) {
             int xpAmount = event.getOrb().getValue();
 
-            Map<String, Object> data = Map.of("xp_amount", (double) xpAmount);
+            Map<String, Object> data = Map.of("xp_amount", xpAmount);
             ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_xp_pickup", data);
 
             // プレイヤーの魂データを取り出して「貪欲者」としての理を進行させる
             PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-            magicData.addGreedyScore(xpAmount * 0.5);
-            magicData.totalConsumedMaso += xpAmount;
+            double score = (double) xpAmount * 0.2;
+            reincarnated.LOGGER.info("CausalityObserver" + String.valueOf(score));
+            magicData.addGreedyScore((double) xpAmount * 0.02, player);
         }
     }
 
@@ -60,7 +62,7 @@ public class CausalityObserver {
 
             PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
             // 例：「捕食者」ルートのスコアを加算
-            magicData.addPredatorScore(0.2);
+            magicData.addPredatorScore(0.2, player);
         }
     }
 
@@ -74,11 +76,16 @@ public class CausalityObserver {
                 ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_eat", data);
 
                 PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-                magicData.addScavengerScore(1);
+                magicData.addScavengerScore(0.5, player);
             }
         }
 
     }
+
+    public static void addHoarderScore(ServerPlayer player){
+        player.getData(ModAttachments.PLAYER_MAGIC_DATA).addhoarderScore(0.005, player);
+    }
+
     @SubscribeEvent
     public static void onDamage(LivingDamageEvent.Pre event){
         if(event.getEntity() instanceof ServerPlayer player){
@@ -92,13 +99,15 @@ public class CausalityObserver {
     public static void onAttackStronger(AttackEntityEvent event){
         if(event.getEntity() instanceof ServerPlayer player){
             LivingEntity target = (LivingEntity) event.getTarget();
-            double atackerAtk = player.getAttributeValue(Attributes.ATTACK_DAMAGE);
-            double targetAtk = target.getAttributeValue(Attributes.ATTACK_DAMAGE);
+            double atackerAtk = player.getAttribute(Attributes.ATTACK_DAMAGE) != null
+                    ? player.getAttributeValue(Attributes.ATTACK_DAMAGE) : 0.0;
+            double targetAtk = target.getAttribute(Attributes.ATTACK_DAMAGE) != null
+                    ? target.getAttributeValue(Attributes.ATTACK_DAMAGE) : 0.0;
             if(targetAtk > atackerAtk){
                 ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_Attack_stronger", null);
 
                 PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-                magicData.addUsurperScore(0.5);
+                magicData.addUsurperScore(0.5, player);
             }
         }
     }

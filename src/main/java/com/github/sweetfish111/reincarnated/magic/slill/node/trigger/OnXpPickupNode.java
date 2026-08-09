@@ -23,6 +23,8 @@ public class OnXpPickupNode extends AbstractMagicNode {
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         context.incrementAndCheck();
-        return new XpAmount((double) this.eventData.get("xp_amount"));
+        Object raw = this.eventData.get("xp_amount");
+        double value = (raw instanceof Number n) ? n.doubleValue() : 0.0;
+        return new XpAmount(value);
     }
 }

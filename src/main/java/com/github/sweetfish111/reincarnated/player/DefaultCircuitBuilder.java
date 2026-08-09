@@ -45,7 +45,7 @@ public class DefaultCircuitBuilder {
         nodes.add(xpToMaso.id);
         nodes.add(addMaso.id);
 
-        UUID greedyId = circuit.collapseNodes(nodes, Component.translatable("name.reincarnated.first_uniqueSkill").getString());
+        UUID greedyId = circuit.collapseNodes(nodes, Component.translatable("name.reincarnated.uniqueSkill.greedy").getString());
 
         return greedyId;
     }

@@ -72,7 +72,7 @@ public class MagicContext {
     public void incrementAndCheck() throws CalculationCapacityOverException {
         currentCount ++;
         if(currentCount > MAX_LIMIT){
-            throw new RuntimeException("告：魔法の演算容量（ループ上限）を超過しました。熱暴走によりキャストを強制中断します。");
+            throw new CalculationCapacityOverException(1000, 1001);
         }
     }
 }

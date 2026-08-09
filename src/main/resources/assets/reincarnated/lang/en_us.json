@@ -5,9 +5,25 @@
   "message.reincarnated.export_error": "Error: Please hold a blank book in your main hand.",
   "message.reincarnated.compound_accessDenied": "Report. Higher authority level detected. Unable to analyze this circuit.",
 
-  "name.reincarnated.first_uniqueSkill": "greedy",
+  "name.reincarnated.uniqueSkill.greedy": "greedy",
+  "name.reincarnated.uniqueSkill.predator": "predator",
+  "name.reincarnated.uniqueSkill.scavenger": "scavenger",
+  "name.reincarnated.uniqueSkill.hoarder": "hoarder",
+  "name.reincarnated.uniqueSkill.usurper": "usurper",
 
   "message.reincarnated.unique_skill_acquired": "Report. Factor of %2$s detected in individual %1$s. Acquisition of unique skill 'Greed'—successful.",
+
+  "message.reincarnated.voice_of_world.greedy_Establishment": "《Notice》The unique skill Greedy has been fully established for individual named %1$s. Access to its internal circuitry is now possible.",
+  "message.reincarnated.voice_of_world.greedy_factor_analyzed": "《Notice》 Analysis of partial capabilities of 'Greedy' is complete. Higher factor possessed by Individual '%1$s' has been identified.",
+  "message.reincarnated.voice_of_world.greedy_evolution_available": "Unique Skill 'Greedy' can now evolve into Unique Skill '%1$s'.",
+
+  "effect.reincarnated.overcharge": "Overcharge",
+
+  "gui.reincarnated.paletteItem.possible_to_evolve": "--- 【Awakening of Power】 ---",
+  "gui.reincarnated.paletteItem.new_skill_predator": "Awaking:predator",
+  "gui.reincarnated.paletteItem.new_skill_scavenger": "Awaking:scavenger",
+  "gui.reincarnated.paletteItem.new_skill_hoarder": "Awaking:hoarder",
+  "gui.reincarnated.paletteItem.new_skill_usurper": "Awaking:usurper",
 
   "node.reincarnated.event_key_1": "execute_key_1",
   "node.reincarnated.on_tick": "on tick",

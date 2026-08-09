@@ -4,9 +4,26 @@
   "message.reincarnated.export_error": "エラー: メインハンドに白紙の本を持ってください。",
   "message.reincarnated.compound_accessDenied": "《告》。より上位の権限レベルを検出。この回路を解析できません。",
 
-  "name.reincarnated.first_uniqueSkill": "貪欲者",
+  "name.reincarnated.uniqueSkill.greedy": "貪欲者",
+  "name.reincarnated.uniqueSkill.predator": "捕食者",
+  "name.reincarnated.uniqueSkill.scavenger": "飢餓者",
+  "name.reincarnated.uniqueSkill.hoarder": "蓄財者",
+  "name.reincarnated.uniqueSkill.usurper": "簒奪者",
 
   "message.reincarnated.unique_skill_acquired": "《告》個体名 %s に %s の因子を確認。ユニークスキル『貪欲者』を獲得……成功しました。",
+
+  "message.reincarnated.voice_of_world.greedy_Establishment": "《告》個体名〇〇にユニークスキル貪欲者が完全に定着。内部回路へのアクセスが可能になりました。",
+  "message.reincarnated.voice_of_world.greedy_factor_analyzed": "《告》貪欲者の一部能力の解析が完了。個体名 %1$s の所持していた上位因子を特定しました。",
+  "message.reincarnated.voice_of_world.greedy_evolution_available": "ユニークスキル貪欲者をユニークスキル %1$s に進化可能です",
+
+  "effect.reincarnated.overcharge": "魔素過剰",
+
+  "gui.reincarnated.paletteItem.possible_to_evolve": "--- 【権能の覚醒】 ---",
+  "gui.reincarnated.paletteItem.new_skill_predator": "覚醒:捕食者",
+  "gui.reincarnated.paletteItem.new_skill_scavenger": "覚醒:飢餓者",
+  "gui.reincarnated.paletteItem.new_skill_hoarder": "覚醒:蓄財者",
+  "gui.reincarnated.paletteItem.new_skill_usurper": "覚醒:簒奪者",
+
 
   "node.reincarnated.event_key_1": "実行キー1",
   "node.reincarnated.on_tick": "常時監視 (Tick)",

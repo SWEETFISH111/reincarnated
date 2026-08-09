@@ -21,6 +21,7 @@ public class OnKillNode extends AbstractMagicNode {
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
-        return this.eventData.get("killScore");
+        Object raw = this.eventData.get("killScore");
+        return (raw instanceof Number n) ? n.doubleValue() : 0.0;
     }
 }

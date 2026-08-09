@@ -11,12 +11,12 @@ public class ConbersXpToMaso extends AbstractMagicNode {
     public ConbersXpToMaso(UUID id) {
         super(id);
     }
-    private final double conversRate = 1d / 20d;
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         context.incrementAndCheck();
         XpAmount xp = pullXp(0, context);
-        return new MasoAmount(xp.xpAmount() * conversRate);
+        double converseRate = 0.2;
+        return new MasoAmount(xp.xpAmount() * converseRate);
     }
 }

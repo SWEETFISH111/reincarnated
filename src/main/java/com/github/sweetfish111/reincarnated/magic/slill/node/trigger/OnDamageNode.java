@@ -23,8 +23,9 @@ public class OnDamageNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
-        super.getOutputData(portIndex, context);
-        return new DamageAmount((double)eventData.get("damageAmount"));
+        context.incrementAndCheck();
+        Object raw = this.eventData.get("damageAmount");
+        double value = (raw instanceof Number n) ? n.doubleValue() : 0.0;
+        return new DamageAmount(value);
     }
-
 }

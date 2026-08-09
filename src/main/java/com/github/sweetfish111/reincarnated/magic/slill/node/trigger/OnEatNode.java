@@ -21,10 +21,7 @@ public class OnEatNode extends AbstractMagicNode {
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
-        Object o = this.eventData.get("satietyLevel");
-        if(o != null){
-            return o;
-        }
-        return 0;
+        Object raw = this.eventData.get("satietyLevel");
+        return (raw instanceof Number n) ? n.doubleValue() : 0.0;
     }
 }

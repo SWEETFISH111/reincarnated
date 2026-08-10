@@ -1,25 +1,19 @@
 package com.github.sweetfish111.reincarnated.system;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
-import com.github.sweetfish111.reincarnated.event.PlayerUniqueSkillAcquiredEvent;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.reincarnated;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
@@ -55,9 +49,9 @@ public class CausalityObserver {
     public static void onLivingDeath(LivingDeathEvent event) {
         if (event.getSource().getEntity() instanceof ServerPlayer player) {
             LivingEntity target = event.getEntity();
-            double killScore = 20;
+            double killScore = target.getMaxHealth();
 
-            Map<String, Object> data = Map.of("kill", killScore);
+            Map<String, Object> data = Map.of("killScore", killScore);
             ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_kill", data);
 
             PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
@@ -82,17 +76,10 @@ public class CausalityObserver {
 
     }
 
-    public static void addHoarderScore(ServerPlayer player){
-        player.getData(ModAttachments.PLAYER_MAGIC_DATA).addhoarderScore(0.005, player);
-    }
-
-    @SubscribeEvent
-    public static void onDamage(LivingDamageEvent.Pre event){
-        if(event.getEntity() instanceof ServerPlayer player){
-            Map<String, Object> data = Map.of("damageAmount", event.getOriginalDamage());
-            ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_damage", data);
-        }
-
+    public static void onOverCharge(ServerPlayer player){
+        player.getData(ModAttachments.PLAYER_MAGIC_DATA).addhoarderScore(0.1, player);
+        Map<String, Object>data = null;
+        ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_overcharge", data);
     }
 
     @SubscribeEvent
@@ -104,7 +91,8 @@ public class CausalityObserver {
             double targetAtk = target.getAttribute(Attributes.ATTACK_DAMAGE) != null
                     ? target.getAttributeValue(Attributes.ATTACK_DAMAGE) : 0.0;
             if(targetAtk > atackerAtk){
-                ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_Attack_stronger", null);
+                Map<String, Object> data = Map.of("power_gap", targetAtk - atackerAtk);
+                ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_attack_stronger", data);
 
                 PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
                 magicData.addUsurperScore(0.5, player);

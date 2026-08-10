@@ -14,8 +14,11 @@
   "message.reincarnated.unique_skill_acquired": "Report. Factor of %2$s detected in individual %1$s. Acquisition of unique skill 'Greed'—successful.",
 
   "message.reincarnated.voice_of_world.greedy_Establishment": "《Notice》The unique skill Greedy has been fully established for individual named %1$s. Access to its internal circuitry is now possible.",
+  "message.reincarnated.voice_of_world.glitch_evolution_stage_1": "<Notice> Individual [%2$s]: Physical composition altered due to the influence of %1$s... Potential unleashed.",
   "message.reincarnated.voice_of_world.greedy_factor_analyzed": "《Notice》 Analysis of partial capabilities of 'Greedy' is complete. Higher factor possessed by Individual '%1$s' has been identified.",
   "message.reincarnated.voice_of_world.greedy_evolution_available": "Unique Skill 'Greedy' can now evolve into Unique Skill '%1$s'.",
+  "message.reincarnated.voice_of_world.evolution_saint": "<Notice> Adaptation to the High-grade Factor significantly increased the existence value of Individual [%s]. Evolved into the higher race [Saint].",
+
 
   "effect.reincarnated.overcharge": "Overcharge",
 
@@ -31,6 +34,8 @@
   "node.reincarnated.on_damage": "on damage",
   "node.reincarnated.on_eat": "on eat",
   "node.reincarnated.on_kill": "on kill",
+  "node.reincarnated.on_attack_stronger": "on attack stronger",
+  "node.reincarnated.on_overcharge": "on overcharge",
   "node.reincarnated.dig": "dig",
   "node.reincarnated.shoot_projectile": "shoot projectile",
   "node.reincarnated.lightning": "lightning",
@@ -38,6 +43,8 @@
   "node.reincarnated.damage": "instant damage",
   "node.reincarnated.healing": "instant healing",
   "node.reincarnated.add_maso": "add maso",
+  "node.reincarnated.barrier": "barrier",
+  "node.reincarnated.absorption": "absorption",
   "node.reincarnated.get_look_target": "look target",
   "node.reincarnated.return_caster": "return caster",
   "node.reincarnated.offset": "offset",
@@ -45,6 +52,9 @@
   "node.reincarnated.combers_target_pos": "target pos",
   "node.reincarnated.combers_look_direction": "direction",
   "node.reincarnated.combers_xp_to_maso": "xp to maso",
+  "node.reincarnated.combers_kill_to_maso": "kill to maso",
+  "node.reincarnated.combers_powergap_to_maso": "power_gap to maso",
+  "node.reincarnated.combers_satiety_to_maso": "satiety to maso",
   "node.reincarnated.if": "IF",
   "node.reincarnated.repeat": "repeat",
   "node.reincarnated.toggle": "toggle",

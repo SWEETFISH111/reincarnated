@@ -6,6 +6,9 @@ import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.client.event.handler.ClientPacketHandlers;
 import com.github.sweetfish111.reincarnated.item.ReincarnatedItems;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
+import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
+import com.github.sweetfish111.reincarnated.magic.casting.DelayCastingManager;
+import com.github.sweetfish111.reincarnated.magic.casting.TimerCastingManager;
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
@@ -26,6 +29,8 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
+import java.util.UUID;
+
 @EventBusSubscriber(modid = "reincarnated")
 public class ModNetworking {
 
@@ -39,6 +44,12 @@ public class ModNetworking {
                 ((payload, context) -> {
                     context.enqueueWork(() -> {
                         if(context.player() instanceof ServerPlayer player){
+                            UUID casterId = player.getUUID();
+
+                            TimerCastingManager.cancelTasksForCaster(casterId);
+                            DelayCastingManager.cancelTasksForCaster(casterId);
+                            ActiveMagicManager.unregisterAllForPlayer(casterId);
+
                             PlayerMagicData magicData = new PlayerMagicData();
                             magicData.loadFromNBT(payload.magicDataTag());
                             player.setData(ModAttachments.PLAYER_MAGIC_DATA, magicData);
@@ -101,7 +112,7 @@ public class ModNetworking {
         registrar.playToClient(SyncMasoPayload.TYPE, SyncMasoPayload.STREAM_CODEC,((payload, context) ->{
             context.enqueueWork(() -> {
                 if(FMLEnvironment.getDist().isClient()){
-                    ClientPacketHandlers.handleSyncMaso(payload.maxMaso(), payload.currentMaso());
+                    ClientPacketHandlers.handleSyncMaso(payload.maxMaso(), payload.currentMaso(), payload.maxBarrier(), payload.currentBarrier());
                 }
             });
         }));

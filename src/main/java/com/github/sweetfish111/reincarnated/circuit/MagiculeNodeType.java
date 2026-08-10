@@ -23,19 +23,27 @@ public enum MagiculeNodeType {
     ),
     ON_DAMAGE("on_damage", Component.translatable("node.reincarnated.on_damage").getString(),
             new PortDataType[]{},
-            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.DAMAGE},
             List.of(EditorTab.SKILL)
     ),
     ON_EAT("on_eat", Component.translatable("node.reincarnated.on_eat").getString(),
             new PortDataType[]{},
-            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.SATIETY},
             List.of(EditorTab.SKILL)
     ),
     ON_KILL("on_kill", Component.translatable("node.reincarnated.on_kill").getString(),
             new PortDataType[]{},
-            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.KILLSCORE},
             List.of(EditorTab.SKILL)
 
+    ),
+    ON_OVERCHARGE("on_overcharge", Component.translatable("node.reincarnated.on_overcharge").getString(),
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.EXEC}
+    ),
+    ON_ATTACK_STRONGER("on_attack_stronger", Component.translatable("node.reincarnated.on_attack_stronger").getString(),
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.POWERGAP}
     ),
     DIG("dig", Component.translatable("node.reincarnated.dig").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE},
@@ -74,6 +82,16 @@ public enum MagiculeNodeType {
             null, null,
             5,
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    BARRIER("barrier", Component.translatable("node.reincarnated.barrier").getString(),
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL)
+    ),
+    ABSORPTION("absorption", Component.translatable("node.reincarnated.absorption").getString(),
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     ADD_MASO("add_maso", Component.translatable("node.reincarnated.add_maso").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.MASO},
@@ -120,6 +138,21 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.MASO},
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
+    COMBERS_KILL_TO_MASO("combers_kill_to_maso", Component.translatable("node.reincarnated.combers_kill_to_maso").getString(),
+            new PortDataType[]{PortDataType.KILLSCORE},
+            new PortDataType[]{PortDataType.MASO},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.SKILL)
+    ),
+    COMBERS_POWERGAP_TO_MASO("combers_powergap_to_maso", Component.translatable("node.reincarnated.combers_powergap_to_maso").getString(),
+            new PortDataType[]{PortDataType.POWERGAP},
+            new PortDataType[]{PortDataType.MASO},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    COMBERS_SATIETY_TO_MASO("combers_satiety_to_maso", Component.translatable("node.reincarnated.combers_satiety_to_maso").getString(),
+            new PortDataType[]{PortDataType.SATIETY},
+            new PortDataType[]{PortDataType.MASO},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
     IF("if", Component.translatable("node.reincarnated.if").getString(),
             new PortDataType[]{PortDataType.EXEC,PortDataType.BOOLEAN},
             new PortDataType[]{PortDataType.EXEC, PortDataType.EXEC},
@@ -157,7 +190,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{},
             new PortDataType[]{PortDataType.BOOLEAN},
             ContentWidgetType.SWITCH,
-            null,
+            new PortDataType[]{},
             1,
             List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),

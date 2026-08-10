@@ -5,6 +5,7 @@ import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
+import com.github.sweetfish111.reincarnated.reincarnated;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -53,7 +54,14 @@ public class TimerCastingManager {
                 MagicContext ctx = task.getContext();
                 UUID targetId = task.getNextNodeId();
 
+                if (ctx.isStale()) {
+                    finishedTasks.add(task); // 実行せず、この世代のループはここで静かに終了
+                    reincarnated.LOGGER.debug("stale magic task discarded (repeatNode={})", task.getRepeatNodeId());
+                    continue;
+                }
+
                 ctx.setNodeLocalVariable(task.getRepeatNodeId(), 0, task.getCurrentLoopIndex());
+                ctx.resetCount();
                 if(targetId != null) {
                     executeNextNode(ctx.getCaster(), targetId, ctx);
                 }

@@ -1,10 +1,7 @@
 package com.github.sweetfish111.reincarnated.magic.compiler;
 
-import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
-import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
-import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
+import com.github.sweetfish111.reincarnated.circuit.*;
 import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
-import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookForwardNode;
@@ -16,12 +13,16 @@ import com.github.sweetfish111.reincarnated.magic.nodes.conversion.CombersLookDi
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.CombersTargetPos;
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.OffsetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
+import com.github.sweetfish111.reincarnated.magic.slill.node.action.AbsorptionNode;
+import com.github.sweetfish111.reincarnated.magic.slill.node.action.BarrierNode;
+import com.github.sweetfish111.reincarnated.magic.slill.node.conversion.ConbersKillToMaso;
+import com.github.sweetfish111.reincarnated.magic.slill.node.conversion.ConbersPowerGapToMaso;
+import com.github.sweetfish111.reincarnated.magic.slill.node.conversion.ConbersSatietyToMaso;
 import com.github.sweetfish111.reincarnated.magic.slill.node.conversion.ConbersXpToMaso;
 import com.github.sweetfish111.reincarnated.magic.slill.node.action.AddMasoNode;
 import com.github.sweetfish111.reincarnated.magic.slill.node.trigger.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.BooleanNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.NumberNode;
-import net.minecraft.server.level.ServerPlayer;
 
 import java.util.*;
 
@@ -184,25 +185,26 @@ public class MagicCompiler {
         }
     }
 
-    public static RuntimeMagicCircuit compileCircuit(IMagicCaster caster, MagiculeCircuit circuit){
+    public static CompiledCircuitGraph compileGraph(MagiculeCircuit circuit) {
         Map<UUID, AbstractMagicNode> instancedNodes = new HashMap<>();
         List<MagiculeCircuit.WireData> allWires = new ArrayList<>();
 
-        if (circuit.getWires() != null) {
-            allWires.addAll(circuit.getWires());
-        }
+        if (circuit.getWires() != null) allWires.addAll(circuit.getWires());
 
         compileNodes(circuit, instancedNodes);
         compileCompoundNodes(circuit, instancedNodes, allWires);
         compileWires(circuit, instancedNodes, allWires);
-        Set<AbstractMagicNode> startNode = new HashSet<>();
 
-        for(Map.Entry<UUID, AbstractMagicNode> entry : instancedNodes.entrySet()){
-            if(entry.getValue().isTrigger()){
-                startNode.add(entry.getValue());
-            }
+        Set<AbstractMagicNode> startNode = new HashSet<>();
+        for (AbstractMagicNode node : instancedNodes.values()) {
+            if (node.isTrigger()) startNode.add(node);
         }
-        return new RuntimeMagicCircuit(caster, instancedNodes, startNode);
+        return new CompiledCircuitGraph(instancedNodes, startNode);
+    }
+
+    public static RuntimeMagicCircuit compileCircuit(IMagicCaster caster, MagiculeCircuit circuit) {
+        CompiledCircuitGraph graph = CircuitCompileCache.getOrCompile(circuit);
+        return new RuntimeMagicCircuit(caster, graph);
     }
 
     public static MagicNode createNodeInstance(String typeId, UUID nodeId){
@@ -237,7 +239,7 @@ public class MagicCompiler {
             case "damage":return new DamageNode(nodeId);
             case "healing":return new HealingNode(nodeId);
             case "delay":return new DelayNode(nodeId);
-            case "on_tick":return new onTickNode(nodeId);
+            case "on_tick":return new OnTickNode(nodeId);
             case "toggle":return new toggleNode(nodeId);
             case "on_xp_pickup":return  new OnXpPickupNode(nodeId);
             case "combers_xp_to_maso":return new ConbersXpToMaso(nodeId);
@@ -247,6 +249,13 @@ public class MagicCompiler {
             case "on_eat":return new OnEatNode(nodeId);
             case "on_kill":return new OnKillNode(nodeId);
             case "on_damage":return new OnDamageNode(nodeId);
+            case "barrier": return new BarrierNode(nodeId);
+            case "combers_kill_to_maso":return new ConbersKillToMaso(nodeId);
+            case "combers_powergap_to_maso":return new ConbersPowerGapToMaso(nodeId);
+            case "combers_satiety_to_maso":return new ConbersSatietyToMaso(nodeId);
+            case "absorption":return new AbsorptionNode(nodeId);
+            case "on_overcharge":return new OnOverchargeNode(nodeId);
+            case "on_attack_stronger": return new OnAttackStronger(nodeId);
             default : return null;
         }
     }

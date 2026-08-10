@@ -1,15 +1,15 @@
 package com.github.sweetfish111.reincarnated.magic.nodes;
 
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
-import com.github.sweetfish111.reincarnated.magic.MasoAmount;
-import com.github.sweetfish111.reincarnated.magic.XpAmount;
+import com.github.sweetfish111.reincarnated.magic.*;
 import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
-import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 
 import java.util.*;
 
@@ -25,7 +25,7 @@ public abstract class AbstractMagicNode implements MagicNode{
     protected String triggerType = null;
 
     public AbstractMagicNode(UUID id){
-        masoCost = 0.2f;
+        masoCost = 0.0f;
         this.id = id;
     }
     @Override
@@ -100,6 +100,27 @@ public abstract class AbstractMagicNode implements MagicNode{
         }
         return new MasoAmount(0);
     }
+    protected KillScoreAmount pullKillScore(int myInputPortIndex, MagicContext context){
+        Object rawData = pullData(myInputPortIndex,context);
+        if(rawData instanceof KillScoreAmount kscore){
+            return kscore;
+        }
+        return new KillScoreAmount(0);
+    }
+    protected PowerGapAmount pullPowerGap(int myInputPortIndex, MagicContext context){
+        Object rawData = pullData(myInputPortIndex, context);
+        if(rawData instanceof PowerGapAmount pGap){
+            return pGap;
+        }
+        return new PowerGapAmount(0);
+    }
+    protected SatietyAmount pullSatiety(int myInputPortIndex, MagicContext context){
+        Object rawData = pullData(myInputPortIndex, context);
+        if(rawData instanceof SatietyAmount satietyAmount){
+            return satietyAmount;
+        }
+        return new SatietyAmount(0);
+    }
 
     public void executeOutputPort(int outputPortIndex, MagicContext context){
         List<MagicNode> nextNodes = outputConnections.get(outputPortIndex);
@@ -112,8 +133,8 @@ public abstract class AbstractMagicNode implements MagicNode{
 
     @Override
     public void execute(MagicContext context) {
-        context.incrementAndCheck();
         consumeMaso(masoCost, context.getCaster());
+        context.incrementAndCheck();
     }
 
     @Override
@@ -138,6 +159,13 @@ public abstract class AbstractMagicNode implements MagicNode{
             throw new MasoShortageException(masoCost, caster.getMasoAmount());
         }
         System.out.println("AbstractMagicNode:cost_" + masoCost + " current_" + caster.getMasoAmount());
+    }
+
+    public static void ensureMaxAbsorption(ServerPlayer player, float needed) {
+        AttributeInstance maxAbsorption = player.getAttribute(Attributes.MAX_ABSORPTION);
+        if (maxAbsorption != null && maxAbsorption.getBaseValue() < needed) {
+            maxAbsorption.setBaseValue(needed);
+        }
     }
 
     protected record DataLink(MagicNode sourceNode, int sourcePortIndex){}

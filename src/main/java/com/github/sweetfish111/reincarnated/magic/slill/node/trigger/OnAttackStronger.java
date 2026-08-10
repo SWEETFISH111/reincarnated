@@ -1,17 +1,16 @@
 package com.github.sweetfish111.reincarnated.magic.slill.node.trigger;
 
+import com.github.sweetfish111.reincarnated.magic.PowerGapAmount;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 
 import java.util.UUID;
 
-
-public class OnDamageNode extends AbstractMagicNode {
-    public OnDamageNode(UUID id) {
+public class OnAttackStronger extends AbstractMagicNode {
+    public OnAttackStronger(UUID id) {
         super(id);
-        this.isTrigger = true;
-        this.triggerType = "on_damage";
+        isTrigger = true;
+        triggerType = "on_attack_stronger";
     }
 
     @Override
@@ -22,9 +21,9 @@ public class OnDamageNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
-        context.incrementAndCheck();
-        Object raw = this.eventData.get("damageAmount");
-        double damageAmount = (raw instanceof Number d) ? d.doubleValue() : 0.0;
-        return damageAmount;
+        super.getOutputData(portIndex, context);
+        Object rawData = this.eventData.get("power_gap");
+        double d = (rawData instanceof Number n) ? n.doubleValue() : 0.0;
+        return new PowerGapAmount(d);
     }
 }

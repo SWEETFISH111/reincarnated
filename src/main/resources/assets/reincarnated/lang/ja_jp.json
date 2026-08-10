@@ -13,8 +13,10 @@
   "message.reincarnated.unique_skill_acquired": "《告》個体名 %s に %s の因子を確認。ユニークスキル『貪欲者』を獲得……成功しました。",
 
   "message.reincarnated.voice_of_world.greedy_Establishment": "《告》個体名〇〇にユニークスキル貪欲者が完全に定着。内部回路へのアクセスが可能になりました。",
+  "message.reincarnated.voice_of_world.glitch_evolution_stage_1": "《告》%sの影響によって個体名 %s の身体組成が変化……潜在能力が解放されました。",
   "message.reincarnated.voice_of_world.greedy_factor_analyzed": "《告》貪欲者の一部能力の解析が完了。個体名 %1$s の所持していた上位因子を特定しました。",
   "message.reincarnated.voice_of_world.greedy_evolution_available": "ユニークスキル貪欲者をユニークスキル %1$s に進化可能です",
+  "message.reincarnated.voice_of_world.evolution_saint": "《告》上位因子への適合により個体名[%s]の存在値が大きく上昇。上位種族[聖人]へと進化しました。",
 
   "effect.reincarnated.overcharge": "魔素過剰",
 
@@ -31,6 +33,8 @@
   "node.reincarnated.on_damage": "被弾時",
   "node.reincarnated.on_eat": "食事時",
   "node.reincarnated.on_kill": "殺害時",
+  "node.reincarnated.on_attack_stronger": "格上攻撃時",
+  "node.reincarnated.on_overcharge": "魔素過剰状態時",
   "node.reincarnated.shoot_projectile": "魔弾発射",
   "node.reincarnated.lightning": "落雷",
   "node.reincarnated.explosion": "爆発",
@@ -38,6 +42,8 @@
   "node.reincarnated.dig": "掘削",
   "node.reincarnated.healing": "瞬間治癒",
   "node.reincarnated.add_maso": "魔素加算",
+  "node.reincarnated.barrier": "バリアー",
+  "node.reincarnated.absorption": "衝撃吸収",
   "node.reincarnated.get_look_target": "視線の先の対象",
   "node.reincarnated.return_caster": "術者",
   "node.reincarnated.offset": "座標オフセット",
@@ -45,6 +51,9 @@
   "node.reincarnated.combers_target_pos": "ターゲット座標変換",
   "node.reincarnated.combers_look_direction": "方向ベクトル変換",
   "node.reincarnated.combers_xp_to_maso": "経験値→魔素変換",
+  "node.reincarnated.combers_kill_to_maso": "kill→魔素変換",
+  "node.reincarnated.combers_powergap_to_maso": "パワーギャップ→魔素変換",
+  "node.reincarnated.combers_satiety_to_maso": "満腹度→魔素変換",
   "node.reincarnated.if": "条件分岐 (If)",
   "node.reincarnated.repeat": "繰り返し (Repeat)",
   "node.reincarnated.toggle": "トグルスイッチ",

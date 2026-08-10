@@ -1,10 +1,8 @@
 package com.github.sweetfish111.reincarnated.magic.slill.node.action;
 
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.MasoAmount;
-import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 
 import java.util.UUID;
 
@@ -17,8 +15,8 @@ public class AddMasoNode extends AbstractMagicNode {
     public void execute(MagicContext context) {
         context.incrementAndCheck();
         MasoAmount maso = pullMaso(1, context);
-        context.getCaster().addMaso((float) maso.masoAmount());
-        context.getCaster().addTotalRegeneratedMaso((float) maso.masoAmount());
+        context.getCaster().addMaso((float) maso.amount());
+        context.getCaster().addTotalRegeneratedMaso((float) maso.amount());
         pushExecute(context);
     }
 

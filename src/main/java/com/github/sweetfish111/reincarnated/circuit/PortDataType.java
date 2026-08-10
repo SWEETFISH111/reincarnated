@@ -9,6 +9,10 @@ public enum PortDataType {
     BOOLEAN(0xCFF77EB5),
     MASO(0xFF6F51A1),
     EXP(0xFFD3E173),
+    DAMAGE(0xFFFF8C00),
+    SATIETY(0xFFFFEFD5),
+    POWERGAP(0xFF000080),
+    KILLSCORE(0xFFFF0000),
     ANY(0xFFF4E511);
 
     public final int color;

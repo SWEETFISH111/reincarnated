@@ -6,7 +6,6 @@ import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import java.util.UUID;
 
 public class toggleNode extends AbstractMagicNode {
-    boolean result = false;
 
     public toggleNode(UUID id) {
         super(id);
@@ -27,14 +26,15 @@ public class toggleNode extends AbstractMagicNode {
         if(context.getCircuit() != null){
             context.getCircuit().setNodeParam(this.id,"toggled", nextState);
         }
-        result = nextState;
         pushExecute(context);
     }
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
-        System.out.println("togglenode:" + result);
-        return result;
+        if (context.getCircuit() == null) {
+            return false;
+        }
+        return context.getCircuit().getNodeParam(this.id, "toggled", false);
     }
 }

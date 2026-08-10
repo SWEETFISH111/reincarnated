@@ -5,11 +5,14 @@ import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.magic.slill.SkillAccessLevel;
 import com.github.sweetfish111.reincarnated.reincarnated;
+import com.github.sweetfish111.reincarnated.system.MessageScheduler;
+import com.github.sweetfish111.reincarnated.system.VoiceOfWorld;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.enchantment.effects.PlaySoundEffect;
 
 import java.util.*;
 
@@ -17,6 +20,8 @@ public class PlayerMagicData {
     private static final int CURRENT_DATA_VERSION = 2;
     private final Map<EditorTab, MagiculeCircuit> circuits = new EnumMap<>(EditorTab.class);
     public float currentMaso = 20f;
+    private float maxBarrierPoint = 20;
+    private float barrierPoint = 0;
 
     public float totalRegeneratedMaso = 0;
     public float totalConsumedMaso = 0;
@@ -182,6 +187,13 @@ public class PlayerMagicData {
         MagiculeCircuit circuit = circuits.get(tab);
         return circuit;
     }
+    public float getBarrierPoint(){return barrierPoint;}
+    public float getMaxBarrierPoint(){return maxBarrierPoint;}
+    public void setBarrierPoint(float barrierPoint){this.barrierPoint = barrierPoint;}
+    public void setMaxBarrierPoint(float max){this.maxBarrierPoint = max;}
+
+    public UUID getUniqueSkillId(){return this.uniqueSkillId;}
+    public void setUniqueSkillId(UUID uniqueSkillId){this.uniqueSkillId = uniqueSkillId;}
 
     private void ensureUniqueSkillCircuit(){
         if (!this.currentUniqueSkill.equals("greedy")) return;
@@ -366,35 +378,45 @@ public class PlayerMagicData {
     private void checkEvolution(ServerPlayer player) {
         if (!currentUniqueSkill.equals("greedy")) return;
 
-        double threshold = 100;
+        double threshold = 1;
 
         if(greedyScore >= threshold){
-            this.completeGreedy = true;
-            MagiculeCircuit skillCircuit = this.getCircuit(EditorTab.SKILL);
-            setSkillAccessLevel("greedy", SkillAccessLevel.READ_ONLY);
 
-            // STAGE0（旧世界）にいる間だけ意味を持つガード。
-            // 「潜在能力の片鱗に気づく」瞬間＝0→1（旧世界→新ゼロ）の専用トリガー。
-            // STAGE1以降に進んだ後はこのブロックが再実行されても masoStage が
-            // 既に STAGE0 でなくなっているため何も起きない（誤爆防止）。
-            if (masoStage == MasoEvolutionStage.STAGE0) {
-                triggerMasoStageEvolutionAttempt();
+            if(!completeGreedy) {
+                MagiculeCircuit skillCircuit = this.getCircuit(EditorTab.SKILL);
+                setSkillAccessLevel("greedy", SkillAccessLevel.READ_ONLY);
+
+                // STAGE0（旧世界）にいる間だけ意味を持つガード。
+                // 「潜在能力の片鱗に気づく」瞬間＝0→1（旧世界→新ゼロ）の専用トリガー。
+                // STAGE1以降に進んだ後はこのブロックが再実行されても masoStage が
+                // 既に STAGE0 でなくなっているため何も起きない（誤爆防止）。
+                if (masoStage == MasoEvolutionStage.STAGE0) {
+                    triggerMasoStageEvolutionAttempt();
+                }
+
+                Set<MagiculeNodeType> unlockNodeSet = new HashSet<>();
+                unlockNodeSet.add(MagiculeNodeType.ADD_MASO);
+                unlockNodeSet.add(MagiculeNodeType.CONBERS_XP_TO_MASO);
+
+                List<Component> messages = List.of(
+                        Component.translatable("message.reincarnated.voice_of_world.greedy_Establishment", Component.literal(player.getName().getString())),
+                        VoiceOfWorld.sendEvolvedStage1(player)
+                );
+
+                MessageScheduler.scheduleMessages(player, messages, 3);
+
+
+                unlockedNodeTypes.get(EditorTab.MAGIC).addAll(unlockNodeSet);
+                unlockedNodeTypes.get(EditorTab.SKILL).addAll(unlockNodeSet);
+                unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.ON_XP_PICKUP);
+                unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.HEALING);
+                unlockedNodeTypes.get(EditorTab.ARTS).addAll(unlockNodeSet);
+
+                this.completeGreedy = true;
             }
 
-            Set<MagiculeNodeType> unlockNodeSet = new HashSet<>();
-            unlockNodeSet.add(MagiculeNodeType.ADD_MASO);
-            unlockNodeSet.add(MagiculeNodeType.CONBERS_XP_TO_MASO);
-
-            player.sendSystemMessage(Component.translatable("message.reincarnated.voice_of_world.greedy_Establishment", Component.literal(player.getName().getString())));
-
-            unlockedNodeTypes.get(EditorTab.MAGIC).addAll(unlockNodeSet);
-            unlockedNodeTypes.get(EditorTab.SKILL).addAll(unlockNodeSet);
-            unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.ON_XP_PICKUP);
-            unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.HEALING);
-            unlockedNodeTypes.get(EditorTab.ARTS).addAll(unlockNodeSet);
-
             if (predatorScore >= threshold) {
-                unlockEvolutionCandidate(player, "predator");
+                unlockEvolutionCandidate(player, "predatorw");
             }
             if (scavengerScore >= threshold) {
                 unlockEvolutionCandidate(player, "scavenger");
@@ -466,6 +488,12 @@ public class PlayerMagicData {
         masoTag.putDouble("stageStartRegeneratedMaso", stageStartRegeneratedMaso);
         masoTag.putBoolean("pendingMasoEvolutionTrigger", pendingMasoEvolutionTrigger);
         rootTag.put("maso", masoTag);
+
+        CompoundTag barrierTag = new CompoundTag();
+        barrierTag.putFloat("currentBarrier", barrierPoint);
+        barrierTag.putFloat("maxBarrier", maxBarrierPoint);
+        rootTag.put("barrier", barrierTag);
+
         rootTag.put("permission", savePermissionsNBT());
 
         rootTag.putString("currentUniqueSkill", currentUniqueSkill);
@@ -480,6 +508,7 @@ public class PlayerMagicData {
         scoreTag.putDouble("hoarderScore", hoarderScore);
         scoreTag.putDouble("usurperScore", usurperScore);
         rootTag.put("evolutionScores", scoreTag);
+        rootTag.putBoolean("completeGreedy", completeGreedy);
 
         ListTag evolvableSkillsTag = new ListTag();
         for (String skillId : evolvableUniqueSkills) {
@@ -537,6 +566,12 @@ public class PlayerMagicData {
             pendingMasoEvolutionTrigger = masoTag.getBoolean("pendingMasoEvolutionTrigger").orElse(false);
         }
 
+        if(rootTag.contains("barrier")){
+            CompoundTag barrierTag = rootTag.getCompoundOrEmpty("barrier");
+            barrierPoint = barrierTag.getFloatOr("currentBarrier", 0.0f);
+            maxBarrierPoint = barrierTag.getFloatOr("maxBarrier", 0.0f);
+        }
+
         if(rootTag.contains("permission")){
             loadPermissionsNBT(rootTag.getCompoundOrEmpty("permission"));
         }
@@ -552,6 +587,10 @@ public class PlayerMagicData {
             scavengerScore = scoreTag.getDouble("scavengerScore").orElse(0.0);
             hoarderScore = scoreTag.getDouble("hoarderScore").orElse(0.0);
             usurperScore = scoreTag.getDouble("usurperScore").orElse(0.0);
+        }
+
+        if(rootTag.contains("completeGreedy")){
+            completeGreedy = rootTag.getBooleanOr("completeGreedy", false);
         }
 
         if (rootTag.contains("evolvableUniqueSkills")) {

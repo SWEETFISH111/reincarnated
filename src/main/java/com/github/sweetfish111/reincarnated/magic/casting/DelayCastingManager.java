@@ -55,6 +55,10 @@ public class DelayCastingManager {
 
                 // タイマーを進め、時間が来たら発動
                 if (task.tick()) {
+                    if (task.getContext().isStale()) {
+                        delayIterator.remove();
+                        continue; // 着弾コールバック等が「もう存在しない古い回路」に対して発火するのを防ぐ
+                    }
                     executeNextNode(caster, task.getNextNodeId(), task.getContext());
                     delayIterator.remove();
                 }

@@ -32,6 +32,11 @@ public class MagiculeCircuit {
         this.wires.add(new WireData(sorceNodeId, sourcePortIndex, targetNodeId, targetPortIndex, isDataFlow));
     }
 
+    public void addWire(WireData wire){
+        if(this.wires.contains(wire))return;
+        this.wires.add(wire);
+    }
+
     // セッター
     public void setNodes(List<NodeData> nodes){
         this.nodes.clear();

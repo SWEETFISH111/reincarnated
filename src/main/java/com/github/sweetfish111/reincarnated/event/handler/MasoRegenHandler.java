@@ -26,18 +26,23 @@ public class MasoRegenHandler {
 
                 magicData.currentMaso += regenPerTick;
                 magicData.totalRegeneratedMaso += regenPerTick;
+                if(magicData.currentMaso > max){
+                    magicData.currentMaso = max;
+                }
             }
 
             if(current > max){
                 float attenuationPerTick = 0.003f;
 
-                player.addEffect(new MobEffectInstance(
-                        ReincarnatedEffects.OVERCHARGE, // NeoForge 1.21+ / 26.2 の MobEffect 取得方法
-                        40, // 2秒間維持
-                        0,  // amplifier (レベル1)
-                        false, // ambient (環境エフェクトか)
-                        true   // visible (パーティクルを表示するか)
-                ));
+                if (!player.hasEffect(ReincarnatedEffects.OVERCHARGE)) {
+                    player.addEffect(new MobEffectInstance(
+                            ReincarnatedEffects.OVERCHARGE, // NeoForge 1.21+ / 26.2 の MobEffect 取得方法
+                            40, // 2秒間維持
+                            0,  // amplifier (レベル1)
+                            false, // ambient (環境エフェクトか)
+                            true   // visible (パーティクルを表示するか)
+                    ));
+                }
 
                 magicData.currentMaso -= attenuationPerTick;
                 if(magicData.currentMaso < max){
@@ -45,7 +50,7 @@ public class MasoRegenHandler {
                 }
             }
 
-            PacketDistributor.sendToPlayer(player, new SyncMasoPayload(magicData.getMaxMaso(), magicData.currentMaso));
+            PacketDistributor.sendToPlayer(player, new SyncMasoPayload(magicData.getMaxMaso(), magicData.currentMaso, magicData.getMaxBarrierPoint(), magicData.getBarrierPoint()));
         }
     }
 }

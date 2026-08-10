@@ -1,13 +1,22 @@
 package com.github.sweetfish111.reincarnated.client.screen;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
+import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
+import com.github.sweetfish111.reincarnated.magic.slill.SkillAccessLevel;
+import com.github.sweetfish111.reincarnated.magic.slill.unique.Hoarder;
+import com.github.sweetfish111.reincarnated.magic.slill.unique.Predator;
+import com.github.sweetfish111.reincarnated.magic.slill.unique.Scavenger;
+import com.github.sweetfish111.reincarnated.magic.slill.unique.Usurper;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
+import com.github.sweetfish111.reincarnated.system.ReincarnatedPlaySound;
+import com.github.sweetfish111.reincarnated.system.VoiceOfWorld;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.*;
 
@@ -71,7 +80,7 @@ public class NodePaletteWidget {
     private List<PaletteItem> createPaletteFactory(){
         List<PaletteItem> items = new ArrayList<>();
 
-        if(!contextMenuTargets.isEmpty() && contextMenuTargets.size() == 1){
+        if(contextMenuTargets.size() == 1){
             Optional<AbstructDraggingNodeWidget> optNode = contextMenuTargets.stream().findFirst();
             if(optNode.isPresent() && optNode.get() instanceof CompoundNodeWidget c && c.getLinkedData().getSkillId().equals("greedy")){
                 return openContextMenuForNode(optNode.get(), items);
@@ -141,16 +150,69 @@ public class NodePaletteWidget {
                 this.paletteItems.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.possible_to_evolve"), () -> {}));
 
                 for (String evolvableId : evolvables) {
-
-                    // クリックされたら進化実行（サーバーへ進化申請パケットを送信）
+                    MagiculeCircuit circuit = magicData.getCircuit(EditorTab.SKILL);
+                    UUID greedyId = magicData.getUniqueSkillId();
+                    // クリックされたら進化実行
                     if(evolvableId.equals("predator")){
-                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_predator"), () ->{}));
+                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_predator"), () -> {
+                            UUID newSkillId = Predator.getPredator(circuit);
+                            magicData.setUniqueSkillId(newSkillId);
+                            circuit.getCNode(newSkillId).setSkillId("predator");
+                            magicData.setSkillAccessLevel("predator", SkillAccessLevel.DENIED);
+                            magicData.setSkillAccessLevel("greedy", SkillAccessLevel.EDITABLE);
+                            circuit.removeNodeAndWires(greedyId);
+                            parentScreen.rebuildNodeWidgets();
+                            Player player = Minecraft.getInstance().player;
+                            if(player != null){
+                                ReincarnatedPlaySound.playEvolutionSound(player);
+                                player.sendSystemMessage(VoiceOfWorld.sendEvolvedStage2(player));
+                            }
+                        }));
                     }else if(evolvableId.equals("scavenger")){
-                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_scavenger"), () ->{}));
+                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_scavenger"), () ->{
+                            UUID newSkillId = Scavenger.getScavenger(circuit);
+                            magicData.setUniqueSkillId(newSkillId);
+                            circuit.getCNode(newSkillId).setSkillId("scavenger");
+                            magicData.setSkillAccessLevel("scavenger", SkillAccessLevel.DENIED);
+                            magicData.setSkillAccessLevel("greedy", SkillAccessLevel.EDITABLE);
+                            circuit.removeNodeAndWires(greedyId);
+                            parentScreen.rebuildNodeWidgets();
+                            Player player = Minecraft.getInstance().player;
+                            if(player != null){
+                                ReincarnatedPlaySound.playEvolutionSound(player);
+                                player.sendSystemMessage(VoiceOfWorld.sendEvolvedStage2(player));
+                            }
+                        }));
                     }else if(evolvableId.equals("hoarder")){
-                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_hoarder"), () ->{}));
+                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_hoarder"), () ->{
+                            UUID newSkillId = Hoarder.getHoarder(circuit);
+                            magicData.setUniqueSkillId(newSkillId);
+                            circuit.getCNode(newSkillId).setSkillId("hoarder");
+                            magicData.setSkillAccessLevel("hoarder", SkillAccessLevel.EDITABLE);
+                            magicData.setSkillAccessLevel("greedy", SkillAccessLevel.EDITABLE);
+                            circuit.removeNodeAndWires(greedyId);
+                            parentScreen.rebuildNodeWidgets();
+                            Player player = Minecraft.getInstance().player;
+                            if(player != null){
+                                ReincarnatedPlaySound.playEvolutionSound(player);
+                                player.sendSystemMessage(VoiceOfWorld.sendEvolvedStage2(player));
+                            }
+                        }));
                     }else if(evolvableId.equals("usurper")){
-                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_usurper"), () ->{}));
+                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_usurper"), () ->{
+                            UUID newSkillId = Usurper.getUsurper(circuit);
+                            magicData.setUniqueSkillId(newSkillId);
+                            circuit.getCNode(newSkillId).setSkillId("usurper");
+                            magicData.setSkillAccessLevel("usurper", SkillAccessLevel.DENIED);
+                            magicData.setSkillAccessLevel("greedy", SkillAccessLevel.EDITABLE);
+                            circuit.removeNodeAndWires(greedyId);
+                            parentScreen.rebuildNodeWidgets();
+                            Player player = Minecraft.getInstance().player;
+                            if(player != null){
+                                ReincarnatedPlaySound.playEvolutionSound(player);
+                                player.sendSystemMessage(VoiceOfWorld.sendEvolvedStage2(player));
+                            }
+                        }));
                     }
                 }
             }

@@ -15,8 +15,10 @@ public class ClientPacketHandlers {
         Minecraft.getInstance().setScreenAndShow(new MagicEditorScreen(magicData));
     }
 
-    public static void handleSyncMaso(float maxMaso, float currentMaso){
-        MagiculeHUDOverlay.max = maxMaso;
-        MagiculeHUDOverlay.current = currentMaso;
+    public static void handleSyncMaso(float maxMaso, float currentMaso, float maxBarrier, float currentBarrier){
+        MagiculeHUDOverlay.maxMaso = maxMaso;
+        MagiculeHUDOverlay.currentMaso = currentMaso;
+        MagiculeHUDOverlay.maxBarrier = maxBarrier;
+        MagiculeHUDOverlay.currentBarrire = currentBarrier;
     }
 }

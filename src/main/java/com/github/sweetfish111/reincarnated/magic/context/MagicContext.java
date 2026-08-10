@@ -69,10 +69,19 @@ public class MagicContext {
         magicValue.put(key, value);
     }
 
+    public boolean isStale() {
+        // 生成時点で握った回路インスタンスが、プレイヤーの「今の」回路と一致しなければ＝編集・保存済み
+        return this.circuit != this.caster.getCircuit();
+    }
+
     public void incrementAndCheck() throws CalculationCapacityOverException {
         currentCount ++;
         if(currentCount > MAX_LIMIT){
             throw new CalculationCapacityOverException(1000, 1001);
         }
+    }
+
+    public void resetCount(){
+        currentCount = 0;
     }
 }

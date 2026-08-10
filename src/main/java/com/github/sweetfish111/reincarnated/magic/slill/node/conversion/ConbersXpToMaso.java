@@ -17,6 +17,6 @@ public class ConbersXpToMaso extends AbstractMagicNode {
         context.incrementAndCheck();
         XpAmount xp = pullXp(0, context);
         double converseRate = 0.2;
-        return new MasoAmount(xp.xpAmount() * converseRate);
+        return new MasoAmount(xp.amount() * converseRate);
     }
 }

@@ -16,22 +16,19 @@ import java.util.UUID;
 
 public class RuntimeMagicCircuit {
     private final IMagicCaster caster;
-    private final Map<UUID, AbstractMagicNode> instancedNodes; // 実体ノードのマップ
-    private final Set<AbstractMagicNode> startNodes = new HashSet<>();                   // 起点となるノード
+    private final CompiledCircuitGraph graph;
 
-    public RuntimeMagicCircuit(IMagicCaster caster, Map<UUID, AbstractMagicNode> instancedNodes, Set<AbstractMagicNode> startNodes) {
+    public RuntimeMagicCircuit(IMagicCaster caster, CompiledCircuitGraph graph) {
         this.caster = caster;
-        this.instancedNodes = instancedNodes;
-        this.startNodes.addAll(startNodes);
+        this.graph = graph;
     }
 
-    public AbstractMagicNode getInstancedNode(UUID id){return this.instancedNodes.get(id);}
-    public Map<UUID, AbstractMagicNode> getInstancedNodes(){return this.instancedNodes;}
-    public IMagicCaster getCaster(){return this.caster;}
+    public AbstractMagicNode getInstancedNode(UUID id){ return graph.getInstancedNodes().get(id); }
+    public Map<UUID, AbstractMagicNode> getInstancedNodes(){ return graph.getInstancedNodes(); }
+    public IMagicCaster getCaster(){ return this.caster; }
 
-    // 魔法の発動（実行開始）
     public void start(MagicContext context) {
-        for(AbstractMagicNode startNode : startNodes){
+        for (AbstractMagicNode startNode : graph.getStartNodes()) {
             executeNode(caster, startNode.getId(), context);
         }
     }
@@ -54,7 +51,7 @@ public class RuntimeMagicCircuit {
 
     // 途中（ディレイや投射物の着弾など）から特定のノードを再開させる
     public void resumeNode(UUID nodeId, MagicContext context, int portIndex) {
-        AbstractMagicNode node = instancedNodes.get(nodeId);
+        AbstractMagicNode node = graph.getInstancedNodes().get(nodeId);
         if (node != null) {
             node.executeOutputPort(portIndex, context);
         }

@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.slill.node.trigger;
 
+import com.github.sweetfish111.reincarnated.magic.SatietyAmount;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 
@@ -22,6 +23,7 @@ public class OnEatNode extends AbstractMagicNode {
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
         Object raw = this.eventData.get("satietyLevel");
-        return (raw instanceof Number n) ? n.doubleValue() : 0.0;
+        double d = (raw instanceof Number n) ? n.doubleValue() : 0.0;
+        return new SatietyAmount(d);
     }
 }

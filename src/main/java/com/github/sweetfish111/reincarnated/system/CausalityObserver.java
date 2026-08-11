@@ -38,7 +38,7 @@ public class CausalityObserver {
             PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
             double score = (double) xpAmount * 0.2;
             reincarnated.LOGGER.info("CausalityObserver" + String.valueOf(score));
-            magicData.addGreedyScore((double) xpAmount * 0.02, player);
+            magicData.addGreedyScore((double) xpAmount * 0.06, player);
         }
     }
 
@@ -77,7 +77,7 @@ public class CausalityObserver {
     }
 
     public static void onOverCharge(ServerPlayer player){
-        player.getData(ModAttachments.PLAYER_MAGIC_DATA).addhoarderScore(0.1, player);
+        player.getData(ModAttachments.PLAYER_MAGIC_DATA).addhoarderScore(0.2, player);
         Map<String, Object>data = null;
         ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_overcharge", data);
     }
@@ -85,17 +85,19 @@ public class CausalityObserver {
     @SubscribeEvent
     public static void onAttackStronger(AttackEntityEvent event){
         if(event.getEntity() instanceof ServerPlayer player){
-            LivingEntity target = (LivingEntity) event.getTarget();
-            double atackerAtk = player.getAttribute(Attributes.ATTACK_DAMAGE) != null
-                    ? player.getAttributeValue(Attributes.ATTACK_DAMAGE) : 0.0;
-            double targetAtk = target.getAttribute(Attributes.ATTACK_DAMAGE) != null
-                    ? target.getAttributeValue(Attributes.ATTACK_DAMAGE) : 0.0;
-            if(targetAtk > atackerAtk){
-                Map<String, Object> data = Map.of("power_gap", targetAtk - atackerAtk);
-                ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_attack_stronger", data);
+            if(event.getTarget() instanceof LivingEntity){
+                LivingEntity target = (LivingEntity) event.getTarget();
+                double atackerAtk = player.getAttribute(Attributes.ATTACK_DAMAGE) != null
+                        ? player.getAttributeValue(Attributes.ATTACK_DAMAGE) : 0.0;
+                double targetAtk = target.getAttribute(Attributes.ATTACK_DAMAGE) != null
+                        ? target.getAttributeValue(Attributes.ATTACK_DAMAGE) : 0.0;
+                if(targetAtk > atackerAtk){
+                    Map<String, Object> data = Map.of("power_gap", targetAtk - atackerAtk);
+                    ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_attack_stronger", data);
 
-                PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-                magicData.addUsurperScore(0.5, player);
+                    PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+                    magicData.addUsurperScore(0.5, player);
+                }
             }
         }
     }

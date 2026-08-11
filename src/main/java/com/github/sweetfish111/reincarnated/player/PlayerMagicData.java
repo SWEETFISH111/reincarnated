@@ -378,12 +378,11 @@ public class PlayerMagicData {
     private void checkEvolution(ServerPlayer player) {
         if (!currentUniqueSkill.equals("greedy")) return;
 
-        double threshold = 1;
+        double threshold = 100;
 
         if(greedyScore >= threshold){
 
             if(!completeGreedy) {
-                MagiculeCircuit skillCircuit = this.getCircuit(EditorTab.SKILL);
                 setSkillAccessLevel("greedy", SkillAccessLevel.READ_ONLY);
 
                 // STAGE0（旧世界）にいる間だけ意味を持つガード。
@@ -409,14 +408,13 @@ public class PlayerMagicData {
                 unlockedNodeTypes.get(EditorTab.MAGIC).addAll(unlockNodeSet);
                 unlockedNodeTypes.get(EditorTab.SKILL).addAll(unlockNodeSet);
                 unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.ON_XP_PICKUP);
-                unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.HEALING);
                 unlockedNodeTypes.get(EditorTab.ARTS).addAll(unlockNodeSet);
 
                 this.completeGreedy = true;
             }
 
             if (predatorScore >= threshold) {
-                unlockEvolutionCandidate(player, "predatorw");
+                unlockEvolutionCandidate(player, "predator");
             }
             if (scavengerScore >= threshold) {
                 unlockEvolutionCandidate(player, "scavenger");
@@ -652,6 +650,8 @@ public class PlayerMagicData {
         //tokuninasi
     }
     private void migrateV1toV2(){
+        completeGreedy = false;
+        greedyScore = 50;
         predatorScore = 0;
         scavengerScore = 0;
         hoarderScore = 0;

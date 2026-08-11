@@ -120,9 +120,7 @@ public class NodePaletteWidget {
             }
         } else {
             EditorTab currentTab = parentScreen.getThisLayerManager().getCurrentTab();
-            var player = Minecraft.getInstance().player;
-            PlayerMagicData magicData = (player != null) ? player.getData(ModAttachments.PLAYER_MAGIC_DATA) : null;
-
+            PlayerMagicData magicData = parentScreen.getMagicData();
 
             for (MagiculeNodeType type : MagiculeNodeType.values()) {
                 if (type.isAvailableFor(currentTab)) {

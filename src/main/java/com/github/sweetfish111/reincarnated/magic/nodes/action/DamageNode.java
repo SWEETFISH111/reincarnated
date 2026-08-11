@@ -1,14 +1,12 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.action;
 
-import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
+import com.github.sweetfish111.reincarnated.system.ReincarnatedPlaySound;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 
@@ -42,6 +40,11 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
                 );
             }
             targetEntity.hurtServer(context.getLevel(), source, (float) damageAmount);
+            if(context.getCaster().getCasterEntity() instanceof ServerPlayer player){
+                ReincarnatedPlaySound.playHitSound(player.level(), player.getPosition(1.0f));
+            }
+        }else{
+            ReincarnatedPlaySound.playMissSound(context.getCaster().getCasterLevel(), context.getCaster().getCasterPosition());
         }
     }
 
@@ -49,4 +52,5 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
     public Object getOutputData(int portIndex, MagicContext context) {
         return super.getOutputData(portIndex, context);
     }
+
 }

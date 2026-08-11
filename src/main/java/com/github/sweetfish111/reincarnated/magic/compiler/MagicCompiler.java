@@ -240,7 +240,7 @@ public class MagicCompiler {
             case "healing":return new HealingNode(nodeId);
             case "delay":return new DelayNode(nodeId);
             case "on_tick":return new OnTickNode(nodeId);
-            case "toggle":return new toggleNode(nodeId);
+            case "toggle":return new ToggleNode(nodeId);
             case "on_xp_pickup":return  new OnXpPickupNode(nodeId);
             case "combers_xp_to_maso":return new ConbersXpToMaso(nodeId);
             case "add_maso":return new AddMasoNode(nodeId);

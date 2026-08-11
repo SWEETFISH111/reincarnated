@@ -2,12 +2,15 @@ package com.github.sweetfish111.reincarnated.magic.nodes.control;
 
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
+import com.github.sweetfish111.reincarnated.system.ReincarnatedPlaySound;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 
 import java.util.UUID;
 
-public class toggleNode extends AbstractMagicNode {
+public class ToggleNode extends AbstractMagicNode {
 
-    public toggleNode(UUID id) {
+    public ToggleNode(UUID id) {
         super(id);
     }
 
@@ -25,6 +28,11 @@ public class toggleNode extends AbstractMagicNode {
 
         if(context.getCircuit() != null){
             context.getCircuit().setNodeParam(this.id,"toggled", nextState);
+        }
+        if(currentState){
+            ReincarnatedPlaySound.playToggleOnSound(context.getLevel(), context.getCaster().getCasterPosition());
+        }else{
+            ReincarnatedPlaySound.playToggleOffSound(context.getLevel(), context.getCaster().getCasterPosition());
         }
         pushExecute(context);
     }

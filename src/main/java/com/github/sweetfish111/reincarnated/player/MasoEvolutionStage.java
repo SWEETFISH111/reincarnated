@@ -17,9 +17,9 @@ public enum MasoEvolutionStage {
     //   このためevolutionThresholdは0（トリガーが立てば即座に遷移）。
     STAGE0(20.0, 5.0, 0.0, "旧世界（未覚醒）", 0.1, 0.5),
     // STAGE1（新ゼロ）〜STAGE3（新2）：以前設計した3段階をそのままスライド。
-    STAGE1(20.0, 200.0, 5_000.0, "新世界・第零形態", 0.1, 0.5),
-    STAGE2(800.0, 3_300.0, 150_000.0, "新世界・第一形態", 4.0, 20.0),
-    STAGE3(25_000.0, 98_500.0, Double.MAX_VALUE, "新世界・第二形態（最終）", 160.0, 800.0);
+    STAGE1(20.0, 95.0, 850_000.0, "Aランクオーバー", 0.5, 1.5),
+    STAGE2(800.0, 2_670.0, 2_000_000.0, "魔王級", 4.0, 20.0),
+    STAGE3(25_000.0, 114_000.0, Double.MAX_VALUE, "覚醒魔王級", 160.0, 800.0);
 
     private final double floor;
     private final double scaleFactor;

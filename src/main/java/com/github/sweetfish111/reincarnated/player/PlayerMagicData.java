@@ -35,6 +35,8 @@ public class PlayerMagicData {
     // ステージ移行時、旧ステージでの超過消費分をどれだけ新ステージの起点に持ち越すか（0〜1）
     // = 「非効率な旧スケーリングで頑張った分」を新ステージでのヘッドスタートとして還元する係数
     private static final double STAGE_CARRYOVER_RATIO = 0.3;
+    private static final double REGEN_RECOVERY_MIDPOINT_RATIO = 0.5;
+    public static final double MASO_SCALE_DIVISOR = 250.0;
 
     public MasoEvolutionStage getMasoStage() {
         return masoStage;
@@ -217,7 +219,7 @@ public class PlayerMagicData {
         // 閾値未達で持ち越し中のトリガーがあれば、ここで再チェック（消費が進んで閾値を超えた瞬間に反映される）
         advanceMasoStageIfNeeded();
         double sinceStageStart = Math.max(0.0, this.totalConsumedMaso - stageStartConsumedMaso);
-        double scaledInput = sinceStageStart / 100.0;
+        double scaledInput = sinceStageStart / MASO_SCALE_DIVISOR;
         return (float) (masoStage.getFloor() + masoStage.getScaleFactor() * Math.log(1.0 + scaledInput));
     }
 
@@ -290,10 +292,20 @@ public class PlayerMagicData {
         double overflow = sinceStageStart - threshold;
         double carryHeadStart = overflow * STAGE_CARRYOVER_RATIO;
 
+        double prevFinalRegenRate = getMasoRegenRate();
+
         masoStage = next;
         stageStartConsumedMaso = totalConsumedMaso - carryHeadStart;
         // 回復速度側もステージ切り替わりのタイミングで起点をリセットし、新ステージのregenFloorから始まるようにする
-        stageStartRegeneratedMaso = totalRegeneratedMaso;
+        double newFloor = masoStage.getRegenFloor();
+        double newScaleFactor = masoStage.getRegenScaleFactor();
+        if (prevFinalRegenRate > newFloor) {
+            double targetRate = newFloor + (prevFinalRegenRate - newFloor) * REGEN_RECOVERY_MIDPOINT_RATIO;
+            double regenHeadStart = 100.0 * (Math.exp((targetRate - newFloor) / newScaleFactor) - 1.0);
+            stageStartRegeneratedMaso = totalRegeneratedMaso - regenHeadStart;
+        } else {
+            stageStartRegeneratedMaso = totalRegeneratedMaso;
+        }
         pendingMasoEvolutionTrigger = false;
 
         onMasoStageEvolved(masoStage);
@@ -306,7 +318,7 @@ public class PlayerMagicData {
 
     public float getMasoRegenRate(){
         double sinceStageStart = Math.max(0.0, this.totalRegeneratedMaso - stageStartRegeneratedMaso);
-        double scaledInput = sinceStageStart / 100.0;
+        double scaledInput = sinceStageStart / MASO_SCALE_DIVISOR;
         return (float)(masoStage.getRegenFloor() + masoStage.getRegenScaleFactor() * Math.log(1.0 + scaledInput));
     }
 

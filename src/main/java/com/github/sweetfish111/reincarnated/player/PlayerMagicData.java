@@ -17,7 +17,7 @@ import net.minecraft.world.item.enchantment.effects.PlaySoundEffect;
 import java.util.*;
 
 public class PlayerMagicData {
-    private static final int CURRENT_DATA_VERSION = 2;
+    private static final int CURRENT_DATA_VERSION = 3;
     private final Map<EditorTab, MagiculeCircuit> circuits = new EnumMap<>(EditorTab.class);
     public float currentMaso = 20f;
     private float maxBarrierPoint = 20;
@@ -132,10 +132,17 @@ public class PlayerMagicData {
             types.add(MagiculeNodeType.GET_LOOK_FORWARD);
             types.add(MagiculeNodeType.GET_LOOK_TARGET);
             types.add(MagiculeNodeType.RETURN_CASTER);
+            types.add(MagiculeNodeType.GET_BLOCK_AT_POS);
+            types.add(MagiculeNodeType.GET_CURENT_MASO);
+            types.add(MagiculeNodeType.GET_MAX_MASO);
+            types.add(MagiculeNodeType.GET_CURRENT_HP);
+            types.add(MagiculeNodeType.GET_MAX_HP);
             //trigger
             types.add(MagiculeNodeType.EVENT_KEY_ONE);
+            //value
             types.add(MagiculeNodeType.NUMBER);
             types.add(MagiculeNodeType.BOOLEAN);
+            types.add(MagiculeNodeType.VECTOR);
             //math
             types.add(MagiculeNodeType.ADD);
             types.add(MagiculeNodeType.AND);
@@ -245,7 +252,7 @@ public class PlayerMagicData {
         }
         this.currentUniqueSkill = skillId;
         this.evolvableUniqueSkills.clear();
-        setSkillAccessLevel(skillId, SkillAccessLevel.READ_ONLY);
+        setSkillAccessLevel(skillId, SkillAccessLevel.DENIED);
 
         triggerMasoStageEvolutionAttempt();
         return true;
@@ -656,6 +663,9 @@ public class PlayerMagicData {
         if(version < 2){
             migrateV1toV2();
         }
+        if(version < 3){
+            migrateV2toV3();
+        }
 
     }
     private void migrateV0toV1(){
@@ -669,5 +679,8 @@ public class PlayerMagicData {
         hoarderScore = 0;
         usurperScore = 0;
         evolvableUniqueSkills.clear();
+    }
+    private void migrateV2toV3(){
+        addDefaultUnlockedNodes(EditorTab.MAGIC);
     }
 }

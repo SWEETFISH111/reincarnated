@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.circuit;
 
+import com.github.sweetfish111.reincarnated.client.screen.AbstractContentWidget;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
@@ -61,7 +62,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE},
             new PortDataType[]{PortDataType.EXEC},
             null,null,
-                    12
+                    8
     ),
     EXPLOSION("explosion",Component.translatable("node.reincarnated.explosion").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER},
@@ -100,38 +101,69 @@ public enum MagiculeNodeType {
     ),
     GET_LOOK_TARGET("get_look_target",Component.translatable("node.reincarnated.get_look_target").getString(),
             new PortDataType[]{},
-            new PortDataType[]{PortDataType.ENTITY}
+            new PortDataType[]{PortDataType.ENTITY},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     RETURN_CASTER("return_caster", Component.translatable("node.reincarnated.return_caster").getString(),
             new PortDataType[]{},
             new PortDataType[]{PortDataType.ENTITY},
             ContentWidgetType.SWITCH,
             new PortDataType[]{},
-            1
+            1,
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     OFFSET("offset", Component.translatable("node.reincarnated.offset").getString(),
             new PortDataType[]{PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.VECTORE},
             ContentWidgetType.MODE_SELECT,
             new PortDataType[]{PortDataType.VECTORE,PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
-            5
+            1,
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     GET_LOOK_FORWARD("get_look_forward", Component.translatable("node.reincarnated.get_look_forward").getString(),
             new PortDataType[]{PortDataType.NUMBER},
             new PortDataType[]{PortDataType.VECTORE},
             ContentWidgetType.SWITCH,
             new PortDataType[]{PortDataType.NUMBER},
-            5
+            new PortDataType[]{PortDataType.VECTORE, PortDataType.VECTORE},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    GET_CURENT_MASO("get_current_maso", Component.translatable("node.reincarnated.get_current_maso").getString(),
+            new PortDataType[]{PortDataType.ENTITY},
+            new PortDataType[]{PortDataType.NUMBER},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    GET_MAX_MASO("get_max_maso", Component.translatable("node.reincarnated.get_max_maso").getString(),
+            new PortDataType[]{PortDataType.ENTITY},
+            new PortDataType[]{PortDataType.NUMBER},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    GET_CURRENT_HP("get_current_hp", Component.translatable("node.reincarnated.get_current_hp").getString(),
+            new PortDataType[]{PortDataType.ENTITY},
+            new PortDataType[]{PortDataType.NUMBER},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    GET_MAX_HP("get_max_hp", Component.translatable("node.reincarnated.get_max_hp").getString(),
+            new PortDataType[]{PortDataType.ENTITY},
+            new PortDataType[]{PortDataType.NUMBER},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    GET_BLOCK_AT_POS("get_block_at_pos", Component.translatable("node.reincarnated.get_block_at_pos").getString(),
+            new PortDataType[]{PortDataType.VECTORE},
+            new PortDataType[]{PortDataType.BLOCK},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     COMBERS_TARGET_POS("combers_target_pos", Component.translatable("node.reincarnated.combers_target_pos").getString(),
             new PortDataType[]{PortDataType.ENTITY},
             new PortDataType[]{PortDataType.VECTORE},
             null,null,
-            5
+            5,
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     COMBERS_LOOK_DIRECTION("combers_look_direction", Component.translatable("node.reincarnated.combers_look_direction").getString(),
             new PortDataType[]{PortDataType.ENTITY},
-            new PortDataType[]{PortDataType.VECTORE}
+            new PortDataType[]{PortDataType.VECTORE},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     CONBERS_XP_TO_MASO("combers_xp_to_maso", Component.translatable("node.reincarnated.combers_xp_to_maso").getString(),
             new PortDataType[]{PortDataType.EXP},
@@ -157,26 +189,30 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC,PortDataType.BOOLEAN},
             new PortDataType[]{PortDataType.EXEC, PortDataType.EXEC},
             null, null,
-            20
+            20,
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     REPEAT("repeat", Component.translatable("node.reincarnated.repeat").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER, PortDataType.EXEC},
             null,null,
-            8
+            8,
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     TOGGLE("toggle", Component.translatable("node.reincarnated.toggle").getString(),
             new PortDataType[]{PortDataType.EXEC},
-            new PortDataType[]{PortDataType.EXEC, PortDataType.BOOLEAN}
+            new PortDataType[]{PortDataType.EXEC, PortDataType.BOOLEAN},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     DELAY("delay", Component.translatable("node.reincarnated.delay").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
-            new PortDataType[]{PortDataType.EXEC}
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     WHILE("while", Component.translatable(  "node.reincarnated.while").getString(),
             new PortDataType[]{PortDataType.EXEC,PortDataType.BOOLEAN, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC},
-            List.of(EditorTab.MAGIC)
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     NUMBER("number", Component.translatable("node.reincarnated.number").getString(),
             new PortDataType[]{},
@@ -192,6 +228,11 @@ public enum MagiculeNodeType {
             ContentWidgetType.SWITCH,
             new PortDataType[]{},
             1,
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
+    ),
+    VECTOR("vector", Component.translatable("node.reincarnated.vector").getString(),
+            new PortDataType[]{PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.VECTORE},
             List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     ADD("add", Component.translatable("node.reincarnated.add").getString(),
@@ -286,6 +327,7 @@ public enum MagiculeNodeType {
     private ContentWidgetType content;
     public final PortDataType[] inputs;
     public PortDataType[] anotherInputs;
+    public PortDataType[] anotherOutputs;
     public final PortDataType[] outputs;
     private int castCost;
     private List<EditorTab> targetTab = new ArrayList<>();
@@ -307,6 +349,17 @@ public enum MagiculeNodeType {
         this.outputs = outputs;
         this.content = ContentWidgetType.NONE;
         this.castCost = 1;
+        this.targetTab = targetTab;
+    }
+
+    MagiculeNodeType(String id, String displayName, PortDataType[] inputs, PortDataType[] outputs, ContentWidgetType content, PortDataType[] anotherInputs, PortDataType[] anotherOutputs, List<EditorTab> targetTab){
+        this.id = id;
+        this.displayName = displayName;
+        this.inputs = inputs;
+        this.outputs = outputs;
+        this.content = content;
+        this.anotherInputs = anotherInputs;
+        this.anotherOutputs = anotherOutputs;
         this.targetTab = targetTab;
     }
 

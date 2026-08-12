@@ -4,15 +4,14 @@ import com.github.sweetfish111.reincarnated.circuit.*;
 import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.*;
-import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookForwardNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.sensor.GetLookTargetNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.sensor.ReturnCaster;
+import com.github.sweetfish111.reincarnated.magic.nodes.sensor.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.math.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.CombersLookDirection;
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.CombersTargetPos;
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.OffsetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.value.VectorNode;
 import com.github.sweetfish111.reincarnated.magic.slill.node.action.AbsorptionNode;
 import com.github.sweetfish111.reincarnated.magic.slill.node.action.BarrierNode;
 import com.github.sweetfish111.reincarnated.magic.slill.node.conversion.ConbersKillToMaso;
@@ -256,6 +255,12 @@ public class MagicCompiler {
             case "absorption":return new AbsorptionNode(nodeId);
             case "on_overcharge":return new OnOverchargeNode(nodeId);
             case "on_attack_stronger": return new OnAttackStronger(nodeId);
+            case "get_block_at_pos":return new GetBlockAtPos(nodeId);
+            case "get_current_maso":return new GetCurrentMaso(nodeId);
+            case "get_max_maso":return new GetMaxMaso(nodeId);
+            case "get_current_hp":return new GetCurrentHp(nodeId);
+            case "get_max_hp":return new GetMaxHp(nodeId);
+            case "vector":return new VectorNode(nodeId);
             default : return null;
         }
     }

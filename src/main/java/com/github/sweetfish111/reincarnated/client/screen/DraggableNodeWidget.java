@@ -53,12 +53,18 @@ public class DraggableNodeWidget extends AbstructDraggingNodeWidget {
                     break;
             }
         }
-        List<PortDataType> targetPorts = Arrays.asList(type.inputs);
+        List<PortDataType> targetInputPorts = Arrays.asList(type.inputs);
+        List<PortDataType> targetOutputPorts = Arrays.asList(type.outputs);
         if(contentWidget != null && contentWidget instanceof SwitchContentWidget switchWidget){
             boolean currentState = switchWidget.getCurrentValue();
-            targetPorts = (currentState) ? Arrays.asList(type.anotherInputs) : targetPorts;
+            if(type.anotherInputs != null){
+                targetInputPorts = (currentState) ? Arrays.asList(type.anotherInputs) : targetInputPorts;
+            }
+            if(type.anotherOutputs != null){
+                targetOutputPorts = (currentState) ? Arrays.asList(type.anotherOutputs) : targetOutputPorts;
+            }
         }
-        setupPorts(targetPorts, Arrays.asList(this.type.outputs));
+        setupPorts(targetInputPorts, targetOutputPorts);
     }
 
     //ゲッター

@@ -156,9 +156,9 @@ public class NodePaletteWidget {
                             UUID newSkillId = Predator.getPredator(circuit);
                             magicData.setUniqueSkillId(newSkillId);
                             circuit.getCNode(newSkillId).setSkillId("predator");
-                            magicData.setSkillAccessLevel("predator", SkillAccessLevel.DENIED);
                             magicData.setSkillAccessLevel("greedy", SkillAccessLevel.EDITABLE);
                             circuit.removeNodeAndWires(greedyId);
+                            magicData.evolveUniqueSkillTo("predator");
                             parentScreen.rebuildNodeWidgets();
                             Player player = Minecraft.getInstance().player;
                             if(player != null){
@@ -171,9 +171,9 @@ public class NodePaletteWidget {
                             UUID newSkillId = Scavenger.getScavenger(circuit);
                             magicData.setUniqueSkillId(newSkillId);
                             circuit.getCNode(newSkillId).setSkillId("scavenger");
-                            magicData.setSkillAccessLevel("scavenger", SkillAccessLevel.DENIED);
                             magicData.setSkillAccessLevel("greedy", SkillAccessLevel.EDITABLE);
                             circuit.removeNodeAndWires(greedyId);
+                            magicData.evolveUniqueSkillTo("scavenger");
                             parentScreen.rebuildNodeWidgets();
                             Player player = Minecraft.getInstance().player;
                             if(player != null){
@@ -186,9 +186,9 @@ public class NodePaletteWidget {
                             UUID newSkillId = Hoarder.getHoarder(circuit);
                             magicData.setUniqueSkillId(newSkillId);
                             circuit.getCNode(newSkillId).setSkillId("hoarder");
-                            magicData.setSkillAccessLevel("hoarder", SkillAccessLevel.EDITABLE);
                             magicData.setSkillAccessLevel("greedy", SkillAccessLevel.EDITABLE);
                             circuit.removeNodeAndWires(greedyId);
+                            magicData.evolveUniqueSkillTo("hoarder");
                             parentScreen.rebuildNodeWidgets();
                             Player player = Minecraft.getInstance().player;
                             if(player != null){
@@ -201,9 +201,9 @@ public class NodePaletteWidget {
                             UUID newSkillId = Usurper.getUsurper(circuit);
                             magicData.setUniqueSkillId(newSkillId);
                             circuit.getCNode(newSkillId).setSkillId("usurper");
-                            magicData.setSkillAccessLevel("usurper", SkillAccessLevel.DENIED);
                             magicData.setSkillAccessLevel("greedy", SkillAccessLevel.EDITABLE);
                             circuit.removeNodeAndWires(greedyId);
+                            magicData.evolveUniqueSkillTo("usurper");
                             parentScreen.rebuildNodeWidgets();
                             Player player = Minecraft.getInstance().player;
                             if(player != null){

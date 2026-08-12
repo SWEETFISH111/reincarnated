@@ -13,6 +13,7 @@ public enum PortDataType {
     SATIETY(0xFFFFEFD5),
     POWERGAP(0xFF000080),
     KILLSCORE(0xFFFF0000),
+    BLOCK(0xFF8B4513),
     ANY(0xFFF4E511);
 
     public final int color;

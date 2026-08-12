@@ -101,7 +101,7 @@ public class MagicEditorScreen extends Screen {
         int buttonWidth = 60;
         int buttonHeight = 20;
         int posX = this.width - buttonWidth - 10;
-        int posY = 10;
+        int posY = this.height - buttonHeight - 10;
 
         // プレイヤーが手に「白紙の本」を持っているかチェック
         Minecraft minecraft = Minecraft.getInstance();

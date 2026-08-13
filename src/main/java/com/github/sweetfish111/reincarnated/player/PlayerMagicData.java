@@ -451,6 +451,7 @@ public class PlayerMagicData {
     private void unlockEvolutionCandidate(ServerPlayer player, String skillName) {
        if(!this.evolvableUniqueSkills.contains(skillName)){
             this.evolvableUniqueSkills.add(skillName);
+            this.maxBarrierPoint = 60;
 
             player.sendSystemMessage(Component.translatable("message.reincarnated.voice_of_world.greedy_factor_analyzed", Component.literal(player.getName().getString())));
 

@@ -7,11 +7,13 @@ import java.util.UUID;
 
 public record CasterSnapshot (
     Vec3 position,
+    Vec3 eyePosition,
     Vec3 lookVector
 ){
 public static CasterSnapshot capture(IMagicCaster caster) {
     return new CasterSnapshot(
             caster.getCasterPosition(),
+            caster.getEyePosition(),
             caster.getLookVector()
     );
 }

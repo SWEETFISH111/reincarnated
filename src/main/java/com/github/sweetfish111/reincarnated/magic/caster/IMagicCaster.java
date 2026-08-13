@@ -13,6 +13,7 @@ public interface IMagicCaster {
         MagiculeCircuit getCircuit();
         Vec3 getCasterPosition();
         ServerLevel getCasterLevel();
+        Vec3 getEyePosition();
         Vec3 getLookVector();
         float getMasoAmount();
         void addMaso(float amount);

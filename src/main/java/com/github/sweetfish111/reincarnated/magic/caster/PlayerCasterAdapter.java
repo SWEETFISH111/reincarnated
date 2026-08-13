@@ -45,6 +45,11 @@ public class PlayerCasterAdapter implements IMagicCaster{
     }
 
     @Override
+    public Vec3 getEyePosition() {
+        return player.getEyePosition();
+    }
+
+    @Override
     public Vec3 getLookVector() {
         return player.getLookAngle();
     }

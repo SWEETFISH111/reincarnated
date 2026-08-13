@@ -47,7 +47,7 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC, PortDataType.POWERGAP}
     ),
     DIG("dig", Component.translatable("node.reincarnated.dig").getString(),
-            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC},
             List.of(EditorTab.MAGIC)
     ),
@@ -121,10 +121,10 @@ public enum MagiculeNodeType {
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     GET_LOOK_FORWARD("get_look_forward", Component.translatable("node.reincarnated.get_look_forward").getString(),
-            new PortDataType[]{PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.ENTITY ,PortDataType.NUMBER},
             new PortDataType[]{PortDataType.VECTORE},
-            ContentWidgetType.SWITCH,
-            new PortDataType[]{PortDataType.NUMBER},
+            ContentWidgetType.MODE_SELECT,
+            null,
             new PortDataType[]{PortDataType.VECTORE, PortDataType.VECTORE},
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
@@ -183,6 +183,11 @@ public enum MagiculeNodeType {
     COMBERS_SATIETY_TO_MASO("combers_satiety_to_maso", Component.translatable("node.reincarnated.combers_satiety_to_maso").getString(),
             new PortDataType[]{PortDataType.SATIETY},
             new PortDataType[]{PortDataType.MASO},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    TO_BLOCK_POS("to_block_pos", Component.translatable("node.reincarnated.to_block_pos").getString(),
+            new PortDataType[]{PortDataType.VECTORE},
+            new PortDataType[]{PortDataType.VECTORE},
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     IF("if", Component.translatable("node.reincarnated.if").getString(),

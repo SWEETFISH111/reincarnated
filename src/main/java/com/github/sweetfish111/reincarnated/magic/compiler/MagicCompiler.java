@@ -4,6 +4,7 @@ import com.github.sweetfish111.reincarnated.circuit.*;
 import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.nodes.action.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.control.*;
+import com.github.sweetfish111.reincarnated.magic.nodes.conversion.ToBlockPosNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.sensor.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.math.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.*;
@@ -261,6 +262,7 @@ public class MagicCompiler {
             case "get_current_hp":return new GetCurrentHp(nodeId);
             case "get_max_hp":return new GetMaxHp(nodeId);
             case "vector":return new VectorNode(nodeId);
+            case "to_block_pos":return new ToBlockPosNode(nodeId);
             default : return null;
         }
     }

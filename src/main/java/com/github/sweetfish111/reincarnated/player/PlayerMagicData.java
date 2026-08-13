@@ -128,6 +128,7 @@ public class PlayerMagicData {
             types.add(MagiculeNodeType.COMBERS_LOOK_DIRECTION);
             types.add(MagiculeNodeType.COMBERS_TARGET_POS);
             types.add(MagiculeNodeType.OFFSET);
+            types.add(MagiculeNodeType.TO_BLOCK_POS);
             //sensor
             types.add(MagiculeNodeType.GET_LOOK_FORWARD);
             types.add(MagiculeNodeType.GET_LOOK_TARGET);

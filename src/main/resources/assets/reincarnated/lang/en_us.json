@@ -60,6 +60,7 @@
   "node.reincarnated.combers_kill_to_maso": "kill to maso",
   "node.reincarnated.combers_powergap_to_maso": "power_gap to maso",
   "node.reincarnated.combers_satiety_to_maso": "satiety to maso",
+  "node.reincarnated.to_block_pos" : "to block pos",
   "node.reincarnated.if": "IF",
   "node.reincarnated.repeat": "repeat",
   "node.reincarnated.toggle": "toggle",

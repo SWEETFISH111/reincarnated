@@ -83,8 +83,15 @@ public class DraggableNodeWidget extends AbstructDraggingNodeWidget {
                     this.parentScreen.getThisLayerManager().getWorkCircuit().setNodeParam(this.getId(), "value", currentState);
 
                     this.parentScreen.getThisLayerManager().getWorkCircuit().removeWiresByNode(this.getId());
-                    List<PortDataType> targetPorts = (currentState) ? Arrays.asList(type.anotherInputs) : Arrays.asList(type.inputs);
-                    setupPorts(targetPorts, Arrays.asList(type.outputs));
+                    List<PortDataType> targetInputPorts = Arrays.asList(type.inputs);
+                    List<PortDataType> targetOutputPorts = Arrays.asList(type.outputs);
+                    if(type.anotherInputs != null){
+                        targetInputPorts = (currentState) ? Arrays.asList(type.anotherInputs) : targetInputPorts;
+                    }
+                    if(type.anotherOutputs != null){
+                        targetOutputPorts = (currentState) ? Arrays.asList(type.anotherOutputs) : targetOutputPorts;
+                    }
+                    setupPorts(targetInputPorts, targetOutputPorts);
                 }
 
                 return true;

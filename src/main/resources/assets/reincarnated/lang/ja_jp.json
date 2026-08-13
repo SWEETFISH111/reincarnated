@@ -59,6 +59,7 @@
   "node.reincarnated.combers_kill_to_maso": "kill→魔素変換",
   "node.reincarnated.combers_powergap_to_maso": "パワーギャップ→魔素変換",
   "node.reincarnated.combers_satiety_to_maso": "満腹度→魔素変換",
+  "node.reincarnated.to_block_pos": "ブロック位置に変換",
   "node.reincarnated.if": "条件分岐 (If)",
   "node.reincarnated.repeat": "繰り返し (Repeat)",
   "node.reincarnated.toggle": "トグルスイッチ",

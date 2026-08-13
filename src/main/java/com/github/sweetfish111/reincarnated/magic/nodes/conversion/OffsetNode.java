@@ -27,14 +27,16 @@ public class OffsetNode extends AbstractMagicNode {
             Vec3 basePos = pullVector3(0, context);
             Vec3 targetDirection = pullVector3(1, context);
             Vec3 upVec = new Vec3(0, 1, 0);
-            Vec3 rightVec = targetDirection.cross(upVec).normalize();
+            if(basePos != null && targetDirection != null) {
+                Vec3 rightVec = targetDirection.cross(upVec).normalize();
 
-            Vec3 actualUpVec = rightVec.cross(targetDirection).normalize();
+                Vec3 actualUpVec = rightVec.cross(targetDirection).normalize();
 
-            Vec3 offsetVector = targetDirection.scale(pullDouble(2, context))
-                    .add(actualUpVec.scale(pullDouble(3, context)))
-                    .add(rightVec.scale(pullDouble(4, context)));
-            return basePos.add(offsetVector);
+                Vec3 offsetVector = targetDirection.scale(pullDouble(2, context))
+                        .add(actualUpVec.scale(pullDouble(3, context)))
+                        .add(rightVec.scale(pullDouble(4, context)));
+                return basePos.add(offsetVector);
+            }
         }else{
             Vec3 sourcePos = pullVector3(0, context);
             double offsetX = pullDouble(1, context);
@@ -44,5 +46,6 @@ public class OffsetNode extends AbstractMagicNode {
             Vec3 CalculatedPos = sourcePos.add(offset);
             return CalculatedPos;
         }
+        return false;
     }
 }

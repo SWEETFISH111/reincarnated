@@ -260,6 +260,11 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.VECTORE},
             List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
+    NULL("null", Component.translatable("node.reincarnated.null").getString(),
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.ANY},
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
+    ),
     ADD("add", Component.translatable("node.reincarnated.add").getString(),
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
             new PortDataType[]{PortDataType.ANY},

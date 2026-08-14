@@ -13,6 +13,7 @@ import com.github.sweetfish111.reincarnated.magic.nodes.conversion.CombersTarget
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.OffsetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.OnSlotEnableNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.value.NullNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.VectorNode;
 import com.github.sweetfish111.reincarnated.magic.slill.node.action.AbsorptionNode;
 import com.github.sweetfish111.reincarnated.magic.slill.node.action.BarrierNode;
@@ -267,6 +268,7 @@ public class MagicCompiler {
             case "dig_all":return new DigAllNode(nodeId);
             case "collect_items": return new CollectItemsNode(nodeId);
             case "on_slot_enable":return new OnSlotEnableNode(nodeId);
+            case "null":return new NullNode(nodeId);
             default : return null;
         }
     }

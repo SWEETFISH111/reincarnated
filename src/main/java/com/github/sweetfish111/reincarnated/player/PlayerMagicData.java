@@ -157,6 +157,7 @@ public class PlayerMagicData {
             types.add(MagiculeNodeType.NUMBER);
             types.add(MagiculeNodeType.BOOLEAN);
             types.add(MagiculeNodeType.VECTOR);
+            types.add(MagiculeNodeType.NULL);
             //math
             types.add(MagiculeNodeType.ADD);
             types.add(MagiculeNodeType.AND);

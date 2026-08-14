@@ -3,6 +3,8 @@ package com.github.sweetfish111.reincarnated.magic.nodes.sensor;
 import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
@@ -40,6 +42,8 @@ public class GetLookTargetNode extends AbstractMagicNode {
             EntityHitResult closestEntityHit = null;
             double closestDist = hitDistance;
 
+            spawnCriticalLineParticles(context.getLevel(), eyePos, endPos);
+
             for(Entity target : entity.level().getEntities(entity, searchBox, e -> !e.isSpectator())){
                 AABB entityBox = target.getBoundingBox().inflate(entity.getPickRadius());
 
@@ -61,5 +65,26 @@ public class GetLookTargetNode extends AbstractMagicNode {
         }
 
         return null;
+    }
+    private void spawnCriticalLineParticles(ServerLevel level, Vec3 from, Vec3 to) {
+        double distance = from.distanceTo(to);
+        if (distance <= 0.0) return;
+
+        double step = 0.35; // パーティクル間の間隔（値を小さくするとより密な線になります）
+        int count = (int) (distance / step);
+        Vec3 direction = to.subtract(from).normalize();
+
+        for (int i = 1; i <= count; i++) {
+            Vec3 pos = from.add(direction.scale(i * step));
+            // sendParticles(Particle, x, y, z, count, xOffset, yOffset, zOffset, speed)
+            // count=1, offset=0, speed=0 にすることでその場に綺麗に静止して線を描きます
+            level.sendParticles(
+                    ParticleTypes.CRIT,
+                    pos.x - 0.1, pos.y - 0.2, pos.z - 0.1,
+                    1,
+                    0.0, 0.0, 0.0,
+                    0.0
+            );
+        }
     }
 }

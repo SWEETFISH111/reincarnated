@@ -71,6 +71,7 @@
   "node.reincarnated.number": "数値",
   "node.reincarnated.boolean": "真偽値",
   "node.reincarnated.vector": "ベクトル",
+  "node.reincarnated.null": "空っぽ（null）",
   "node.reincarnated.add": "加算 (+)",
   "node.reincarnated.subtract": "減算 (-)",
   "node.reincarnated.multiply": "乗算 (×)",

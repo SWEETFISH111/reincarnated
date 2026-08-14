@@ -72,6 +72,7 @@
   "node.reincarnated.number": "number",
   "node.reincarnated.boolean": "boolean",
   "node.reincarnated.vector": "vector",
+  "node.reincarnated.null": "null",
   "node.reincarnated.add": "add",
   "node.reincarnated.subtract": "subtract",
   "node.reincarnated.multiply": "multiply",

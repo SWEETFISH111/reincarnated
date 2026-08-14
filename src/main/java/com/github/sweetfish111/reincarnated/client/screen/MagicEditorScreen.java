@@ -6,6 +6,7 @@ import com.github.sweetfish111.reincarnated.item.ReincarnatedItems;
 import com.github.sweetfish111.reincarnated.magic.slill.SkillAccessLevel;
 import com.github.sweetfish111.reincarnated.network.payload.ExportSpellPalyload;
 import com.github.sweetfish111.reincarnated.network.payload.SaveCircuitPayload;
+import com.github.sweetfish111.reincarnated.network.payload.ToggleMagicSlotPayload;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.reincarnated;
 import com.mojang.logging.LogUtils;
@@ -20,6 +21,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -43,6 +45,7 @@ public class MagicEditorScreen extends Screen {
     private Button exportBtn;
     private Button importBtn;
     private final List<Button> magicSlotBtns = new ArrayList<>();
+    private final List<Button> magicSlotToggleBtns = new ArrayList<>();
 
     private boolean isNamingCompound;
     private final List<UUID> collapseTargets = new ArrayList<>();
@@ -140,33 +143,61 @@ public class MagicEditorScreen extends Screen {
         rebuildNodeWidgets();
     }
 
-    private void rebuildMagicSlotButtons(){
+    private void rebuildMagicSlotButtons() {
         for (Button btn : magicSlotBtns) {
             this.removeWidget(btn);
         }
         magicSlotBtns.clear();
 
+        for (Button btn : magicSlotToggleBtns) {
+            this.removeWidget(btn);
+        }
+        magicSlotToggleBtns.clear();
+
         if (thisLayerManager.getCurrentTab() != EditorTab.MAGIC) return;
 
         int startX = 10;
-        int y = 28; // メインタブの下段
+        int y = 28;
         for (int i = 0; i < PlayerMagicData.MAGIC_SLOT_COUNT; i++) {
             final int slotIndex = i;
+
+            // スロット選択ボタン（既存）
             Button slotBtn = Button.builder(
                     Component.literal(String.valueOf(i + 1)),
                     button -> {
                         thisLayerManager.switchMagicSlot(slotIndex, this.nodeWidgets);
                         clearCanvasWidgets();
                         rebuildNodeWidgets();
-                        rebuildMagicSlotButtons(); // active色更新のため再構築
+                        rebuildMagicSlotButtons();
                     }
             ).bounds(startX, y, 30, 20).build();
 
             slotBtn.active = (slotIndex != thisLayerManager.getEditingMagicSlot());
-            startX += 34;
-
             this.magicSlotBtns.add(slotBtn);
             this.addRenderableWidget(slotBtn);
+
+            // パッシブ有効化トグルボタン（新規）
+            boolean enabled = this.magicData.isMagicSlotEnabled(slotIndex);
+            Component toggleLabel = enabled
+                    ? Component.literal("ON").withColor(TextColor.GREEN)
+                    : Component.literal("OFF").withColor(TextColor.RED);
+
+            Button toggleBtn = Button.builder(toggleLabel, button -> {
+                boolean newState = !this.magicData.isMagicSlotEnabled(slotIndex);
+                this.magicData.setMagicSlotEnabled(slotIndex, newState); // クライアント側の見た目を即時反映
+
+                ToggleMagicSlotPayload payload = new ToggleMagicSlotPayload(slotIndex, newState);
+                if (Minecraft.getInstance().getConnection() != null) {
+                    Minecraft.getInstance().getConnection().send(payload);
+                }
+
+                rebuildMagicSlotButtons(); // ラベル色を更新するため再構築
+            }).bounds(startX, y + 22, 30, 16).build();
+
+            this.magicSlotToggleBtns.add(toggleBtn);
+            this.addRenderableWidget(toggleBtn);
+
+            startX += 34;
         }
     }
 
@@ -318,6 +349,9 @@ public class MagicEditorScreen extends Screen {
         for(Button btn : magicSlotBtns){
             btn.extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseY, partialTick);
         }
+        for(Button btn : magicSlotToggleBtns){
+            btn.extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseX, partialTick);
+        }
         if(this.isNamingCompound && this.popupBox != null){
             this.popupBox.extractRenderState(guiGraphicsExtractor, mouseX, mouseY, partialTick);
         }
@@ -357,8 +391,15 @@ public class MagicEditorScreen extends Screen {
         if(importBtn != null && importBtn.mouseClicked(event, doubleClick)){
             return true;
         }
+
         for(Button btn : magicSlotBtns){
             if(btn.mouseClicked(event, doubleClick)){
+                return true;
+            }
+        }
+
+        for(Button btn : magicSlotToggleBtns){
+            if(btn.mouseClicked(event,doubleClick)){
                 return true;
             }
         }

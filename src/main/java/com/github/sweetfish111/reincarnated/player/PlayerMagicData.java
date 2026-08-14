@@ -152,6 +152,7 @@ public class PlayerMagicData {
             types.add(MagiculeNodeType.GET_MAX_HP);
             //trigger
             types.add(MagiculeNodeType.EVENT_KEY_ONE);
+            types.add(MagiculeNodeType.ON_SLOT_ENABLE);
             //value
             types.add(MagiculeNodeType.NUMBER);
             types.add(MagiculeNodeType.BOOLEAN);

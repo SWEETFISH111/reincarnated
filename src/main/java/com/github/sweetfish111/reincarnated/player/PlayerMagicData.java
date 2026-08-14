@@ -17,8 +17,15 @@ import net.minecraft.world.item.enchantment.effects.PlaySoundEffect;
 import java.util.*;
 
 public class PlayerMagicData {
-    private static final int CURRENT_DATA_VERSION = 3;
+    private static final int CURRENT_DATA_VERSION = 4;
     private final Map<EditorTab, MagiculeCircuit> circuits = new EnumMap<>(EditorTab.class);
+
+    private final boolean[] magicSlotEnabled = new boolean[MAGIC_SLOT_COUNT];
+
+    public static final int MAGIC_SLOT_COUNT = 6;
+    private final MagiculeCircuit[] magicSlots = new MagiculeCircuit[MAGIC_SLOT_COUNT];
+    private int activeMagicSlot = 0;
+
     public float currentMaso = 20f;
     private float maxBarrierPoint = 20;
     private float barrierPoint = 0;
@@ -75,6 +82,9 @@ public class PlayerMagicData {
             circuits.put(tab, new MagiculeCircuit());
             unlockedNodeTypes.put(tab, new HashSet<>());
         }
+        for (int i = 0; i < MAGIC_SLOT_COUNT; i++) {
+            magicSlots[i] = new MagiculeCircuit();
+        }
 
         ensureUniqueSkillCircuit();
         // 👑 初期状態のデフォルトノードを付与
@@ -118,6 +128,8 @@ public class PlayerMagicData {
             types.add(MagiculeNodeType.HEALING);
             types.add(MagiculeNodeType.LIGHTNING);
             types.add(MagiculeNodeType.DIG);
+            types.add(MagiculeNodeType.DIG_ALl);
+            types.add(MagiculeNodeType.COLLECT_ITEMS);
             //control
             types.add(MagiculeNodeType.DELAY);
             types.add(MagiculeNodeType.IF);
@@ -193,10 +205,6 @@ public class PlayerMagicData {
     public String getCurrentUniqueSkill() {
         return currentUniqueSkill;
     }
-    public MagiculeCircuit getCircuit(EditorTab tab){
-        MagiculeCircuit circuit = circuits.get(tab);
-        return circuit;
-    }
     public float getBarrierPoint(){return barrierPoint;}
     public float getMaxBarrierPoint(){return maxBarrierPoint;}
     public void setBarrierPoint(float barrierPoint){this.barrierPoint = barrierPoint;}
@@ -229,6 +237,48 @@ public class PlayerMagicData {
         double sinceStageStart = Math.max(0.0, this.totalConsumedMaso - stageStartConsumedMaso);
         double scaledInput = sinceStageStart / MASO_SCALE_DIVISOR;
         return (float) (masoStage.getFloor() + masoStage.getScaleFactor() * Math.log(1.0 + scaledInput));
+    }
+
+    public MagiculeCircuit getMagicSlot(int index){
+        if (index < 0 || index >= MAGIC_SLOT_COUNT) index = 0;
+        return magicSlots[index];
+    }
+    public void setMagicSlot(int index, MagiculeCircuit circuit){
+        if (index < 0 || index >= MAGIC_SLOT_COUNT) return;
+        magicSlots[index] = circuit;
+    }
+    public int getActiveMagicSlot(){ return activeMagicSlot; }
+    public void setActiveMagicSlot(int index){
+        if (index < 0 || index >= MAGIC_SLOT_COUNT) return;
+        this.activeMagicSlot = index;
+    }
+
+    // getCircuit(EditorTab)は「詠唱・compile用に参照する回路」を返す唯一の窓口。
+    // MAGICタブだけ、実体を magicSlots[activeMagicSlot] にリダイレクトする。
+    public MagiculeCircuit getCircuit(EditorTab tab){
+        if (tab == EditorTab.MAGIC) {
+            return getMagicSlot(activeMagicSlot);
+        }
+        return circuits.get(tab);
+    }
+
+    public boolean isMagicSlotEnabled(int index){
+        if (index < 0 || index >= MAGIC_SLOT_COUNT) return false;
+        return magicSlotEnabled[index];
+    }
+    public void setMagicSlotEnabled(int index, boolean enabled){
+        if (index < 0 || index >= MAGIC_SLOT_COUNT) return;
+        magicSlotEnabled[index] = enabled;
+    }
+
+    // エディタが「このタブの回路を書き換えた」ときに呼ぶ既存のsetCircuits互換口
+    // MAGICタブは常に「編集中のスロット番号」を明示して呼ぶ必要があるため、専用メソッドを分ける
+    public void setCircuits(EditorTab tab, MagiculeCircuit circuit){
+        if (tab == EditorTab.MAGIC) {
+            setMagicSlot(activeMagicSlot, circuit); // 呼び出し側でactiveを一時的に「編集スロット」に切り替えて使う想定
+            return;
+        }
+        this.circuits.put(tab, circuit);
     }
 
     /**
@@ -335,10 +385,6 @@ public class PlayerMagicData {
             return unlockedSkills.contains(key + "_welcom");
         }
         return false;
-    }
-
-    public void setCircuits(EditorTab tab, MagiculeCircuit circuit){
-        this.circuits.put(tab,circuit);
     }
 
     public void unlockUniqueSkills(String key){
@@ -493,11 +539,26 @@ public class PlayerMagicData {
         rootTag.putInt("data_version", CURRENT_DATA_VERSION);
 
         for(Map.Entry<EditorTab, MagiculeCircuit> entry : this.circuits.entrySet()){
+            if(entry.getKey() == EditorTab.MAGIC)continue;
             EditorTab tab = entry.getKey();
             MagiculeCircuit circuit = entry.getValue();
 
             rootTag.put(tab.name(), circuit.saveToNBT());
         }
+
+        CompoundTag enabledSlotsTag = new CompoundTag();
+        for (int i = 0; i < MAGIC_SLOT_COUNT; i++) {
+            enabledSlotsTag.putBoolean("slot" + i, magicSlotEnabled[i]);
+        }
+        rootTag.put("MagicSlotEnabled", enabledSlotsTag);
+
+        ListTag magicSlotsTag = new ListTag();
+        for (int i = 0; i < MAGIC_SLOT_COUNT; i++) {
+            magicSlotsTag.add(magicSlots[i].saveToNBT());
+        }
+        rootTag.put("MagicSlots", magicSlotsTag);
+        rootTag.putInt("ActiveMagicSlot", activeMagicSlot);
+
         CompoundTag masoTag = new CompoundTag();
         masoTag.putFloat("currentMaso", currentMaso);
         masoTag.putFloat("totalRegeneratedMaso", totalRegeneratedMaso);
@@ -561,6 +622,7 @@ public class PlayerMagicData {
         int version = rootTag.getInt("data_version").orElse(0);
 
         for(EditorTab tab : EditorTab.values()){
+            if(tab == EditorTab.MAGIC)continue;
             if(rootTag.contains(tab.name())){
                 rootTag.getCompound(tab.name()).ifPresent(tabTag ->{
                     MagiculeCircuit circuit = new MagiculeCircuit();
@@ -569,6 +631,26 @@ public class PlayerMagicData {
                 });
             }
         }
+
+        if (rootTag.contains("MagicSlots")) {
+            ListTag magicSlotsTag = rootTag.getListOrEmpty("MagicSlots");
+            for (int i = 0; i < MAGIC_SLOT_COUNT; i++) {
+                MagiculeCircuit circuit = new MagiculeCircuit();
+                if (i < magicSlotsTag.size()) {
+                    magicSlotsTag.getCompound(i).ifPresent(circuit::loadFromNBT);
+                }
+                magicSlots[i] = circuit;
+            }
+        }
+        activeMagicSlot = rootTag.getInt("ActiveMagicSlot").orElse(0);
+
+        if (rootTag.contains("MagicSlotEnabled")) {
+            CompoundTag enabledSlotsTag = rootTag.getCompoundOrEmpty("MagicSlotEnabled");
+            for (int i = 0; i < MAGIC_SLOT_COUNT; i++) {
+                magicSlotEnabled[i] = enabledSlotsTag.getBooleanOr("slot" + i, false);
+            }
+        }
+
         if(rootTag.contains("maso")){
             CompoundTag masoTag = rootTag.getCompound("maso").orElse(new CompoundTag());
             currentMaso = masoTag.getFloat("currentMaso").orElse(20f);
@@ -667,6 +749,10 @@ public class PlayerMagicData {
         }
         if(version < 3){
             migrateV2toV3();
+        }if(version < 4){
+            migratev3tov4();
+        }if(version < 5){
+            migrateV4toV5(rootTag);
         }
 
     }
@@ -684,5 +770,17 @@ public class PlayerMagicData {
     }
     private void migrateV2toV3(){
         addDefaultUnlockedNodes(EditorTab.MAGIC);
+    }
+    private void migratev3tov4(){
+        addDefaultUnlockedNodes(EditorTab.MAGIC);
+    }
+    private void migrateV4toV5(CompoundTag rootTag){
+        if (rootTag.contains("MAGIC")) {
+            rootTag.getCompound("MAGIC").ifPresent(oldMagicTag -> {
+                MagiculeCircuit migrated = new MagiculeCircuit();
+                migrated.loadFromNBT(oldMagicTag);
+                magicSlots[0] = migrated;
+            });
+        }
     }
 }

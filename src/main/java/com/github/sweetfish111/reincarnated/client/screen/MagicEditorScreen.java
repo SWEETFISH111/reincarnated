@@ -42,6 +42,7 @@ public class MagicEditorScreen extends Screen {
 
     private Button exportBtn;
     private Button importBtn;
+    private final List<Button> magicSlotBtns = new ArrayList<>();
 
     private boolean isNamingCompound;
     private final List<UUID> collapseTargets = new ArrayList<>();
@@ -134,8 +135,39 @@ public class MagicEditorScreen extends Screen {
                 this.addRenderableWidget(importBtn);
             }
         }
+        rebuildMagicSlotButtons();
 
         rebuildNodeWidgets();
+    }
+
+    private void rebuildMagicSlotButtons(){
+        for (Button btn : magicSlotBtns) {
+            this.removeWidget(btn);
+        }
+        magicSlotBtns.clear();
+
+        if (thisLayerManager.getCurrentTab() != EditorTab.MAGIC) return;
+
+        int startX = 10;
+        int y = 28; // メインタブの下段
+        for (int i = 0; i < PlayerMagicData.MAGIC_SLOT_COUNT; i++) {
+            final int slotIndex = i;
+            Button slotBtn = Button.builder(
+                    Component.literal(String.valueOf(i + 1)),
+                    button -> {
+                        thisLayerManager.switchMagicSlot(slotIndex, this.nodeWidgets);
+                        clearCanvasWidgets();
+                        rebuildNodeWidgets();
+                        rebuildMagicSlotButtons(); // active色更新のため再構築
+                    }
+            ).bounds(startX, y, 30, 20).build();
+
+            slotBtn.active = (slotIndex != thisLayerManager.getEditingMagicSlot());
+            startX += 34;
+
+            this.magicSlotBtns.add(slotBtn);
+            this.addRenderableWidget(slotBtn);
+        }
     }
 
     public void switchTab(EditorTab tab){
@@ -143,6 +175,7 @@ public class MagicEditorScreen extends Screen {
         thisLayerManager.switchTab(tab);
         clearCanvasWidgets();
         rebuildNodeWidgets();
+        rebuildMagicSlotButtons();
     }
 
     private void clearCanvasWidgets(){
@@ -282,7 +315,9 @@ public class MagicEditorScreen extends Screen {
             thisLayerManager.getBackBtn().extractRenderState(guiGraphicsExtractor, (int) canvasMouseX, (int) canvasMouseY, partialTick);
         }
         this.palette.render(guiGraphicsExtractor, mouseX, mouseY);
-
+        for(Button btn : magicSlotBtns){
+            btn.extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseY, partialTick);
+        }
         if(this.isNamingCompound && this.popupBox != null){
             this.popupBox.extractRenderState(guiGraphicsExtractor, mouseX, mouseY, partialTick);
         }
@@ -321,6 +356,11 @@ public class MagicEditorScreen extends Screen {
         //importBtnのクリック判定
         if(importBtn != null && importBtn.mouseClicked(event, doubleClick)){
             return true;
+        }
+        for(Button btn : magicSlotBtns){
+            if(btn.mouseClicked(event, doubleClick)){
+                return true;
+            }
         }
 
         //パレットのクリック判定

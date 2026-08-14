@@ -18,6 +18,8 @@ public class ScreenLayerManager {
     private final Deque<CircuitLayer> layerStack = new ArrayDeque<>();
     private EditorTab currentTab = EditorTab.MAGIC;
     private MagiculeCircuit workCircuit = new MagiculeCircuit();
+    private int editingMagicSlot = 0;
+    public int getEditingMagicSlot(){ return editingMagicSlot; }
     private PlayerMagicData magicData;
     private List<Button> tabBtns = new ArrayList<>();
     private Button backBtn;
@@ -28,7 +30,9 @@ public class ScreenLayerManager {
     public void init(PlayerMagicData magicData) {
         this.layerStack.clear();
         this.magicData = magicData;
-        this.workCircuit = this.magicData.getCircuit(this.currentTab);
+        this.workCircuit = (this.currentTab == EditorTab.MAGIC)
+                ? this.magicData.getMagicSlot(this.editingMagicSlot)
+                : this.magicData.getCircuit(this.currentTab);
     }
 
     public String getErrorMessage(){return this.errorMessage;}
@@ -68,8 +72,23 @@ public class ScreenLayerManager {
         this.updateBackButtonVisibility();
     }
 
+    public void switchMagicSlot(int slotIndex, List<AbstructDraggingNodeWidget> nodeWidgets){
+        if (slotIndex < 0 || slotIndex >= PlayerMagicData.MAGIC_SLOT_COUNT) return;
+        if (slotIndex == editingMagicSlot) return;
+
+        saveCurrentTabCircuit(nodeWidgets); // 今のスロットの編集内容を保存
+        this.editingMagicSlot = slotIndex;
+        this.layerStack.clear();
+        loadTabCircuit(EditorTab.MAGIC);
+        updateBackButtonVisibility();
+    }
+
     public void loadTabCircuit(EditorTab tab){
-        this.workCircuit = this.magicData.getCircuit(tab);
+        if (tab == EditorTab.MAGIC) {
+            this.workCircuit = this.magicData.getMagicSlot(this.editingMagicSlot);
+        } else {
+            this.workCircuit = this.magicData.getCircuit(tab);
+        }
     }
 
     public void goBackLayer(List<AbstructDraggingNodeWidget> nodeWidgets){
@@ -120,7 +139,12 @@ public class ScreenLayerManager {
         }
 
         this.workCircuit.setCompoundNodes(updatedCompounds);
-        this.magicData.setCircuits(this.currentTab, this.workCircuit);
+
+        if (this.currentTab == EditorTab.MAGIC) {
+            this.magicData.setMagicSlot(editingMagicSlot, this.workCircuit);
+        } else {
+            this.magicData.setCircuits(this.currentTab, this.workCircuit);
+        }
     }
 
     public MagiculeCircuit.CompoundNodeData findCompoundDataById(UUID id){

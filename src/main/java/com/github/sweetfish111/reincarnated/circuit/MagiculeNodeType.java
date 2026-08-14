@@ -12,6 +12,11 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC},
             List.of(EditorTab.MAGIC)
     ),
+    ON_SLOT_ENABLE("on_slot_enable", Component.translatable("node.reincarnated.on_slot_enable").getString(),
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
     ON_TICK("on_tick", Component.translatable("node.reincarnated.on_tick").getString(),
             new PortDataType[]{},
             new PortDataType[]{PortDataType.EXEC},
@@ -49,6 +54,21 @@ public enum MagiculeNodeType {
     DIG("dig", Component.translatable("node.reincarnated.dig").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.MAGIC)
+    ),
+    DIG_ALl("dig_all", Component.translatable("node.reincarnated.dig_all").getString(),
+            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC},
+            ContentWidgetType.SWITCH,
+            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER},
+            15,
+            List.of(EditorTab.MAGIC)
+    ),
+    COLLECT_ITEMS("collect_items", Component.translatable("node.reincarnated.collect_items").getString(),
+            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
+            null, null,
+            3, // castCost：DAMAGE(3)と同程度
             List.of(EditorTab.MAGIC)
     ),
     SHOOT_PROJECTILE("shoot_projectile", Component.translatable("node.reincarnated.shoot_projectile").getString(),

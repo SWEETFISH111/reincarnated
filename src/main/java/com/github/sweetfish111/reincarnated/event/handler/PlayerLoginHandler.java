@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.event.handler;
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.event.PlayerUniqueSkillAcquiredEvent;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.magic.casting.PassiveSlotManager;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -26,6 +27,13 @@ class PlayerLoginHandler {
 
                 NeoForge.EVENT_BUS.post(new PlayerUniqueSkillAcquiredEvent(serverPlayer, "greedy"));
             }
+
+            for (int i = 0; i < PlayerMagicData.MAGIC_SLOT_COUNT; i++) {
+                if (magicData.isMagicSlotEnabled(i)) {
+                    PassiveSlotManager.startSlot(serverPlayer, magicData.getMagicSlot(i));
+                }
+            }
         }
     }
+
 }

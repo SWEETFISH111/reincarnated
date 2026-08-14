@@ -6,13 +6,10 @@ import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.client.event.handler.ClientPacketHandlers;
 import com.github.sweetfish111.reincarnated.item.ReincarnatedItems;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
-import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
-import com.github.sweetfish111.reincarnated.magic.casting.DelayCastingManager;
-import com.github.sweetfish111.reincarnated.magic.casting.TimerCastingManager;
+import com.github.sweetfish111.reincarnated.magic.casting.*;
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
-import com.github.sweetfish111.reincarnated.magic.casting.CastingManager;
 import com.github.sweetfish111.reincarnated.network.payload.*;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import net.minecraft.core.component.DataComponentType;
@@ -53,6 +50,13 @@ public class ModNetworking {
                             PlayerMagicData magicData = new PlayerMagicData();
                             magicData.loadFromNBT(payload.magicDataTag());
                             player.setData(ModAttachments.PLAYER_MAGIC_DATA, magicData);
+
+                            for (int i = 0; i < PlayerMagicData.MAGIC_SLOT_COUNT; i++) {
+                                if (magicData.isMagicSlotEnabled(i)) {
+                                    PassiveSlotManager.startSlot(player, magicData.getMagicSlot(i));
+                                }
+                            }
+
                             System.out.println("サーバー: プレイヤー " + player.getName().getString() + " の魔法データを保存・同期しました");
                         }
                     });
@@ -144,5 +148,33 @@ public class ModNetworking {
                 }
             });
         })));
+
+        registrar.playToServer(SelectMagicSlotPayload.TYPE, SelectMagicSlotPayload.CODEC, ((payload, context) -> {
+            context.enqueueWork(() -> {
+                if (context.player() instanceof ServerPlayer player) {
+                    PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+                    magicData.setActiveMagicSlot(payload.slotIndex());
+                }
+            });
+        }));
+
+        registrar.playToServer(ToggleMagicSlotPayload.TYPE, ToggleMagicSlotPayload.CODEC, ((payload, context) -> {
+            context.enqueueWork(() -> {
+                if (context.player() instanceof ServerPlayer player) {
+                    PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+                    boolean wasEnabled = magicData.isMagicSlotEnabled(payload.slotIndex());
+                    if (wasEnabled == payload.enabled()) return; // 変化なし
+
+                    magicData.setMagicSlotEnabled(payload.slotIndex(), payload.enabled());
+                    MagiculeCircuit slotCircuit = magicData.getMagicSlot(payload.slotIndex());
+
+                    if (payload.enabled()) {
+                        PassiveSlotManager.startSlot(player, slotCircuit);
+                    } else {
+                        PassiveSlotManager.stopSlot(player, slotCircuit);
+                    }
+                }
+            });
+        }));
     }
 }

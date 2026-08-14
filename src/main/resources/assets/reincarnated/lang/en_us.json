@@ -29,6 +29,7 @@
   "gui.reincarnated.paletteItem.new_skill_usurper": "Awaking:usurper",
 
   "node.reincarnated.event_key_1": "execute_key_1",
+  "node.reincarnated.on_slot_enable": "on slot enable",
   "node.reincarnated.on_tick": "on tick",
   "node.reincarnated.on_xp_pickup": "on xp pickup",
   "node.reincarnated.on_damage": "on damage",
@@ -37,6 +38,8 @@
   "node.reincarnated.on_attack_stronger": "on attack stronger",
   "node.reincarnated.on_overcharge": "on overcharge",
   "node.reincarnated.dig": "dig",
+  "node.reincarnated.dig_all": "digAll",
+  "node.reincarnated.collect_items": "collect items",
   "node.reincarnated.shoot_projectile": "shoot projectile",
   "node.reincarnated.lightning": "lightning",
   "node.reincarnated.explosion": "explosion",

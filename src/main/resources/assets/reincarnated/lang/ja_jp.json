@@ -28,6 +28,7 @@
 
 
   "node.reincarnated.event_key_1": "実行キー1",
+  "node.reincarnated.on_slot_enable": "スロット有効化",
   "node.reincarnated.on_tick": "常時監視 (Tick)",
   "node.reincarnated.on_xp_pickup": "経験値獲得時",
   "node.reincarnated.on_damage": "被弾時",
@@ -40,6 +41,8 @@
   "node.reincarnated.explosion": "爆発",
   "node.reincarnated.damage": "瞬間ダメージ",
   "node.reincarnated.dig": "掘削",
+  "node.reincarnated.dig_all": "全掘削",
+  "node.reincarnated.collect_items": "アイテム回収",
   "node.reincarnated.healing": "瞬間治癒",
   "node.reincarnated.add_maso": "魔素加算",
   "node.reincarnated.barrier": "バリアー",

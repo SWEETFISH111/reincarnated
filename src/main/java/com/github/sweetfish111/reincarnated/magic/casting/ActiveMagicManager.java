@@ -28,12 +28,14 @@ public class ActiveMagicManager {
     public static class ActiveNodeEntry {
         private final UUID nodeId;
         private final MagicNode nodeInstance;
+        private final MagiculeCircuit sourceCircuit;
         private final int intervalTicks; // スロットリング用（例: 5Tickに1回実行など）
         private int tickCounter = 0;
 
-        public ActiveNodeEntry(UUID nodeId, MagicNode nodeInstance, int intervalTicks) {
+        public ActiveNodeEntry(UUID nodeId, MagicNode nodeInstance, MagiculeCircuit sourceCircuit, int intervalTicks) {
             this.nodeId = nodeId;
             this.nodeInstance = nodeInstance;
+            this.sourceCircuit = sourceCircuit;
             this.intervalTicks = Math.max(1, intervalTicks);
         }
 
@@ -47,10 +49,13 @@ public class ActiveMagicManager {
         }
 
         public void execute(IMagicCaster caster) {
-            RuntimeMagicCircuit runtimeMagicCircuit = MagicCompiler.compileCircuit(caster, caster.getCircuit());
+            RuntimeMagicCircuit runtimeMagicCircuit = MagicCompiler.compileCircuit(caster, sourceCircuit);
             if (runtimeMagicCircuit != null) {
-                MagicContext context = new MagicContext(caster.getCircuit(), runtimeMagicCircuit);
-                runtimeMagicCircuit.start(context);
+                MagicContext context = new MagicContext(sourceCircuit, runtimeMagicCircuit);
+                AbstractMagicNode node = runtimeMagicCircuit.getInstancedNode(nodeId);
+                if(node != null){
+                    node.execute(context);
+                }
             }
         }
 
@@ -62,11 +67,11 @@ public class ActiveMagicManager {
     /**
      * プレイヤーが新しい常駐ノードを有効化したときに登録する
      */
-    public static void registerActiveNode(IMagicCaster caster, UUID nodeId, MagicNode node, int intervalTicks) {
+    public static void registerActiveNode(IMagicCaster caster, UUID nodeId, MagicNode node, MagiculeCircuit sourceCircuit,  int intervalTicks) {
         activeRegistry.computeIfAbsent(caster.getCasterId(), k -> new CopyOnWriteArrayList<>())
                 .removeIf(entry -> entry.getNodeId().equals(nodeId)); // 既存の重複を防ぐ
 
-        activeRegistry.get(caster.getCasterId()).add(new ActiveNodeEntry(nodeId, node, intervalTicks));
+        activeRegistry.get(caster.getCasterId()).add(new ActiveNodeEntry(nodeId, node, sourceCircuit, intervalTicks));
     }
 
     /**

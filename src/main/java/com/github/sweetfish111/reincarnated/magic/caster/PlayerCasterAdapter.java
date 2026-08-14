@@ -78,4 +78,23 @@ public class PlayerCasterAdapter implements IMagicCaster{
         PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
         magicData.totalRegeneratedMaso += amount;
     }
+
+    @Override
+    public boolean ownsCircuit(MagiculeCircuit circuit) {
+        PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        for(EditorTab tab : EditorTab.values()){
+            if(tab == EditorTab.MAGIC){
+                for(int i = 0; i < PlayerMagicData.MAGIC_SLOT_COUNT; i++){
+                    if(magicData.getMagicSlot(i) == circuit){
+                        return true;
+                    }
+                }
+            }else {
+                if(magicData.getCircuit(tab) == circuit){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

@@ -71,7 +71,7 @@ public class MagicContext {
 
     public boolean isStale() {
         // 生成時点で握った回路インスタンスが、プレイヤーの「今の」回路と一致しなければ＝編集・保存済み
-        return this.circuit != this.caster.getCircuit();
+        return !this.caster.ownsCircuit(this.circuit);
     }
 
     public void incrementAndCheck() throws CalculationCapacityOverException {

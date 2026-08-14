@@ -19,4 +19,5 @@ public interface IMagicCaster {
         void addMaso(float amount);
         void consumeMaso(float amount);
         void addTotalRegeneratedMaso(float amount);
+        boolean ownsCircuit(MagiculeCircuit circuit);
 }

@@ -58,4 +58,16 @@ public class ClientModEvents {
 
         wasKeyPressedLastTick = isCurrentlyDown;
     }
+
+    @SubscribeEvent
+    public static void onMouseButtonPre(net.neoforged.neoforge.client.event.InputEvent.MouseButton.Pre event){
+        if (event.getButton() == org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE
+                && event.getAction() == org.lwjgl.glfw.GLFW.GLFW_PRESS) {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player != null) {
+                mc.setScreenAndShow(new com.github.sweetfish111.reincarnated.client.screen.MagicWheelScreen());
+                event.setCanceled(true); // デフォルトの中クリック（ブロックピック等）を抑止
+            }
+        }
+    }
 }

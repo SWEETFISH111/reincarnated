@@ -35,6 +35,8 @@ public class MagicCompiler {
         for (MagiculeCircuit.NodeData data : circuit.getNodes()){
             MagicNode actualNode = createNodeInstance(data.type.getId(), data.id);
             if(actualNode != null){
+                AbstractMagicNode abstractNode = (AbstractMagicNode) actualNode;
+                abstractNode.setCastCost(data.type.getCastCost());
                 instancedNodes.put(data.id, (AbstractMagicNode) actualNode);
             }
         }

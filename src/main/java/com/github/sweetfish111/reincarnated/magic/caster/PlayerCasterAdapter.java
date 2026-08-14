@@ -57,26 +57,25 @@ public class PlayerCasterAdapter implements IMagicCaster{
     @Override
     public float getMasoAmount() {
         PlayerMagicData data = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-        return data.currentMaso;
+        return data.getCurrentMaso();
     }
 
     @Override
     public void addMaso(float amount) {
         PlayerMagicData data = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-        data.currentMaso += amount;
+        data.addMasoAmount(amount);
     }
 
     @Override
     public void consumeMaso(float amount) {
         PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-        magicData.currentMaso -= amount;
-        magicData.totalConsumedMaso += amount;
+        magicData.consumeMasoAmount(amount); // currentMaso減算とtotalConsumedMaso加算を1メソッドにまとめた
     }
 
     @Override
     public void addTotalRegeneratedMaso(float amount) {
         PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-        magicData.totalRegeneratedMaso += amount;
+        magicData.addTotalRegeneratedMaso(amount);
     }
 
     @Override

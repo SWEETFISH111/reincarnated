@@ -26,28 +26,11 @@ public class PlayerMagicData {
     private final MagiculeCircuit[] magicSlots = new MagiculeCircuit[MAGIC_SLOT_COUNT];
     private int activeMagicSlot = 0;
 
-    public float currentMaso = 20f;
-    private float maxBarrierPoint = 20;
-    private float barrierPoint = 0;
+    private final MasoEconomy masoEconomy = new MasoEconomy();
+    private final BarrierState barrier = new BarrierState();
 
-    public float totalRegeneratedMaso = 0;
-    public float totalConsumedMaso = 0;
 
-    // 魔素上限・回復速度：進化段階ごとに floor/scaleFactor が切り替わる（MasoEvolutionStage参照）
-    private MasoEvolutionStage masoStage = MasoEvolutionStage.STAGE0;
-    // 現ステージに入った時点での totalConsumedMaso / totalRegeneratedMaso
-    // （このステージ内での消費量・回復量の起点。両方とも同じ進化タイミングでリセットされる）
-    private double stageStartConsumedMaso = 0.0;
-    private double stageStartRegeneratedMaso = 0.0;
-    // ステージ移行時、旧ステージでの超過消費分をどれだけ新ステージの起点に持ち越すか（0〜1）
-    // = 「非効率な旧スケーリングで頑張った分」を新ステージでのヘッドスタートとして還元する係数
-    private static final double STAGE_CARRYOVER_RATIO = 0.3;
-    private static final double REGEN_RECOVERY_MIDPOINT_RATIO = 0.5;
-    public static final double MASO_SCALE_DIVISOR = 250.0;
 
-    public MasoEvolutionStage getMasoStage() {
-        return masoStage;
-    }
 
     private final Set<String> unlockedConditionKeys = new HashSet<>();
     public boolean hasUnlocked(String key){
@@ -207,10 +190,32 @@ public class PlayerMagicData {
     public String getCurrentUniqueSkill() {
         return currentUniqueSkill;
     }
-    public float getBarrierPoint(){return barrierPoint;}
-    public float getMaxBarrierPoint(){return maxBarrierPoint;}
-    public void setBarrierPoint(float barrierPoint){this.barrierPoint = barrierPoint;}
-    public void setMaxBarrierPoint(float max){this.maxBarrierPoint = max;}
+
+
+
+    public MasoEvolutionStage getMasoStage(){ return masoEconomy.getMasoStage(); }
+    public float getMaxMaso(){ return masoEconomy.getMaxMaso(); }
+    public float getMasoRegenRate(){ return masoEconomy.getMasoRegenRate(); }
+    public void triggerMasoStageEvolutionAttempt(){ masoEconomy.triggerMasoStageEvolutionAttempt(); }
+    public void addCurretMaso(double d){ masoEconomy.addCurrentMaso((float) d); }
+
+    // ★新規：PlayerCasterAdapterが直接フィールドを触れなくなる分の窓口
+    public float getCurrentMaso(){ return masoEconomy.getCurrentMaso(); }
+    public void addMasoAmount(float amount){ masoEconomy.addCurrentMaso(amount); }
+    public void setCurrentMaso(float value){ masoEconomy.setCurrentMaso(value); }
+    public void consumeMasoAmount(float amount){ masoEconomy.consumeMaso(amount); }
+    public void addTotalRegeneratedMaso(float amount){ masoEconomy.addTotalRegeneratedMaso(amount); }
+
+
+
+    public float getBarrierPoint(){ return barrier.getCurrentPoint(); }
+    public void setBarrierPoint(float point){ barrier.setCurrentPoint(point); }
+    public float getMaxBarrierPoint(){ return barrier.getMaxBarrierPoint(); }
+    public void setMaxBarrierPoint(float max){ barrier.setMaxBarrierPoint(max); }
+    public float getBarrierDamageReduction(){ return barrier.getBarrierDamageReduction(); }
+    public void recordBarrierHit(float rawDamage, boolean barrierBroke, long currentTick){
+        barrier.recordBarrierHit(rawDamage, barrierBroke, currentTick);
+    }
 
     public UUID getUniqueSkillId(){return this.uniqueSkillId;}
     public void setUniqueSkillId(UUID uniqueSkillId){this.uniqueSkillId = uniqueSkillId;}
@@ -231,14 +236,6 @@ public class PlayerMagicData {
             node.setSkillId("greedy");
             setSkillAccessLevel("greedy", SkillAccessLevel.DENIED);
         }
-    }
-
-    public float getMaxMaso(){
-        // 閾値未達で持ち越し中のトリガーがあれば、ここで再チェック（消費が進んで閾値を超えた瞬間に反映される）
-        advanceMasoStageIfNeeded();
-        double sinceStageStart = Math.max(0.0, this.totalConsumedMaso - stageStartConsumedMaso);
-        double scaledInput = sinceStageStart / MASO_SCALE_DIVISOR;
-        return (float) (masoStage.getFloor() + masoStage.getScaleFactor() * Math.log(1.0 + scaledInput));
     }
 
     public MagiculeCircuit getMagicSlot(int index){
@@ -283,14 +280,6 @@ public class PlayerMagicData {
         this.circuits.put(tab, circuit);
     }
 
-    /**
-     * 「発動」トリガー待ちフラグ。魔素消費量が閾値を超えているだけでは進化せず、
-     * このフラグが立った状態で閾値も満たしていて初めてステージが進む。
-     * ユニークスキル進化（evolveUniqueSkillTo）が発火元。
-     * トリガーが先に立って閾値がまだの場合はここに保持され、後から
-     * totalConsumedMaso が伸びて閾値に届いた時点（＝次のgetMaxMaso呼び出し時）で反映される。
-     */
-    private boolean pendingMasoEvolutionTrigger = false;
 
     /**
      * ユニークスキルの進化を発動する。evolvableUniqueSkills に候補として
@@ -311,76 +300,6 @@ public class PlayerMagicData {
         return true;
     }
 
-    /**
-     * 魔素進化ステージを進める試みを外部から起動するための汎用フック。
-     * 将来的に「二段階目のユニークスキル進化」など別の発動条件を実装する際も、
-     * ここを呼び出すだけで同じ持ち越しロジックに乗せられる。
-     */
-    public void triggerMasoStageEvolutionAttempt() {
-        this.pendingMasoEvolutionTrigger = true;
-        advanceMasoStageIfNeeded();
-    }
-
-    /**
-     * pendingMasoEvolutionTrigger が立っていて、かつ totalConsumedMaso が
-     * 現ステージの evolutionThreshold を超えていれば次ステージへ進化させる。
-     * どちらか一方だけでは進化しない（発動トリガー × 消費量の両方が必要）。
-     *
-     * 旧セーブ移行時：totalConsumedMaso 自体は引き継がれるため、
-     * 移行後に初めてユニークスキル進化が発動した瞬間、既に閾値を超えている分の
-     * 超過消費量がそのままヘッドスタートとして反映される
-     * （＝旧システムで頑張った分がここで自然に還元される）。
-     */
-    private void advanceMasoStageIfNeeded() {
-        if (!pendingMasoEvolutionTrigger) return;
-
-        MasoEvolutionStage next = masoStage.getNext();
-        if (next == null) {
-            pendingMasoEvolutionTrigger = false; // 最終段階、これ以上進化しない
-            return;
-        }
-
-        double sinceStageStart = totalConsumedMaso - stageStartConsumedMaso;
-        double threshold = masoStage.getEvolutionThreshold();
-        if (sinceStageStart < threshold) {
-            return; // トリガーは消費せず持ち越す。消費量が追いついたら次回呼び出しで進化する
-        }
-
-        // 旧ステージ内での「閾値超過分」を算出し、その一部を新ステージのヘッドスタートとして持ち越す。
-        // 非効率だった旧スケーリングで規定値を大きく超えて頑張った人ほど、
-        // 新ステージ突入直後のmaxMasoが高くなる＝速度バフとして体感できる。
-        double overflow = sinceStageStart - threshold;
-        double carryHeadStart = overflow * STAGE_CARRYOVER_RATIO;
-
-        double prevFinalRegenRate = getMasoRegenRate();
-
-        masoStage = next;
-        stageStartConsumedMaso = totalConsumedMaso - carryHeadStart;
-        // 回復速度側もステージ切り替わりのタイミングで起点をリセットし、新ステージのregenFloorから始まるようにする
-        double newFloor = masoStage.getRegenFloor();
-        double newScaleFactor = masoStage.getRegenScaleFactor();
-        if (prevFinalRegenRate > newFloor) {
-            double targetRate = newFloor + (prevFinalRegenRate - newFloor) * REGEN_RECOVERY_MIDPOINT_RATIO;
-            double regenHeadStart = 100.0 * (Math.exp((targetRate - newFloor) / newScaleFactor) - 1.0);
-            stageStartRegeneratedMaso = totalRegeneratedMaso - regenHeadStart;
-        } else {
-            stageStartRegeneratedMaso = totalRegeneratedMaso;
-        }
-        pendingMasoEvolutionTrigger = false;
-
-        onMasoStageEvolved(masoStage);
-    }
-
-    /** ステージ進化時のフック。実績解放・通知・エフェクト送信などをここに繋ぐ想定 */
-    private void onMasoStageEvolved(MasoEvolutionStage newStage) {
-        // TODO: 進化演出・実績通知・ネットワーク同期パケット送信などをここに実装
-    }
-
-    public float getMasoRegenRate(){
-        double sinceStageStart = Math.max(0.0, this.totalRegeneratedMaso - stageStartRegeneratedMaso);
-        double scaledInput = sinceStageStart / MASO_SCALE_DIVISOR;
-        return (float)(masoStage.getRegenFloor() + masoStage.getRegenScaleFactor() * Math.log(1.0 + scaledInput));
-    }
 
     public boolean hasUnlockedUniqueSkills(String key){
         if(currentUniqueSkill.equals(key)){
@@ -438,68 +357,83 @@ public class PlayerMagicData {
         }
     }
 
-    public void addCurretMaso(double d){
-        currentMaso += (float) d;
+
+    private void checkEvolution(ServerPlayer player) {
+        double threshold = 100;
+        boolean stillGreedy = currentUniqueSkill.equals("greedy");
+
+        if (stillGreedy && !completeGreedy && greedyScore >= threshold) {
+            setSkillAccessLevel("greedy", SkillAccessLevel.READ_ONLY);
+
+            if (masoEconomy.getMasoStage() == MasoEvolutionStage.STAGE0) {
+                triggerMasoStageEvolutionAttempt();
+            }
+
+            Set<MagiculeNodeType> unlockNodeSet = new HashSet<>();
+            unlockNodeSet.add(MagiculeNodeType.ADD_MASO);
+            unlockNodeSet.add(MagiculeNodeType.CONBERS_XP_TO_MASO);
+
+            List<Component> messages = List.of(
+                    Component.translatable("message.reincarnated.voice_of_world.greedy_Establishment", Component.literal(player.getName().getString())),
+                    VoiceOfWorld.sendEvolvedStage1(player)
+            );
+            MessageScheduler.scheduleMessages(player, messages, 3);
+
+            unlockedNodeTypes.get(EditorTab.MAGIC).addAll(unlockNodeSet);
+            unlockedNodeTypes.get(EditorTab.SKILL).addAll(unlockNodeSet);
+            unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.ON_XP_PICKUP);
+            unlockedNodeTypes.get(EditorTab.ARTS).addAll(unlockNodeSet);
+
+            this.completeGreedy = true;
+        }
+        if (!completeGreedy) return;
+
+        if (predatorScore >= threshold) {
+            if (stillGreedy) unlockEvolutionCandidate(player, "predator");
+            unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.ON_KILL);
+            unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.COMBERS_KILL_TO_MASO);
+            unlockedNodeTypes.get(EditorTab.MAGIC).add(MagiculeNodeType.ON_KILL);
+            unlockedNodeTypes.get(EditorTab.MAGIC).add(MagiculeNodeType.COMBERS_KILL_TO_MASO); // 抜けを補完
+            unlockBarrierNode();
+        }
+        if (scavengerScore >= threshold) {
+            if (stillGreedy) unlockEvolutionCandidate(player, "scavenger");
+            unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.ON_EAT);
+            unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.COMBERS_SATIETY_TO_MASO);
+            unlockedNodeTypes.get(EditorTab.MAGIC).add(MagiculeNodeType.ON_EAT);
+            unlockedNodeTypes.get(EditorTab.MAGIC).add(MagiculeNodeType.COMBERS_SATIETY_TO_MASO); // 抜けを補完
+            unlockBarrierNode();
+        }
+        if (hoarderScore >= threshold) {
+            if (stillGreedy) unlockEvolutionCandidate(player, "hoarder");
+            unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.ON_OVERCHARGE);
+            unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.ABSORPTION);
+            unlockedNodeTypes.get(EditorTab.MAGIC).add(MagiculeNodeType.ON_OVERCHARGE); // 抜けを補完
+            unlockedNodeTypes.get(EditorTab.MAGIC).add(MagiculeNodeType.ABSORPTION);
+            unlockBarrierNode();
+        }
+        if (usurperScore >= threshold) {
+            if (stillGreedy) unlockEvolutionCandidate(player, "usurper");
+            unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.ON_ATTACK_STRONGER);
+            unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.COMBERS_POWERGAP_TO_MASO);
+            unlockedNodeTypes.get(EditorTab.MAGIC).add(MagiculeNodeType.ON_ATTACK_STRONGER);
+            unlockedNodeTypes.get(EditorTab.MAGIC).add(MagiculeNodeType.COMBERS_POWERGAP_TO_MASO); // 抜けを補完
+            unlockBarrierNode();
+        }
     }
 
 
-    private void checkEvolution(ServerPlayer player) {
-        if (!currentUniqueSkill.equals("greedy")) return;
-
-        double threshold = 100;
-
-        if(greedyScore >= threshold){
-
-            if(!completeGreedy) {
-                setSkillAccessLevel("greedy", SkillAccessLevel.READ_ONLY);
-
-                // STAGE0（旧世界）にいる間だけ意味を持つガード。
-                // 「潜在能力の片鱗に気づく」瞬間＝0→1（旧世界→新ゼロ）の専用トリガー。
-                // STAGE1以降に進んだ後はこのブロックが再実行されても masoStage が
-                // 既に STAGE0 でなくなっているため何も起きない（誤爆防止）。
-                if (masoStage == MasoEvolutionStage.STAGE0) {
-                    triggerMasoStageEvolutionAttempt();
-                }
-
-                Set<MagiculeNodeType> unlockNodeSet = new HashSet<>();
-                unlockNodeSet.add(MagiculeNodeType.ADD_MASO);
-                unlockNodeSet.add(MagiculeNodeType.CONBERS_XP_TO_MASO);
-
-                List<Component> messages = List.of(
-                        Component.translatable("message.reincarnated.voice_of_world.greedy_Establishment", Component.literal(player.getName().getString())),
-                        VoiceOfWorld.sendEvolvedStage1(player)
-                );
-
-                MessageScheduler.scheduleMessages(player, messages, 3);
-
-
-                unlockedNodeTypes.get(EditorTab.MAGIC).addAll(unlockNodeSet);
-                unlockedNodeTypes.get(EditorTab.SKILL).addAll(unlockNodeSet);
-                unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.ON_XP_PICKUP);
-                unlockedNodeTypes.get(EditorTab.ARTS).addAll(unlockNodeSet);
-
-                this.completeGreedy = true;
-            }
-
-            if (predatorScore >= threshold) {
-                unlockEvolutionCandidate(player, "predator");
-            }
-            if (scavengerScore >= threshold) {
-                unlockEvolutionCandidate(player, "scavenger");
-            }
-            if (hoarderScore >= threshold) {
-                unlockEvolutionCandidate(player, "hoarder");
-            }
-            if (usurperScore >= threshold){
-                unlockEvolutionCandidate(player, "usurper");
-            }
-        }
+    private void unlockBarrierNode(){
+        unlockedNodeTypes.get(EditorTab.MAGIC).add(MagiculeNodeType.ON_TICK);
+        unlockedNodeTypes.get(EditorTab.MAGIC).add(MagiculeNodeType.BARRIER);
+        unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.ON_TICK);
+        unlockedNodeTypes.get(EditorTab.SKILL).add(MagiculeNodeType.BARRIER);
     }
 
     private void unlockEvolutionCandidate(ServerPlayer player, String skillName) {
        if(!this.evolvableUniqueSkills.contains(skillName)){
             this.evolvableUniqueSkills.add(skillName);
-            this.maxBarrierPoint = 60;
+           setMaxBarrierPoint(60);
 
             player.sendSystemMessage(Component.translatable("message.reincarnated.voice_of_world.greedy_factor_analyzed", Component.literal(player.getName().getString())));
 
@@ -562,18 +496,11 @@ public class PlayerMagicData {
         rootTag.putInt("ActiveMagicSlot", activeMagicSlot);
 
         CompoundTag masoTag = new CompoundTag();
-        masoTag.putFloat("currentMaso", currentMaso);
-        masoTag.putFloat("totalRegeneratedMaso", totalRegeneratedMaso);
-        masoTag.putFloat("totalConsumedMaso", totalConsumedMaso);
-        masoTag.putInt("masoStage", masoStage.ordinal());
-        masoTag.putDouble("stageStartConsumedMaso", stageStartConsumedMaso);
-        masoTag.putDouble("stageStartRegeneratedMaso", stageStartRegeneratedMaso);
-        masoTag.putBoolean("pendingMasoEvolutionTrigger", pendingMasoEvolutionTrigger);
+        masoEconomy.saveToNBT(masoTag); // ★修正：丸投げ
         rootTag.put("maso", masoTag);
 
         CompoundTag barrierTag = new CompoundTag();
-        barrierTag.putFloat("currentBarrier", barrierPoint);
-        barrierTag.putFloat("maxBarrier", maxBarrierPoint);
+        barrier.saveToNBT(barrierTag); // ★修正：BarrierStateに丸投げ
         rootTag.put("barrier", barrierTag);
 
         rootTag.put("permission", savePermissionsNBT());
@@ -654,25 +581,12 @@ public class PlayerMagicData {
         }
 
         if(rootTag.contains("maso")){
-            CompoundTag masoTag = rootTag.getCompound("maso").orElse(new CompoundTag());
-            currentMaso = masoTag.getFloat("currentMaso").orElse(20f);
-            totalRegeneratedMaso = masoTag.getFloat("totalRegeneratedMaso").orElse(0f);
-            totalConsumedMaso = masoTag.getFloat("totalConsumedMaso").orElse(0f);
-            // 旧セーブ（masoStageキー無し）は STAGE0（旧世界）としてロードされる。
-            // STAGE0 は元の旧式(floor=20, SF=5)そのものなので、遷移トリガーが立つまでは
-            // 挙動が完全に旧システムと同一＝既存プレイヤーへの影響ゼロで移行できる。
-            // 遷移トリガー(greedyScore>=1)は checkEvolution() 側にあるため、
-            // ロード直後に一度評価する（下記 checkEvolution() 呼び出し参照）。
-            masoStage = MasoEvolutionStage.fromIndex(masoTag.getInt("masoStage").orElse(0));
-            stageStartConsumedMaso = masoTag.getDouble("stageStartConsumedMaso").orElse(0.0);
-            stageStartRegeneratedMaso = masoTag.getDouble("stageStartRegeneratedMaso").orElse(0.0);
-            pendingMasoEvolutionTrigger = masoTag.getBoolean("pendingMasoEvolutionTrigger").orElse(false);
+            masoEconomy.loadFromNBT(rootTag.getCompoundOrEmpty("maso")); // ★修正：丸投げ
         }
 
         if(rootTag.contains("barrier")){
             CompoundTag barrierTag = rootTag.getCompoundOrEmpty("barrier");
-            barrierPoint = barrierTag.getFloatOr("currentBarrier", 0.0f);
-            maxBarrierPoint = barrierTag.getFloatOr("maxBarrier", 0.0f);
+            barrier.loadFromNBT(barrierTag); // ★修正：BarrierStateに丸投げ
         }
 
         if(rootTag.contains("permission")){

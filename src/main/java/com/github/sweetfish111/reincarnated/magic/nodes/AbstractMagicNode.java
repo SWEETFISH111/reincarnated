@@ -23,6 +23,7 @@ public abstract class AbstractMagicNode implements MagicNode{
     protected IMagicCaster caster;
     protected Map<String, Object> eventData = null;
     protected String triggerType = null;
+    protected float castCost = 0.0f;
 
     public AbstractMagicNode(UUID id){
         masoCost = 0.0f;
@@ -53,6 +54,18 @@ public abstract class AbstractMagicNode implements MagicNode{
     }
     public boolean isTrigger(){return this.isTrigger;}
     public String getTriggerType(){return this.triggerType;}
+
+    public List<MagicNode> getDataInputSourceNodes() {
+        List<MagicNode> sources = new ArrayList<>();
+        for (DataLink link : dataInputs.values()) {
+            sources.add(link.sourceNode());
+        }
+        return sources;
+    }
+
+    public void setCastCost(float castCost) { this.castCost = castCost; }
+    public float getCastCost() { return castCost; }
+
     public void setEventData(Map<String, Object> data){this.eventData = data;}
 
 

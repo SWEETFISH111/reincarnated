@@ -17,17 +17,17 @@ public class MasoRegenHandler {
 
             PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
 
-            float current = magicData.currentMaso;
+            float current = magicData.getCurrentMaso();
             float max = magicData.getMaxMaso();
 
 
             if (current < max) {
                 float regenPerTick = magicData.getMasoRegenRate() / 20.0f;
 
-                magicData.currentMaso += regenPerTick;
-                magicData.totalRegeneratedMaso += regenPerTick;
-                if(magicData.currentMaso > max){
-                    magicData.currentMaso = max;
+                magicData.addMasoAmount(regenPerTick);
+                magicData.addTotalRegeneratedMaso(regenPerTick);
+                if(magicData.getCurrentMaso() > max){
+                    magicData.setCurrentMaso(max);
                 }
             }
 
@@ -44,13 +44,13 @@ public class MasoRegenHandler {
                     ));
                 }
 
-                magicData.currentMaso -= attenuationPerTick;
-                if(magicData.currentMaso < max){
-                    magicData.currentMaso = max;
+                magicData.addMasoAmount(-attenuationPerTick);
+                if(magicData.getCurrentMaso() < max){
+                    magicData.setCurrentMaso(max);
                 }
             }
 
-            PacketDistributor.sendToPlayer(player, new SyncMasoPayload(magicData.getMaxMaso(), magicData.currentMaso, magicData.getMaxBarrierPoint(), magicData.getBarrierPoint()));
+            PacketDistributor.sendToPlayer(player, new SyncMasoPayload(magicData.getMaxMaso(), magicData.getCurrentMaso(), magicData.getMaxBarrierPoint(), magicData.getBarrierPoint()));
         }
     }
 }

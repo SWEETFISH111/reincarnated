@@ -36,10 +36,7 @@ public class CastingManager {
             return;
         }
 
-        int totalCalcCost = 0;
-        for (MagiculeCircuit.NodeData node : context.getCircuit().getNodes()) {
-            totalCalcCost += node.type.getCastCost();
-        }
+        int totalCalcCost = CastCostCalculator.calculateCastTimeTicks(context.getCircuit());
 
         boolean hasChantCancellation = false;
 

@@ -4,6 +4,7 @@ import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
+import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,27 +20,36 @@ import java.util.Map;
 
 @EventBusSubscriber(modid = "reincarnated")
 public class ReincarnatedDamageHandler {
+
+    private static final float BARRIER_DAMAGE_REDUCTION = 0.35f;
+
     @SubscribeEvent
-    public static void onDamage(LivingDamageEvent.Pre event){
-        if(event.getEntity() instanceof ServerPlayer player){
+    public static void onDamage(LivingDamageEvent.Pre event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
             Map<String, Object> data = Map.of("damageAmount", event.getOriginalDamage());
             ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_damage", data);
-            float barrierPoint = player.getData(ModAttachments.PLAYER_MAGIC_DATA).getBarrierPoint();
-            float newDamage = event.getOriginalDamage();
 
-            if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY))return;
-            if(barrierPoint <= 0)return;
+            if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
 
-            if(barrierPoint >= newDamage){
-                barrierPoint -= newDamage;
-                player.getData(ModAttachments.PLAYER_MAGIC_DATA).setBarrierPoint(barrierPoint);
+            PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+            float barrierPoint = magicData.getBarrierPoint();
+            if (barrierPoint <= 0) return;
 
+            float rawDamage = event.getOriginalDamage();
+
+            // ① まず一律半減（バリア展開中は常時発動する下駄）
+            float effectiveDamage = rawDamage * (1.0f - BARRIER_DAMAGE_REDUCTION);
+
+            // ② 半減後のダメージをbarrierPointから定数引き算
+            if (barrierPoint >= effectiveDamage) {
+                barrierPoint -= effectiveDamage;
+                magicData.setBarrierPoint(barrierPoint);
                 event.setNewDamage(0);
                 playBarrierHitEffects(player, true);
-            }else {
-                newDamage -= barrierPoint;
-                player.getData(ModAttachments.PLAYER_MAGIC_DATA).setBarrierPoint(0);
-                event.setNewDamage(newDamage);
+            } else {
+                float finalDamage = effectiveDamage - barrierPoint;
+                magicData.setBarrierPoint(0);
+                event.setNewDamage(finalDamage);
                 playBarrierHitEffects(player, false);
             }
         }

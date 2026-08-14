@@ -21,7 +21,7 @@ public class GetCurrentMaso extends AbstractMagicNode {
         Object rawData = pullData(0, context);
         if(rawData instanceof ServerPlayer player){
             PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-            return magicData.currentMaso;
+            return magicData.getCurrentMaso();
         }
         return 0;
     }

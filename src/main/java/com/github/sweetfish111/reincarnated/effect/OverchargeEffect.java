@@ -29,7 +29,7 @@ public class OverchargeEffect extends MobEffect {
             float healAmount = 1.0f * (amplification + 1);
             if (player.getHealth() < player.getMaxHealth()) {
                 player.heal(healAmount);
-                player.getData(ModAttachments.PLAYER_MAGIC_DATA).currentMaso -= healAmount * 0.5f;
+                player.getData(ModAttachments.PLAYER_MAGIC_DATA).addMasoAmount(-healAmount * 0.5f);
             }
 
             CausalityObserver.onOverCharge((ServerPlayer) player);

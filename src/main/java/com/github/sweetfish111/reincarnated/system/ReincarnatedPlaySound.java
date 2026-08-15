@@ -8,25 +8,14 @@ import net.minecraft.world.phys.Vec3;
 
 public class ReincarnatedPlaySound {
     public static void playEvolutionSound(Player player) {
-        player.playSound(
-                SoundEvents.END_PORTAL_SPAWN,
-                0.6F, // 音量
-                0.8F  // ピッチを少し下げて重低音感を強調
-        );
+        Level level = player.level();
+        double x = player.getX();
+        double y = player.getY() + player.getBbHeight() * 0.5;
+        double z = player.getZ();
 
-        // 2. システムの覚醒・権能授与（シャキーン！）
-        player.playSound(
-                SoundEvents.UI_TOAST_CHALLENGE_COMPLETE,
-                1.0F,
-                1.0F
-        );
-
-        // 3. 結晶化・定着の余韻（キラリーン）
-        player.playSound(
-                SoundEvents.AMETHYST_BLOCK_CHIME,
-                1.2F,
-                1.2F  // 高めのピッチで神聖さを出す
-        );
+        level.playSound(null, x, y, z, SoundEvents.END_PORTAL_SPAWN, SoundSource.PLAYERS, 0.6F, 0.8F);
+        level.playSound(null, x, y, z, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.0F, 1.0F);
+        level.playSound(null, x, y, z, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1.2F, 1.2F);
     }
 
     public static void playHitSound(Level level, Vec3 pos){

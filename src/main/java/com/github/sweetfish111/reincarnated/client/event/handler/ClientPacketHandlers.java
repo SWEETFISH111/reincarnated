@@ -2,6 +2,8 @@ package com.github.sweetfish111.reincarnated.client.event.handler;
 
 import com.github.sweetfish111.reincarnated.client.MagiculeHUDOverlay;
 import com.github.sweetfish111.reincarnated.client.screen.MagicEditorScreen;
+import com.github.sweetfish111.reincarnated.client.screen.StatusScreen;
+import com.github.sweetfish111.reincarnated.network.payload.SyncStatusPayload;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
@@ -20,5 +22,9 @@ public class ClientPacketHandlers {
         MagiculeHUDOverlay.currentMaso = currentMaso;
         MagiculeHUDOverlay.maxBarrier = maxBarrier;
         MagiculeHUDOverlay.currentBarrire = currentBarrier;
+    }
+
+    public static void handleSyncStatus(SyncStatusPayload payload){
+        Minecraft.getInstance().setScreenAndShow(new StatusScreen(payload));
     }
 }

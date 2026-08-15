@@ -37,6 +37,8 @@ public class BarrierState implements PersistentComponent {
         return (float) Math.min(reduction, BalanceConfig.MAX_BARRIER_DAMAGE_REDUCTION.get());
     }
 
+    public double getAdaptR(){ return barrierAdaptR; } // 0=チップ型(減衰率重視)、1=ヘビー型(容量重視)
+
     public void recordBarrierHit(float rawDamage, boolean barrierBroke, long currentTick){
         totalDamageEncountered += rawDamage;
 

@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.client.event;
 import com.github.sweetfish111.reincarnated.client.ReincarnatedKeyMapping;
 import com.github.sweetfish111.reincarnated.network.payload.CastMagicOnePayload;
 import com.github.sweetfish111.reincarnated.network.payload.RequestCircuitPayload;
+import com.github.sweetfish111.reincarnated.network.payload.RequestStatusPayload;
 import com.github.sweetfish111.reincarnated.network.payload.StopCastPayload;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -33,6 +34,14 @@ public class ClientModEvents {
                 }
             })
                     .bounds(screenWidth / 2 + 120, screenHeight / 2 -25, 40, 20)
+                    .build());
+
+            event.addListener(Button.builder(Component.literal("Status"),(button)->{
+                        if(Minecraft.getInstance().getConnection() != null){
+                            Minecraft.getInstance().getConnection().send(new RequestStatusPayload());
+                        }
+                    })
+                    .bounds(screenWidth / 2 + 120, screenHeight / 2, 40, 20) // Magic Editボタンの少し下に配置
                     .build());
         }
     }

@@ -5,7 +5,12 @@ import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
 import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import com.github.sweetfish111.reincarnated.magic.skill.SkillAccessLevel;
+import com.github.sweetfish111.reincarnated.magic.skill.unique.Hoarder;
+import com.github.sweetfish111.reincarnated.magic.skill.unique.Predator;
+import com.github.sweetfish111.reincarnated.magic.skill.unique.Scavenger;
+import com.github.sweetfish111.reincarnated.magic.skill.unique.Usurper;
 import com.github.sweetfish111.reincarnated.system.MessageScheduler;
+import com.github.sweetfish111.reincarnated.system.ReincarnatedPlaySound;
 import com.github.sweetfish111.reincarnated.system.VoiceOfWorld;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -192,6 +197,43 @@ public class PlayerMagicData {
         }
     }
 
+    public boolean performEvolution(String skillId, ServerPlayer player) {
+        if (skillId == null || !skillProgress.isEvolvable(skillId)) {
+            return false;
+        }
+
+        UUID oldGreedyId = skillProgress.getUniqueSkillId();
+
+        // 先に状態遷移（進化資格の最終確定＋魔素進化ステージのトリガー起動）を済ませる。
+        // これで万一の検証失敗時も回路を汚さずに済む。
+        if (!evolveUniqueSkillTo(skillId)) {
+            return false;
+        }
+
+        MagiculeCircuit circuit = getCircuit(EditorTab.SKILL);
+        UUID newSkillId = switch (skillId) {
+            case "predator"  -> Predator.getPredator(circuit);
+            case "scavenger" -> Scavenger.getScavenger(circuit);
+            case "hoarder"   -> Hoarder.getHoarder(circuit);
+            case "usurper"   -> Usurper.getUsurper(circuit);
+            default -> null;
+        };
+        if (newSkillId == null) return false; // 通常到達しない防御的ガード
+
+        skillProgress.setUniqueSkillId(newSkillId);
+        circuit.getCNode(newSkillId).setSkillId(skillId);
+
+        accessControl.setSkillAccessLevel("greedy", SkillAccessLevel.EDITABLE);
+        if (oldGreedyId != null) {
+            circuit.removeNodeAndWires(oldGreedyId);
+        }
+
+        ReincarnatedPlaySound.playEvolutionSound(player);
+        player.sendSystemMessage(VoiceOfWorld.sendEvolvedStage2(player));
+
+        return true;
+    }
+
     // ===== ノードアンロック =====
     public boolean isNodeTypeUnlocked(EditorTab tab, MagiculeNodeType nodeType) {
         return nodeUnlocks.isNodeTypeUnlocked(tab, nodeType);
@@ -246,6 +288,7 @@ public class PlayerMagicData {
     public void recordBarrierHit(float rawDamage, boolean barrierBroke, long currentTick){
         barrier.recordBarrierHit(rawDamage, barrierBroke, currentTick);
     }
+    public double getBarrierStylePreference(){ return barrier.getAdaptR(); }
 
     // ===== 回路ストレージ =====
     private void ensureUniqueSkillCircuit(){

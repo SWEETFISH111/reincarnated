@@ -35,7 +35,7 @@ public class VoiceOfWorld {
 
         // 《告》アナウンスメッセージ（世界の声風にアクア色で装飾）
         Component message = Component.translatable(
-                "message.reincarnated.voice_of_world.evolution_saint",
+                "message.reincarnated.voice_of_world.evolution_hermit",
                 playerName
         ).withStyle(ChatFormatting.AQUA);
 

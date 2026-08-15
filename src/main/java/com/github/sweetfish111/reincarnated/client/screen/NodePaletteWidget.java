@@ -8,6 +8,7 @@ import com.github.sweetfish111.reincarnated.magic.skill.unique.Hoarder;
 import com.github.sweetfish111.reincarnated.magic.skill.unique.Predator;
 import com.github.sweetfish111.reincarnated.magic.skill.unique.Scavenger;
 import com.github.sweetfish111.reincarnated.magic.skill.unique.Usurper;
+import com.github.sweetfish111.reincarnated.network.payload.EvolveSkillPayload;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.system.ReincarnatedPlaySound;
 import com.github.sweetfish111.reincarnated.system.VoiceOfWorld;
@@ -151,62 +152,26 @@ public class NodePaletteWidget {
                     // クリックされたら進化実行
                     if(evolvableId.equals("predator")){
                         items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_predator"), () -> {
-                            UUID newSkillId = Predator.getPredator(circuit);
-                            magicData.setUniqueSkillId(newSkillId);
-                            circuit.getCNode(newSkillId).setSkillId("predator");
-                            magicData.setSkillAccessLevel("greedy", SkillAccessLevel.EDITABLE);
-                            circuit.removeNodeAndWires(greedyId);
-                            magicData.evolveUniqueSkillTo("predator");
-                            parentScreen.rebuildNodeWidgets();
-                            Player player = Minecraft.getInstance().player;
-                            if(player != null){
-                                ReincarnatedPlaySound.playEvolutionSound(player);
-                                player.sendSystemMessage(VoiceOfWorld.sendEvolvedStage2(player));
+                            if(Minecraft.getInstance().getConnection() != null){
+                                Minecraft.getInstance().getConnection().send(new EvolveSkillPayload("predator"));
                             }
                         }));
                     }else if(evolvableId.equals("scavenger")){
-                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_scavenger"), () ->{
-                            UUID newSkillId = Scavenger.getScavenger(circuit);
-                            magicData.setUniqueSkillId(newSkillId);
-                            circuit.getCNode(newSkillId).setSkillId("scavenger");
-                            magicData.setSkillAccessLevel("greedy", SkillAccessLevel.EDITABLE);
-                            circuit.removeNodeAndWires(greedyId);
-                            magicData.evolveUniqueSkillTo("scavenger");
-                            parentScreen.rebuildNodeWidgets();
-                            Player player = Minecraft.getInstance().player;
-                            if(player != null){
-                                ReincarnatedPlaySound.playEvolutionSound(player);
-                                player.sendSystemMessage(VoiceOfWorld.sendEvolvedStage2(player));
+                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_scavenger"), () -> {
+                            if(Minecraft.getInstance().getConnection() != null){
+                                Minecraft.getInstance().getConnection().send(new EvolveSkillPayload("scavenger"));
                             }
                         }));
                     }else if(evolvableId.equals("hoarder")){
-                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_hoarder"), () ->{
-                            UUID newSkillId = Hoarder.getHoarder(circuit);
-                            magicData.setUniqueSkillId(newSkillId);
-                            circuit.getCNode(newSkillId).setSkillId("hoarder");
-                            magicData.setSkillAccessLevel("greedy", SkillAccessLevel.EDITABLE);
-                            circuit.removeNodeAndWires(greedyId);
-                            magicData.evolveUniqueSkillTo("hoarder");
-                            parentScreen.rebuildNodeWidgets();
-                            Player player = Minecraft.getInstance().player;
-                            if(player != null){
-                                ReincarnatedPlaySound.playEvolutionSound(player);
-                                player.sendSystemMessage(VoiceOfWorld.sendEvolvedStage2(player));
+                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_hoarder"), () -> {
+                            if(Minecraft.getInstance().getConnection() != null){
+                                Minecraft.getInstance().getConnection().send(new EvolveSkillPayload("hoarder"));
                             }
                         }));
                     }else if(evolvableId.equals("usurper")){
-                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_usurper"), () ->{
-                            UUID newSkillId = Usurper.getUsurper(circuit);
-                            magicData.setUniqueSkillId(newSkillId);
-                            circuit.getCNode(newSkillId).setSkillId("usurper");
-                            magicData.setSkillAccessLevel("greedy", SkillAccessLevel.EDITABLE);
-                            circuit.removeNodeAndWires(greedyId);
-                            magicData.evolveUniqueSkillTo("usurper");
-                            parentScreen.rebuildNodeWidgets();
-                            Player player = Minecraft.getInstance().player;
-                            if(player != null){
-                                ReincarnatedPlaySound.playEvolutionSound(player);
-                                player.sendSystemMessage(VoiceOfWorld.sendEvolvedStage2(player));
+                        items.add(new PaletteItem(Component.translatable("gui.reincarnated.paletteItem.new_skill_usurper"), () -> {
+                            if(Minecraft.getInstance().getConnection() != null){
+                                Minecraft.getInstance().getConnection().send(new EvolveSkillPayload("usurper"));
                             }
                         }));
                     }

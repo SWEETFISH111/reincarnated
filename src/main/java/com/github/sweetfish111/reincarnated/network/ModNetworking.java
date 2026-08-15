@@ -26,6 +26,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @EventBusSubscriber(modid = "reincarnated")
@@ -84,6 +85,45 @@ public class ModNetworking {
             });
         }));
 
+        //ステータス画面
+        registrar.playToServer(RequestStatusPayload.TYPE, RequestStatusPayload.CODEC, (payload, context) -> {
+            context.enqueueWork(() -> {
+                if (context.player() instanceof ServerPlayer player) {
+                    PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+
+                    SyncStatusPayload status = new SyncStatusPayload(
+                            magicData.getMasoStage().name(),
+                            magicData.getCurrentMaso(),
+                            magicData.getMaxMaso(),
+                            magicData.getMasoRegenRate(),
+                            magicData.getMasoStylePreference(),
+                            magicData.getBarrierPoint(),
+                            magicData.getMaxBarrierPoint(),
+                            magicData.getBarrierDamageReduction(),
+                            magicData.getBarrierStylePreference(),
+                            magicData.getCurrentUniqueSkill(),
+                            magicData.isCompleteGreedy(),
+                            magicData.getGreedyScore(),
+                            magicData.getPredatorScore(),
+                            magicData.getScavengerScore(),
+                            magicData.getHoarderScore(),
+                            magicData.getUsurperScore(),
+                            new ArrayList<>(magicData.getEvolvableUniqueSkills())
+                    );
+
+                    context.reply(status);
+                }
+            });
+        });
+
+        registrar.playToClient(SyncStatusPayload.TYPE, SyncStatusPayload.STREAM_CODEC, ((payload, context) -> {
+            context.enqueueWork(() -> {
+                if (net.neoforged.fml.loading.FMLEnvironment.getDist().isClient()) {
+                    com.github.sweetfish111.reincarnated.client.event.handler.ClientPacketHandlers.handleSyncStatus(payload);
+                }
+            });
+        }));
+
         //魔法１キーが押されて送信されるペイロードのレジスタと処理
         registrar.playToServer(CastMagicOnePayload.TYPE, CastMagicOnePayload.CODEC,((payload, context) -> {
             context.enqueueWork(() -> {
@@ -122,6 +162,22 @@ public class ModNetworking {
                 }
             });
         }));
+
+        registrar.playToServer(EvolveSkillPayload.TYPE, EvolveSkillPayload.CODEC, (payload, context) -> {
+            context.enqueueWork(() -> {
+                if (context.player() instanceof ServerPlayer player) {
+                    PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+
+                    boolean success = magicData.performEvolution(payload.skillId(), player);
+                    if (success) {
+                        // 常駐ノード(ON_TICK等)がSKILL回路の変化を反映するよう再スキャン
+                        ActiveMagicManager.scanAndRegisterResidentNodes(player);
+                        // クライアントに最新の回路・状態を送り返して画面を更新させる
+                        context.reply(new SyncCircuitPayload(magicData.saveToNBT()));
+                    }
+                }
+            });
+        });
 
         //魔法を本にエクスポートする。
         registrar.playToServer(ExportSpellPalyload.TYPE, ExportSpellPalyload.STREAM_CODEC,(((payload, context) -> {

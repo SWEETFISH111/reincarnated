@@ -30,12 +30,14 @@ public class SummonNode extends AbstractMagicNode {
             UUID ownerId = context.getCaster().getCasterId();
             int livingTicks = (int) Math.max(20, livingSeconds * 20); // 最低1秒
 
-            SummonManager.createSummon(ownerId, position, livingTicks, SummonBehavior.fromId((int) behaviorRaw));
             float availableMaso = context.getCaster().getMasoAmount();
 
             MasoInvestmentScaling.CostResult costResult =
                     MasoInvestmentScaling.computeCost(BASECOST, (float) livingTicks, availableMaso);
             masoCost = costResult.cost();
+
+            SummonManager.createSummon(ownerId, position, livingTicks, SummonBehavior.fromId((int) behaviorRaw));
+
             super.execute(context);
             if (level != null) {
                 SummonManager.playSummonEffects(level, position);

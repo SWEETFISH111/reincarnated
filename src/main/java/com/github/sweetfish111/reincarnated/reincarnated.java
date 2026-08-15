@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated;
 
+import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import com.github.sweetfish111.reincarnated.effect.ReincarnatedEffects;
 import com.github.sweetfish111.reincarnated.entity.reincarnatedEntityTypes;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
@@ -91,6 +92,9 @@ public class reincarnated {
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
+
+        //オリジナルコンフィグ追加
+        modContainer.registerConfig(ModConfig.Type.SERVER, BalanceConfig.SPEC, "reincarnated-balance.toml");
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);

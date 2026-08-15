@@ -10,6 +10,7 @@ import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
+import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 
@@ -19,7 +20,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ActiveMagicManager {
     private static final Map<UUID, List<ActiveNodeEntry>> activeRegistry = new ConcurrentHashMap<>();
-    private static final int DEFAULT_RESIDENT_INTERVAL_TICKS = 20; // 1秒間隔
 
     /**
      * 常駐ノードのエントリークラス。
@@ -102,7 +102,7 @@ public class ActiveMagicManager {
 
         for (AbstractMagicNode node : runtimeCircuit.getInstancedNodes().values()) {
             if (node.isTrigger() && "on_tick".equals(node.getTriggerType())) {
-                registerActiveNode(caster, node.getId(), node, skillCircuit, runtimeCircuit, DEFAULT_RESIDENT_INTERVAL_TICKS);
+                registerActiveNode(caster, node.getId(), node, skillCircuit, runtimeCircuit, BalanceConfig.RESIDENT_NODE_INTERVAL_TICKS.get());
             }
         }
     }

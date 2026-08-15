@@ -1,33 +1,25 @@
 package com.github.sweetfish111.reincarnated.player;
 
+import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import net.minecraft.nbt.CompoundTag;
 
 public class BarrierState implements PersistentComponent {
     private float currentPoint = 0;
-    private float baseMaxBarrierPoint = 20; // 進化などで解放される"床"の容量
+    private float baseMaxBarrierPoint = 20;
 
-    private double totalDamageEncountered = 0.0; // 防御成長量 G_def の元になる被弾量の累積
-    private double heavyHitScore = 0.0;          // 大ダメージ判定の蓄積
-    private double chipHitScore = 0.0;           // 小ダメージ連続被弾の蓄積
-    private double barrierAdaptR = 0.5;          // 0=完全チップ型(減衰率へ伸びる)、1=完全ヘビー型(容量へ伸びる)
+    private double totalDamageEncountered = 0.0;
+    private double heavyHitScore = 0.0;
+    private double chipHitScore = 0.0;
+    private double barrierAdaptR = 0.5;
     private long lastBarrierHitTick = -1;
 
-    private static final double BARRIER_EPSILON = 0.001;
-    private static final double BARRIER_ADAPT_ALPHA = 0.05;
-    private static final double BARRIER_GROWTH_DIVISOR = 200.0;
-    private static final double BARRIER_CAPACITY_K = 5.0;
-    private static final double BARRIER_REDUCTION_K = 0.15;
-    private static final float BARRIER_HEAVY_HIT_THRESHOLD_RATIO = 0.5f;
-    private static final int BARRIER_CHIP_INTERVAL_TICKS = 60;
-    private static final float BASE_BARRIER_DAMAGE_REDUCTION = 0.35f;
-    private static final float MAX_BARRIER_DAMAGE_REDUCTION = 0.9f;
+    private static final double BARRIER_EPSILON = 0.001; // ゼロ除算防止のみ、チューニング対象外
 
-    // ★追加：バリア残量そのもの（旧 getBarrierPoint()/setBarrierPoint() に対応）
     public float getCurrentPoint(){ return currentPoint; }
     public void setCurrentPoint(float point){ this.currentPoint = point; }
 
     public float getMaxBarrierPoint(){
-        double capacityBonus = getDefenseGrowth() * barrierAdaptR * BARRIER_CAPACITY_K;
+        double capacityBonus = getDefenseGrowth() * barrierAdaptR * BalanceConfig.BARRIER_CAPACITY_K.get();
         return (float) (baseMaxBarrierPoint + capacityBonus);
     }
 
@@ -35,31 +27,33 @@ public class BarrierState implements PersistentComponent {
     public void setMaxBarrierPoint(float max){ this.baseMaxBarrierPoint = max; }
 
     private double getDefenseGrowth(){
-        double scaled = totalDamageEncountered / BARRIER_GROWTH_DIVISOR;
+        double scaled = totalDamageEncountered / BalanceConfig.BARRIER_GROWTH_DIVISOR.get();
         return Math.log(1.0 + scaled);
     }
 
     public float getBarrierDamageReduction(){
-        double reductionBonus = getDefenseGrowth() * (1.0 - barrierAdaptR) * BARRIER_REDUCTION_K;
-        float reduction = (float) (BASE_BARRIER_DAMAGE_REDUCTION + reductionBonus);
-        return Math.min(reduction, MAX_BARRIER_DAMAGE_REDUCTION);
+        double reductionBonus = getDefenseGrowth() * (1.0 - barrierAdaptR) * BalanceConfig.BARRIER_REDUCTION_K.get();
+        float reduction = (float) (BalanceConfig.BASE_BARRIER_DAMAGE_REDUCTION.get() + reductionBonus);
+        return (float) Math.min(reduction, BalanceConfig.MAX_BARRIER_DAMAGE_REDUCTION.get());
     }
 
     public void recordBarrierHit(float rawDamage, boolean barrierBroke, long currentTick){
         totalDamageEncountered += rawDamage;
 
+        double heavyRatio = BalanceConfig.BARRIER_HEAVY_HIT_THRESHOLD_RATIO.get();
         boolean isHeavy = barrierBroke
-                || (baseMaxBarrierPoint > 0 && rawDamage >= baseMaxBarrierPoint * BARRIER_HEAVY_HIT_THRESHOLD_RATIO);
+                || (baseMaxBarrierPoint > 0 && rawDamage >= baseMaxBarrierPoint * heavyRatio);
 
         if (isHeavy) {
             heavyHitScore += 1.0;
-        } else if (lastBarrierHitTick >= 0 && (currentTick - lastBarrierHitTick) < BARRIER_CHIP_INTERVAL_TICKS) {
+        } else if (lastBarrierHitTick >= 0 && (currentTick - lastBarrierHitTick) < BalanceConfig.BARRIER_CHIP_INTERVAL_TICKS.get()) {
             chipHitScore += 1.0;
         }
         lastBarrierHitTick = currentTick;
 
         double rInstant = heavyHitScore / (heavyHitScore + chipHitScore + BARRIER_EPSILON);
-        barrierAdaptR = barrierAdaptR * (1.0 - BARRIER_ADAPT_ALPHA) + rInstant * BARRIER_ADAPT_ALPHA;
+        double alpha = BalanceConfig.BARRIER_ADAPT_ALPHA.get();
+        barrierAdaptR = barrierAdaptR * (1.0 - alpha) + rInstant * alpha;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.action;
 
-import com.github.sweetfish111.reincarnated.magic.MasoInvestmentScaling;
+import com.github.sweetfish111.reincarnated.magic.casting.MasoInvestmentScaling;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.system.ReincarnatedPlaySound;

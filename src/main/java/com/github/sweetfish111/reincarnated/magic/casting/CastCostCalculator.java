@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.magic.casting;
 import com.github.sweetfish111.reincarnated.circuit.CircuitCompileCache;
 import com.github.sweetfish111.reincarnated.circuit.CompiledCircuitGraph;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
+import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
 
@@ -20,11 +21,6 @@ import java.util.*;
  */
 public class CastCostCalculator {
 
-    private static final double BASE_CAST_TICKS = 5.0;
-    private static final double K_T = 2.0;
-    private static final double DEPTH_EXPONENT = 1.3;
-    private static final double K_W = 0.5;
-    private static final double WIDTH_EXPONENT = 0.8;
 
     public static int calculateCastTimeTicks(MagiculeCircuit circuit) {
         CompiledCircuitGraph graph = CircuitCompileCache.getOrCompile(circuit);
@@ -53,9 +49,9 @@ public class CastCostCalculator {
         }
 
         int totalNodes = nodes.size();
-        double castTime = BASE_CAST_TICKS
-                + K_T * Math.pow(maxDepth, DEPTH_EXPONENT)
-                + K_W * Math.pow(totalNodes, WIDTH_EXPONENT);
+        double castTime = BalanceConfig.BASE_CAST_TICKS.get()
+                + BalanceConfig.CAST_DEPTH_COEFFICIENT.get() * Math.pow(maxDepth, BalanceConfig.CAST_DEPTH_EXPONENT.get())
+                + BalanceConfig.CAST_WIDTH_COEFFICIENT.get() * Math.pow(totalNodes, BalanceConfig.CAST_WIDTH_EXPONENT.get());
 
         return (int) Math.ceil(castTime);
     }

@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.magic;
+package com.github.sweetfish111.reincarnated.magic.casting;
 
 /**
  * 「望む効果量」に対する魔素コストを算出する共通ユーティリティ。

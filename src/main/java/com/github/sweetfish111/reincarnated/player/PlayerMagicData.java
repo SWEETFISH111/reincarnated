@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.player;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
+import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import com.github.sweetfish111.reincarnated.magic.skill.SkillAccessLevel;
 import com.github.sweetfish111.reincarnated.system.MessageScheduler;
 import com.github.sweetfish111.reincarnated.system.VoiceOfWorld;
@@ -109,7 +110,7 @@ public class PlayerMagicData {
     }
 
     private void checkEvolution(ServerPlayer player) {
-        double threshold = 100;
+        double threshold = BalanceConfig.UNIQUE_SKILL_EVOLUTION_THRESHOLD.get();
         boolean stillGreedy = skillProgress.getCurrentUniqueSkill().equals("greedy");
 
         if (stillGreedy && !skillProgress.isCompleteGreedy() && skillProgress.getGreedyScore() >= threshold) {
@@ -214,6 +215,14 @@ public class PlayerMagicData {
     public void loadPermissionsNBT(CompoundTag permTag) {
         accessControl.loadFromNBT(permTag);
     }
+
+    //===== ユニークスキルスコア =====
+    public double getGreedyScore(){ return skillProgress.getGreedyScore(); }
+    public double getPredatorScore(){ return skillProgress.getPredatorScore(); }
+    public double getScavengerScore(){ return skillProgress.getScavengerScore(); }
+    public double getHoarderScore(){ return skillProgress.getHoarderScore(); }
+    public double getUsurperScore(){ return skillProgress.getUsurperScore(); }
+    public boolean isCompleteGreedy(){ return skillProgress.isCompleteGreedy(); }
 
     // ===== 魔素経済 =====
     public MasoEvolutionStage getMasoStage(){ return masoEconomy.getMasoStage(); }

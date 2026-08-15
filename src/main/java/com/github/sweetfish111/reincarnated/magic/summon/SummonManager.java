@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.summon;
 
+import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,14 +15,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class SummonManager {
     private static final Map<UUID, SummonedInstance> summonRegistry = new ConcurrentHashMap<>();
     private static final Map<UUID, List<UUID>> ownerIndex = new ConcurrentHashMap<>();
-    private static final int MAX_SUMMONS_PER_OWNER = 3;
 
     /**
      * 召喚物を新規作成する。同一オーナーの召喚数が上限を超える場合、一番古いものを解除する。
      */
     public static UUID createSummon(UUID ownerId, Vec3 position, int livingTicks, SummonBehavior behavior) {
         List<UUID> owned = ownerIndex.computeIfAbsent(ownerId, k -> new CopyOnWriteArrayList<>());
-        if (owned.size() >= MAX_SUMMONS_PER_OWNER) {
+        if (owned.size() >= BalanceConfig.MAX_SUMMONS_PER_OWNER.get()) {
             UUID oldest = owned.get(0);
             unregisterSummon(oldest);
         }

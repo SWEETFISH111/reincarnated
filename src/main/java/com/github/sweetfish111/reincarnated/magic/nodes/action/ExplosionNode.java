@@ -1,8 +1,9 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.action;
 
-import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
+import com.github.sweetfish111.reincarnated.magic.MasoInvestmentScaling;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
+import com.github.sweetfish111.reincarnated.system.CausalityObserver;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,8 +22,17 @@ public class ExplosionNode extends AbstractMagicNode {
     @Override
     public void execute(MagicContext context) {
         double rawData = pullDouble(2,context);
-        masoCost = BASECOST * (float) rawData;
+        float availableMaso = context.getCaster().getMasoAmount();
+
+        MasoInvestmentScaling.CostResult costResult =
+                MasoInvestmentScaling.computeCost(BASECOST, (float) rawData, availableMaso);
+        masoCost = costResult.cost();
         super.execute(context);
+
+        if (costResult.isOvercharge() && context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
+            CausalityObserver.onOverCharge(player); // 既存のhoarderスコア加算＋on_overchargeトリガーに相乗り
+        }
+
         BlockPos targetPos = BlockPos.containing(pullVector3(1, context));
         Level.ExplosionInteraction interaction = Level.ExplosionInteraction.NONE;
         if (context.getCircuit() != null) {

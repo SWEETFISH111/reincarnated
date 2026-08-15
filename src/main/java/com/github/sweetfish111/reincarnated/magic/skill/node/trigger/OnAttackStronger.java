@@ -1,16 +1,16 @@
-package com.github.sweetfish111.reincarnated.magic.slill.node.trigger;
+package com.github.sweetfish111.reincarnated.magic.skill.node.trigger;
 
-import com.github.sweetfish111.reincarnated.magic.SatietyAmount;
+import com.github.sweetfish111.reincarnated.magic.PowerGapAmount;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 
 import java.util.UUID;
 
-public class OnEatNode extends AbstractMagicNode {
-    public OnEatNode(UUID id) {
+public class OnAttackStronger extends AbstractMagicNode {
+    public OnAttackStronger(UUID id) {
         super(id);
         isTrigger = true;
-        triggerType = "on_eat";
+        triggerType = "on_attack_stronger";
     }
 
     @Override
@@ -22,8 +22,8 @@ public class OnEatNode extends AbstractMagicNode {
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
-        Object raw = this.eventData.get("satietyLevel");
-        double d = (raw instanceof Number n) ? n.doubleValue() : 0.0;
-        return new SatietyAmount(d);
+        Object rawData = this.eventData.get("power_gap");
+        double d = (rawData instanceof Number n) ? n.doubleValue() : 0.0;
+        return new PowerGapAmount(d);
     }
 }

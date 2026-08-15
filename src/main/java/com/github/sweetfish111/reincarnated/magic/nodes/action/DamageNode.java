@@ -1,8 +1,10 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.action;
 
+import com.github.sweetfish111.reincarnated.magic.MasoInvestmentScaling;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
+import com.github.sweetfish111.reincarnated.system.CausalityObserver;
 import com.github.sweetfish111.reincarnated.system.ReincarnatedPlaySound;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,8 +25,17 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
     @Override
     public void execute(MagicContext context) {
         double damageAmount = pullDouble(2, context);
-        masoCost = BASECOST * (float) damageAmount;
+        float availableMaso = context.getCaster().getMasoAmount();
+
+        MasoInvestmentScaling.CostResult costResult =
+                MasoInvestmentScaling.computeCost(BASECOST, (float) damageAmount, availableMaso);
+        masoCost = costResult.cost();
         super.execute(context);
+
+        if (costResult.isOvercharge() && context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
+            CausalityObserver.onOverCharge(player); // ★追加
+        }
+
         Object target = pullData(1, context);
         if(target instanceof Entity targetEntity){
             DamageSource source;

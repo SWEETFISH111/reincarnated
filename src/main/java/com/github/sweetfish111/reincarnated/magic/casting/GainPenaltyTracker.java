@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.magic;
+package com.github.sweetfish111.reincarnated.magic.casting;
 
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 

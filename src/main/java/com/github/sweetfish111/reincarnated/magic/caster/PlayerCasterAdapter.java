@@ -69,7 +69,8 @@ public class PlayerCasterAdapter implements IMagicCaster{
     @Override
     public void consumeMaso(float amount) {
         PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-        magicData.consumeMasoAmount(amount); // currentMaso減算とtotalConsumedMaso加算を1メソッドにまとめた
+        long currentTick = player.level().getGameTime();
+        magicData.consumeMasoAmount(amount, currentTick);
     }
 
     @Override

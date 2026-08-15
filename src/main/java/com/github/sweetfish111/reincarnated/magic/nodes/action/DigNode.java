@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.action;
 
+import com.github.sweetfish111.reincarnated.magic.MasoInvestmentScaling;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import net.minecraft.core.BlockPos;
@@ -8,9 +9,10 @@ import net.minecraft.world.phys.Vec3;
 import java.util.UUID;
 
 public class DigNode extends AbstractMagicNode {
+    float BASECOST = 0.7f;
+
     public DigNode(UUID id) {
         super(id);
-        masoCost = 1;
     }
 
     @Override
@@ -21,7 +23,11 @@ public class DigNode extends AbstractMagicNode {
         int depth  = Math.max(1, (int) Math.round(pullDouble(4, context)));
 
         // 掘削量（幅×高さ×奥行き）に応じてコストをスケール
-        masoCost = width * height * depth;
+        float availableMaso = context.getCaster().getMasoAmount();
+
+        MasoInvestmentScaling.CostResult costResult =
+                MasoInvestmentScaling.computeCost(BASECOST, ((float) (width * height * depth)), availableMaso);
+        masoCost = costResult.cost();
         super.execute(context);
 
         if (posVec == null) return;

@@ -1,6 +1,5 @@
-package com.github.sweetfish111.reincarnated.magic.slill.node.trigger;
+package com.github.sweetfish111.reincarnated.magic.skill.node.trigger;
 
-import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 

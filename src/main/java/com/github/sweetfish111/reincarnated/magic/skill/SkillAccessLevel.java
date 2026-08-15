@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.magic.slill;
+package com.github.sweetfish111.reincarnated.magic.skill;
 
 public enum SkillAccessLevel {
     /** 1. 一切の操作拒否：存在のみ認知（または文字化け）、ダイブ不可、編集不可、発動不可 */

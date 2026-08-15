@@ -2,7 +2,7 @@ package com.github.sweetfish111.reincarnated.circuit;
 
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
-import com.github.sweetfish111.reincarnated.magic.slill.SkillAccessLevel;
+import com.github.sweetfish111.reincarnated.magic.skill.SkillAccessLevel;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;

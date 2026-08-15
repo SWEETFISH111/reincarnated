@@ -1,8 +1,7 @@
-package com.github.sweetfish111.reincarnated.magic.slill.node.trigger;
+package com.github.sweetfish111.reincarnated.magic.skill.node.trigger;
 
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 
 import java.util.UUID;
 

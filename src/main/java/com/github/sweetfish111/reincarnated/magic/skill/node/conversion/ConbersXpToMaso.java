@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.magic.slill.node.conversion;
+package com.github.sweetfish111.reincarnated.magic.skill.node.conversion;
 
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;

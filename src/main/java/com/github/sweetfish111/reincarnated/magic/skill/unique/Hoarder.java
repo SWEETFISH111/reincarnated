@@ -1,9 +1,7 @@
-package com.github.sweetfish111.reincarnated.magic.slill.unique;
+package com.github.sweetfish111.reincarnated.magic.skill.unique;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
-import com.github.sweetfish111.reincarnated.magic.slill.node.action.AbsorptionNode;
-import com.github.sweetfish111.reincarnated.magic.slill.node.action.BarrierNode;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;

@@ -2,10 +2,6 @@ package com.github.sweetfish111.reincarnated.player;
 
 import net.minecraft.nbt.CompoundTag;
 
-/**
- * 魔素経済（現在値・消費/回復の累積・進化ステージ）を担当するコンポーネント。
- * NBTタグ構造は元の"maso"タグと完全互換。
- */
 public class MasoEconomy implements PersistentComponent {
     private float currentMaso = 20f;
     private float totalRegeneratedMaso = 0f;
@@ -16,9 +12,25 @@ public class MasoEconomy implements PersistentComponent {
     private double stageStartRegeneratedMaso = 0.0;
     private boolean pendingMasoEvolutionTrigger = false;
 
+    // ★新規：バースト/継続プレイスタイル適応
+    private double burstScore = 0.0;
+    private double sustainScore = 0.0;
+    private double rSmoothed = 0.5; // 0=完全継続型、1=完全バースト型
+    private long lastCastTick = -1;
+
     private static final double STAGE_CARRYOVER_RATIO = 0.3;
     private static final double REGEN_RECOVERY_MIDPOINT_RATIO = 0.5;
     public static final double MASO_SCALE_DIVISOR = 250.0;
+
+    // ★新規：スタイル適応のチューニング定数
+    private static final double STYLE_EPSILON = 0.001;
+    private static final double STYLE_ALPHA = 0.02;              // EMAの追従速度
+    private static final double STYLE_GROWTH_DIVISOR = 250.0;
+    private static final double STYLE_REFERENCE_T_TICKS = 400.0; // 等価性を保証する基準時間（20秒）
+    private static final double STYLE_K_REGEN = 0.02;            // 校正の元になる回復側係数
+    private static final double STYLE_K_MAX = STYLE_K_REGEN * STYLE_REFERENCE_T_TICKS; // k_max = k_regen×T
+    private static final double BURST_RATIO_THRESHOLD = 0.5;     // 現在maxMasoの何割消費でバースト扱いか
+    private static final int SUSTAIN_INTERVAL_TICKS = 100;       // 5秒以内の連続詠唱を継続扱い
 
     public float getCurrentMaso(){ return currentMaso; }
     public void setCurrentMaso(float value){ this.currentMaso = value; }
@@ -29,25 +41,60 @@ public class MasoEconomy implements PersistentComponent {
 
     public float getTotalConsumedMaso(){ return totalConsumedMaso; }
 
-    /** 魔素を消費する（現在値を減らし、累積消費量も加算）。旧PlayerCasterAdapterの直接フィールド操作の代替。 */
-    public void consumeMaso(float amount){
+    /**
+     * 魔素を消費する（詠唱コストとしての消費）。
+     * currentTickを渡すことで、消費のたびにバースト/継続の適応スコアも更新する。
+     */
+    public void consumeMaso(float amount, long currentTick){
         this.currentMaso -= amount;
         this.totalConsumedMaso += amount;
+        recordCastForStyle(amount, currentTick);
+    }
+
+    private void recordCastForStyle(float consumedAmount, long currentTick){
+        advanceMasoStageIfNeeded();
+        double baseMax = getBaseMaxMaso();
+        double ratio = baseMax > 0 ? consumedAmount / baseMax : 0;
+
+        if (ratio >= BURST_RATIO_THRESHOLD) {
+            burstScore += (ratio - BURST_RATIO_THRESHOLD) * 2.0;
+        } else if (lastCastTick >= 0 && (currentTick - lastCastTick) < SUSTAIN_INTERVAL_TICKS) {
+            sustainScore += 1.0;
+        }
+        lastCastTick = currentTick;
+
+        double rInstant = burstScore / (burstScore + sustainScore + STYLE_EPSILON);
+        rSmoothed = rSmoothed * (1 - STYLE_ALPHA) + rInstant * STYLE_ALPHA;
+    }
+
+    public double getStylePreference(){ return rSmoothed; } // 将来のステータス画面用
+
+    private double getStyleGrowth(){
+        return Math.log(1.0 + totalConsumedMaso / STYLE_GROWTH_DIVISOR);
     }
 
     public MasoEvolutionStage getMasoStage(){ return masoStage; }
 
-    public float getMaxMaso(){
-        advanceMasoStageIfNeeded();
+    /** スタイルボーナスを含まない、進化ステージ由来の基礎最大魔素量（バースト判定の固定基準にも使う） */
+    private double getBaseMaxMaso(){
         double sinceStageStart = Math.max(0.0, this.totalConsumedMaso - stageStartConsumedMaso);
         double scaledInput = sinceStageStart / MASO_SCALE_DIVISOR;
-        return (float) (masoStage.getFloor() + masoStage.getScaleFactor() * Math.log(1.0 + scaledInput));
+        return masoStage.getFloor() + masoStage.getScaleFactor() * Math.log(1.0 + scaledInput);
+    }
+
+    public float getMaxMaso(){
+        advanceMasoStageIfNeeded();
+        double styleBonus = getStyleGrowth() * rSmoothed * STYLE_K_MAX;
+        return (float) (getBaseMaxMaso() + styleBonus);
     }
 
     public float getMasoRegenRate(){
         double sinceStageStart = Math.max(0.0, this.totalRegeneratedMaso - stageStartRegeneratedMaso);
         double scaledInput = sinceStageStart / MASO_SCALE_DIVISOR;
-        return (float)(masoStage.getRegenFloor() + masoStage.getRegenScaleFactor() * Math.log(1.0 + scaledInput));
+        double baseValue = masoStage.getRegenFloor() + masoStage.getRegenScaleFactor() * Math.log(1.0 + scaledInput);
+
+        double styleBonus = getStyleGrowth() * (1 - rSmoothed) * STYLE_K_REGEN;
+        return (float)(baseValue + styleBonus);
     }
 
     public void triggerMasoStageEvolutionAttempt(){
@@ -105,6 +152,10 @@ public class MasoEconomy implements PersistentComponent {
         tag.putDouble("stageStartConsumedMaso", stageStartConsumedMaso);
         tag.putDouble("stageStartRegeneratedMaso", stageStartRegeneratedMaso);
         tag.putBoolean("pendingMasoEvolutionTrigger", pendingMasoEvolutionTrigger);
+        tag.putDouble("burstScore", burstScore);
+        tag.putDouble("sustainScore", sustainScore);
+        tag.putDouble("rSmoothed", rSmoothed);
+        tag.putDouble("lastCastTick", (double) lastCastTick);
     }
 
     @Override
@@ -116,5 +167,9 @@ public class MasoEconomy implements PersistentComponent {
         stageStartConsumedMaso = tag.getDouble("stageStartConsumedMaso").orElse(0.0);
         stageStartRegeneratedMaso = tag.getDouble("stageStartRegeneratedMaso").orElse(0.0);
         pendingMasoEvolutionTrigger = tag.getBoolean("pendingMasoEvolutionTrigger").orElse(false);
+        burstScore = tag.getDouble("burstScore").orElse(0.0);
+        sustainScore = tag.getDouble("sustainScore").orElse(0.0);
+        rSmoothed = tag.getDouble("rSmoothed").orElse(0.5);
+        lastCastTick = (long)(double) tag.getDouble("lastCastTick").orElse(-1.0);
     }
 }

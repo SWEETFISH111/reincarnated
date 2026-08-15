@@ -1,14 +1,12 @@
 package com.github.sweetfish111.reincarnated.client.screen;
 
 import com.github.sweetfish111.reincarnated.circuit.*;
-import com.github.sweetfish111.reincarnated.item.GrimoireItem;
 import com.github.sweetfish111.reincarnated.item.ReincarnatedItems;
-import com.github.sweetfish111.reincarnated.magic.slill.SkillAccessLevel;
+import com.github.sweetfish111.reincarnated.magic.skill.SkillAccessLevel;
 import com.github.sweetfish111.reincarnated.network.payload.ExportSpellPalyload;
 import com.github.sweetfish111.reincarnated.network.payload.SaveCircuitPayload;
 import com.github.sweetfish111.reincarnated.network.payload.ToggleMagicSlotPayload;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
-import com.github.sweetfish111.reincarnated.reincarnated;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -22,14 +20,9 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 

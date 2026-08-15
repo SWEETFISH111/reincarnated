@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.event.handler;
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.event.PlayerUniqueSkillAcquiredEvent;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
 import com.github.sweetfish111.reincarnated.magic.casting.PassiveSlotManager;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,6 +34,8 @@ class PlayerLoginHandler {
                     PassiveSlotManager.startSlot(serverPlayer, magicData.getMagicSlot(i));
                 }
             }
+
+            ActiveMagicManager.scanAndRegisterResidentNodes(serverPlayer);
         }
     }
 

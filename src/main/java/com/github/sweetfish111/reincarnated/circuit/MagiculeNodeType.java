@@ -119,8 +119,18 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC},
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.SKILL)
     ),
+    SUMMON("summon", Component.translatable("node.reincarnated.summon").getString(),
+            new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
     GET_LOOK_TARGET("get_look_target",Component.translatable("node.reincarnated.get_look_target").getString(),
             new PortDataType[]{},
+            new PortDataType[]{PortDataType.ENTITY},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    GET_NEAREST_ENTITY_IN_RADIUS("get_nearest_entity_in_radius", Component.translatable("node.reincarnated.get_nearest_entity_in_radius").getString(),
+            new PortDataType[]{PortDataType.VECTORE, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.ENTITY},
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),

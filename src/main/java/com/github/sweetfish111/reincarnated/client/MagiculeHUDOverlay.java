@@ -39,7 +39,7 @@ public class MagiculeHUDOverlay {
 
         int barrierX = (int)(event.getGuiGraphics().guiWidth() * (15f / 100f));
         int barrierY = (int)(event.getGuiGraphics().guiHeight() * (95f / 100f));
-        int barrierColor = 0xFFFFFFFF;
+        int barrierColor = (currentBarrire == 0) ? 0xFFFFFF : 0xFFFFFFFF;
         event.getGuiGraphics().centeredText(
                 Minecraft.getInstance().font,
                 barrierText,

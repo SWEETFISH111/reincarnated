@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.magic.slill.node.conversion;
+package com.github.sweetfish111.reincarnated.magic.skill.node.conversion;
 
 import com.github.sweetfish111.reincarnated.magic.KillScoreAmount;
 import com.github.sweetfish111.reincarnated.magic.MasoAmount;

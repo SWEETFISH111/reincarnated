@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.magic.slill.unique;
+package com.github.sweetfish111.reincarnated.magic.skill.unique;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
@@ -8,11 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class Scavenger {
-    public static UUID getScavenger(MagiculeCircuit circuit) {
+public class Predator {
+    MagiculeCircuit circuit = new MagiculeCircuit();
 
-        MagiculeCircuit.NodeData triggerNode = new MagiculeCircuit.NodeData(UUID.randomUUID(), MagiculeNodeType.ON_EAT, 100, 100);
-        MagiculeCircuit.NodeData conversNode = new MagiculeCircuit.NodeData(UUID.randomUUID(), MagiculeNodeType.COMBERS_SATIETY_TO_MASO, 150, 100);
+    public static UUID getPredator(MagiculeCircuit circuit) {
+
+        MagiculeCircuit.NodeData triggerNode = new MagiculeCircuit.NodeData(UUID.randomUUID(), MagiculeNodeType.ON_KILL, 100, 100);
+        MagiculeCircuit.NodeData conversNode = new MagiculeCircuit.NodeData(UUID.randomUUID(), MagiculeNodeType.COMBERS_KILL_TO_MASO, 150, 100);
         MagiculeCircuit.NodeData addMaso = new MagiculeCircuit.NodeData(UUID.randomUUID(), MagiculeNodeType.ADD_MASO, 200, 100);
 
         circuit.addNode(triggerNode);
@@ -34,6 +36,6 @@ public class Scavenger {
 
         nodes.addAll(BarrierSkillCircuit.getBarrierSkillCircuit(circuit));
 
-        return circuit.collapseNodes(nodes, Component.translatable("name.reincarnated.uniqueSkill.scavenger").getString());
+        return circuit.collapseNodes(nodes, Component.translatable("name.reincarnated.uniqueSkill.predator").getString());
     }
 }

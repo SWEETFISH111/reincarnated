@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.action;
 
+import com.github.sweetfish111.reincarnated.magic.MasoInvestmentScaling;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import net.minecraft.server.level.ServerLevel;
@@ -24,7 +25,11 @@ public class CollectItemsNode extends AbstractMagicNode {
         Vec3 center = pullVector3(1, context);
         double radius = Math.max(0.5, pullDouble(2, context)); // 極端に小さい値の暴発防止
 
-        masoCost = BASECOST * (float) radius;
+        float availableMaso = context.getCaster().getMasoAmount();
+
+        MasoInvestmentScaling.CostResult costResult =
+                MasoInvestmentScaling.computeCost(BASECOST, (float) radius, availableMaso);
+        masoCost = costResult.cost();
         super.execute(context);
 
         int collectedCount = 0;

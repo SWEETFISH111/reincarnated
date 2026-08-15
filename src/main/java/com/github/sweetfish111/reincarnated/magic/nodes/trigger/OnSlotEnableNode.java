@@ -1,7 +1,7 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.trigger;
 
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
-import com.github.sweetfish111.reincarnated.magic.slill.node.action.AbsorptionNode;
+import com.github.sweetfish111.reincarnated.magic.skill.node.action.AbsorptionNode;
 
 import java.util.UUID;
 

@@ -1,16 +1,16 @@
-package com.github.sweetfish111.reincarnated.magic.slill.node.trigger;
+package com.github.sweetfish111.reincarnated.magic.skill.node.trigger;
 
-import com.github.sweetfish111.reincarnated.magic.KillScoreAmount;
+import com.github.sweetfish111.reincarnated.magic.SatietyAmount;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 
 import java.util.UUID;
 
-public class OnKillNode extends AbstractMagicNode {
-    public OnKillNode(UUID id) {
+public class OnEatNode extends AbstractMagicNode {
+    public OnEatNode(UUID id) {
         super(id);
         isTrigger = true;
-        triggerType = "on_kill";
+        triggerType = "on_eat";
     }
 
     @Override
@@ -22,8 +22,8 @@ public class OnKillNode extends AbstractMagicNode {
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
-        Object raw = this.eventData.get("killScore");
+        Object raw = this.eventData.get("satietyLevel");
         double d = (raw instanceof Number n) ? n.doubleValue() : 0.0;
-        return new KillScoreAmount(d);
+        return new SatietyAmount(d);
     }
 }

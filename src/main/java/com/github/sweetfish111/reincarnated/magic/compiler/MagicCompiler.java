@@ -15,14 +15,14 @@ import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.OnSlotEnableNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.NullNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.VectorNode;
-import com.github.sweetfish111.reincarnated.magic.slill.node.action.AbsorptionNode;
-import com.github.sweetfish111.reincarnated.magic.slill.node.action.BarrierNode;
-import com.github.sweetfish111.reincarnated.magic.slill.node.conversion.ConbersKillToMaso;
-import com.github.sweetfish111.reincarnated.magic.slill.node.conversion.ConbersPowerGapToMaso;
-import com.github.sweetfish111.reincarnated.magic.slill.node.conversion.ConbersSatietyToMaso;
-import com.github.sweetfish111.reincarnated.magic.slill.node.conversion.ConbersXpToMaso;
-import com.github.sweetfish111.reincarnated.magic.slill.node.action.AddMasoNode;
-import com.github.sweetfish111.reincarnated.magic.slill.node.trigger.*;
+import com.github.sweetfish111.reincarnated.magic.skill.node.action.AbsorptionNode;
+import com.github.sweetfish111.reincarnated.magic.skill.node.action.BarrierNode;
+import com.github.sweetfish111.reincarnated.magic.skill.node.conversion.ConbersKillToMaso;
+import com.github.sweetfish111.reincarnated.magic.skill.node.conversion.ConbersPowerGapToMaso;
+import com.github.sweetfish111.reincarnated.magic.skill.node.conversion.ConbersSatietyToMaso;
+import com.github.sweetfish111.reincarnated.magic.skill.node.conversion.ConbersXpToMaso;
+import com.github.sweetfish111.reincarnated.magic.skill.node.action.AddMasoNode;
+import com.github.sweetfish111.reincarnated.magic.skill.node.trigger.*;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.BooleanNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.NumberNode;
 
@@ -271,6 +271,8 @@ public class MagicCompiler {
             case "collect_items": return new CollectItemsNode(nodeId);
             case "on_slot_enable":return new OnSlotEnableNode(nodeId);
             case "null":return new NullNode(nodeId);
+            case "get_nearest_entity_in_radius":return new GetNearestEntityInRadius(nodeId);
+            case "summon":return new SummonNode(nodeId);
             default : return null;
         }
     }

@@ -2,14 +2,11 @@ package com.github.sweetfish111.reincarnated.client.screen;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
-import com.github.sweetfish111.reincarnated.magic.slill.SkillAccessLevel;
+import com.github.sweetfish111.reincarnated.magic.skill.SkillAccessLevel;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.fml.common.Mod;
 
 import java.util.*;
 

@@ -57,6 +57,8 @@ public class ModNetworking {
                                 }
                             }
 
+                            ActiveMagicManager.scanAndRegisterResidentNodes(player);
+
                             System.out.println("サーバー: プレイヤー " + player.getName().getString() + " の魔法データを保存・同期しました");
                         }
                     });

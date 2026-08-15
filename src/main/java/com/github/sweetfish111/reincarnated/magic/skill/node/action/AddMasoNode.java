@@ -1,6 +1,6 @@
-package com.github.sweetfish111.reincarnated.magic.slill.node.action;
+package com.github.sweetfish111.reincarnated.magic.skill.node.action;
 
-import com.github.sweetfish111.reincarnated.magic.GainPenaltyTracker;
+import com.github.sweetfish111.reincarnated.magic.casting.GainPenaltyTracker;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.MasoAmount;

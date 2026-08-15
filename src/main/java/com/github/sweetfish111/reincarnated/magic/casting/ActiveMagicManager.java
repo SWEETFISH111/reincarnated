@@ -9,7 +9,7 @@ import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
+import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 
@@ -18,24 +18,29 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ActiveMagicManager {
-    // プレイヤーのUUIDごとに、現在稼働しているアクティブ（常駐・パッシブ）ノードのマップ
-    // ※ Listに CopyOnWriteArrayList を採用し、並行修正例外（ConcurrentModificationException）を完全にブロック！
     private static final Map<UUID, List<ActiveNodeEntry>> activeRegistry = new ConcurrentHashMap<>();
+    private static final int DEFAULT_RESIDENT_INTERVAL_TICKS = 20; // 1秒間隔
 
     /**
-     * 常駐ノードのエントリークラス
+     * 常駐ノードのエントリークラス。
+     * 登録時点でコンパイル済みの RuntimeMagicCircuit / MagiculeCircuit を保持し、
+     * 毎tickの実行では「そのノード単体」だけを直接execute()する
+     * （以前は回路全体を毎回再コンパイル&start()していたため、
+     *   同じ回路内の他のトリガーノードまで誤発火する不具合があった）。
      */
     public static class ActiveNodeEntry {
         private final UUID nodeId;
-        private final MagicNode nodeInstance;
+        private final AbstractMagicNode nodeInstance;
         private final MagiculeCircuit sourceCircuit;
-        private final int intervalTicks; // スロットリング用（例: 5Tickに1回実行など）
+        private final RuntimeMagicCircuit runtimeCircuit;
+        private final int intervalTicks;
         private int tickCounter = 0;
 
-        public ActiveNodeEntry(UUID nodeId, MagicNode nodeInstance, MagiculeCircuit sourceCircuit, int intervalTicks) {
+        public ActiveNodeEntry(UUID nodeId, AbstractMagicNode nodeInstance, MagiculeCircuit sourceCircuit, RuntimeMagicCircuit runtimeCircuit, int intervalTicks) {
             this.nodeId = nodeId;
             this.nodeInstance = nodeInstance;
             this.sourceCircuit = sourceCircuit;
+            this.runtimeCircuit = runtimeCircuit;
             this.intervalTicks = Math.max(1, intervalTicks);
         }
 
@@ -48,35 +53,24 @@ public class ActiveMagicManager {
             return false;
         }
 
-        public void execute(IMagicCaster caster) {
-            RuntimeMagicCircuit runtimeMagicCircuit = MagicCompiler.compileCircuit(caster, sourceCircuit);
-            if (runtimeMagicCircuit != null) {
-                MagicContext context = new MagicContext(sourceCircuit, runtimeMagicCircuit);
-                AbstractMagicNode node = runtimeMagicCircuit.getInstancedNode(nodeId);
-                if(node != null){
-                    node.execute(context);
-                }
-            }
+        public void execute() {
+            MagicContext context = new MagicContext(sourceCircuit, runtimeCircuit);
+            nodeInstance.execute(context);
         }
 
-        public UUID getNodeId() {
-            return nodeId;
-        }
+        public UUID getNodeId() { return nodeId; }
     }
 
     /**
      * プレイヤーが新しい常駐ノードを有効化したときに登録する
      */
-    public static void registerActiveNode(IMagicCaster caster, UUID nodeId, MagicNode node, MagiculeCircuit sourceCircuit,  int intervalTicks) {
+    public static void registerActiveNode(IMagicCaster caster, UUID nodeId, AbstractMagicNode node, MagiculeCircuit sourceCircuit, RuntimeMagicCircuit runtimeCircuit, int intervalTicks) {
         activeRegistry.computeIfAbsent(caster.getCasterId(), k -> new CopyOnWriteArrayList<>())
-                .removeIf(entry -> entry.getNodeId().equals(nodeId)); // 既存の重複を防ぐ
+                .removeIf(entry -> entry.getNodeId().equals(nodeId));
 
-        activeRegistry.get(caster.getCasterId()).add(new ActiveNodeEntry(nodeId, node, sourceCircuit, intervalTicks));
+        activeRegistry.get(caster.getCasterId()).add(new ActiveNodeEntry(nodeId, node, sourceCircuit, runtimeCircuit, intervalTicks));
     }
 
-    /**
-     * 常駐ノードを無効化したとき（またはログアウト時）に解除する
-     */
     public static void unregisterActiveNode(IMagicCaster caster, UUID nodeId) {
         List<ActiveNodeEntry> entries = activeRegistry.get(caster.getCasterId());
         if (entries != null) {
@@ -84,9 +78,6 @@ public class ActiveMagicManager {
         }
     }
 
-    /**
-     * プレイヤーごとの全アクティブノードをクリアする（死亡時やリログ時など）
-     */
     public static void unregisterAllForPlayer(UUID playerUuid) {
         if (playerUuid != null) {
             activeRegistry.remove(playerUuid);
@@ -94,28 +85,43 @@ public class ActiveMagicManager {
     }
 
     /**
-     * 👑 サーバーの心臓部：毎Tickのイベントから呼び出す実行ループ
+     * SKILLタブの回路をスキャンし、ON_TICKトリガーノードを常駐実行として登録する。
+     * ログイン時・回路保存時に呼ぶことを想定。呼ぶたびに一旦クリアしてから登録し直すので、
+     * 「編集して回路からON_TICKを消した」場合も自然に反映される。
      */
+    public static void scanAndRegisterResidentNodes(ServerPlayer player) {
+        IMagicCaster caster = new PlayerCasterAdapter(player);
+        unregisterAllForPlayer(caster.getCasterId());
+
+        PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        MagiculeCircuit skillCircuit = magicData.getCircuit(EditorTab.SKILL);
+        if (skillCircuit == null) return;
+
+        RuntimeMagicCircuit runtimeCircuit = MagicCompiler.compileCircuit(caster, skillCircuit);
+        if (runtimeCircuit == null) return;
+
+        for (AbstractMagicNode node : runtimeCircuit.getInstancedNodes().values()) {
+            if (node.isTrigger() && "on_tick".equals(node.getTriggerType())) {
+                registerActiveNode(caster, node.getId(), node, skillCircuit, runtimeCircuit, DEFAULT_RESIDENT_INTERVAL_TICKS);
+            }
+        }
+    }
+
     public static void onServerTick(ServerLevel level) {
-        // 現在ワールドにいる全プレイヤーに対してアクティブノードを安全に処理
         for (ServerPlayer player : level.players()) {
             List<ActiveNodeEntry> entries = activeRegistry.get(player.getUUID());
             if (entries == null || entries.isEmpty()) continue;
 
-            // CopyOnWriteArrayList を使っているため安全ですが、
-            // 念のため新しいリストにスナップショットを取ってイテレートすることで衝突を完全に防止します
             List<ActiveNodeEntry> safeEntries = new ArrayList<>(entries);
             for (ActiveNodeEntry entry : safeEntries) {
-                // スロットリング（間引き処理）の判定を挟むことでサーバー負荷を劇的に軽減！
                 if (entry.shouldExecute()) {
-                    entry.execute(new PlayerCasterAdapter(player));
+                    entry.execute();
                 }
             }
         }
     }
 
     public static void executeEventTrigger(IMagicCaster caster, EditorTab tab, String triggerNodeType, Map<String, Object> eventData) {
-        // 指定されたタブの回路とコンパイル済みデータを取り出す
         if (caster instanceof PlayerCasterAdapter p) {
             ServerPlayer player = (ServerPlayer) p.getCasterEntity();
             MagiculeCircuit circuit = player.getData(ModAttachments.PLAYER_MAGIC_DATA).getCircuit(tab);
@@ -130,7 +136,7 @@ public class ActiveMagicManager {
                     node.setEventData(eventData);
                     node.execute(new MagicContext(circuit, runtimeCircuit));
                 }
-            };
+            }
         }
     }
 }

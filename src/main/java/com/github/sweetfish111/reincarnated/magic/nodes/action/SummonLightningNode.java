@@ -24,14 +24,11 @@ public class SummonLightningNode extends AbstractMagicNode {
     public void execute(MagicContext context) {
         masoCost = BASECOST;
         super.execute(context);
-        System.out.println("[kaminari] zikkou no nami ga toutatu! hidari no pin kara zahyou wo pull");
 
         Vec3 targetPos = pullVector3(1, context);
-        System.out.println("[kaminari] shutoku sita zahyou:" + targetPos);
 
         // 2. 引っ張ってきた座標に雷を落とす！
         if (targetPos != null && context.getCaster().getCasterLevel() instanceof ServerLevel serverLevel) {
-            System.out.println("[kaminari] kaminari shoukann");
             Identifier lightningId = Identifier.parse("lightning_bolt");
             var optionalHolder = BuiltInRegistries.ENTITY_TYPE.get(lightningId);
 
@@ -44,12 +41,9 @@ public class SummonLightningNode extends AbstractMagicNode {
                     serverLevel.addFreshEntity(lightning);
                 }
             }
-            System.out.println("[kaminari] dokan");
         }else {
-            System.out.println("[kaminari] zahyou ga null mosikuha sekai ga serverlevel janai");
         }
 
-        // 3. もし右側にさらに別の魔法（爆発など）が繋がっていれば、処理を続ける（Push）
         pushExecute(context);
     }
 

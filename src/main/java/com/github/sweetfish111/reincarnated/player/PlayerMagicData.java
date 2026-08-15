@@ -197,6 +197,8 @@ public class PlayerMagicData {
         }
     }
 
+    public MasoEvolutionStage pollStageEvolutionEvent(){ return masoEconomy.pollStageEvolutionEvent(); }
+
     public boolean performEvolution(String skillId, ServerPlayer player) {
         if (skillId == null || !skillProgress.isEvolvable(skillId)) {
             return false;

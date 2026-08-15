@@ -50,7 +50,7 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
                         null, null,null
                 );
             }
-            targetEntity.hurtServer(context.getLevel(), source, (float) damageAmount);
+            targetEntity.hurtServer(context.getLevel(), source, costResult.grantedAmount());
             if(context.getCaster().getCasterEntity() instanceof ServerPlayer player){
                 ReincarnatedPlaySound.playHitSound(player.level(), player.getPosition(1.0f));
             }

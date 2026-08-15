@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.system;
 
+import com.github.sweetfish111.reincarnated.player.MasoEvolutionStage;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
@@ -16,6 +17,21 @@ public class ReincarnatedPlaySound {
         level.playSound(null, x, y, z, SoundEvents.END_PORTAL_SPAWN, SoundSource.PLAYERS, 0.6F, 0.8F);
         level.playSound(null, x, y, z, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.0F, 1.0F);
         level.playSound(null, x, y, z, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1.2F, 1.2F);
+    }
+
+    public static void playStageEvolutionSound(Player player, MasoEvolutionStage newStage) {
+        Level level = player.level();
+        double x = player.getX();
+        double y = player.getY() + player.getBbHeight() * 0.5;
+        double z = player.getZ();
+
+        int tier = newStage.ordinal(); // STAGE0=0 〜 STAGE3=3
+        float pitchFactor = Math.max(0.4f, 0.8f - tier * 0.12f);   // 段階が上がるほど低く重く
+        float volumeFactor = Math.min(1.2f, 0.6f + tier * 0.15f);  // 段階が上がるほど大きく
+
+        level.playSound(null, x, y, z, SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS, 0.6f * volumeFactor, pitchFactor);
+        level.playSound(null, x, y, z, SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 0.35f * volumeFactor, pitchFactor + 0.3f);
+        level.playSound(null, x, y, z, SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.0f * volumeFactor, pitchFactor + 0.2f);
     }
 
     public static void playHitSound(Level level, Vec3 pos){

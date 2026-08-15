@@ -36,7 +36,7 @@ public class SummonNode extends AbstractMagicNode {
                     MasoInvestmentScaling.computeCost(BASECOST, (float) livingTicks, availableMaso);
             masoCost = costResult.cost();
 
-            SummonManager.createSummon(ownerId, position, livingTicks, SummonBehavior.fromId((int) behaviorRaw));
+            SummonManager.createSummon(ownerId, position, (int)costResult.grantedAmount(), SummonBehavior.fromId((int) behaviorRaw));
 
             super.execute(context);
             if (level != null) {

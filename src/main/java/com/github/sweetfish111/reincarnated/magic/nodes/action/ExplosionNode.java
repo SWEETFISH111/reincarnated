@@ -42,7 +42,7 @@ public class ExplosionNode extends AbstractMagicNode {
             }
         }
         if(context.getCaster().getCasterLevel() instanceof ServerLevel serverLevel){
-            float explosionPower = (float)rawData;
+            float explosionPower = costResult.grantedAmount();
             Entity sourceEntity = context.getCaster().getCasterEntity();
             serverLevel.explode(
                     sourceEntity,

@@ -126,8 +126,20 @@ public class MasoEconomy implements PersistentComponent {
         onMasoStageEvolved(masoStage);
     }
 
+    private MasoEvolutionStage pendingStageEvolutionNotification = null;
+
     private void onMasoStageEvolved(MasoEvolutionStage newStage) {
-        // TODO: 進化演出・実績通知・ネットワーク同期パケット送信などをここに実装
+        this.pendingStageEvolutionNotification = newStage;
+    }
+
+    /**
+     * 段階進化が発生していれば、その段階を返して通知を消費する（一度きり）。
+     * 発生していなければnull。NBT永続化は不要（1tick以内に消費される想定の一時フラグ）。
+     */
+    public MasoEvolutionStage pollStageEvolutionEvent(){
+        MasoEvolutionStage result = pendingStageEvolutionNotification;
+        pendingStageEvolutionNotification = null;
+        return result;
     }
 
     @Override

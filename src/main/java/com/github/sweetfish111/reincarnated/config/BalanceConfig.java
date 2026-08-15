@@ -28,8 +28,9 @@ public class BalanceConfig {
 
     // ===== 魔素投資カーブ（MasoInvestmentScaling） =====
     public static final ModConfigSpec.DoubleValue SAFE_COST_EXPONENT;
-    public static final ModConfigSpec.DoubleValue OVERCHARGE_COST_EXPONENT;
-    public static final ModConfigSpec.DoubleValue OVERCHARGE_THRESHOLD_RATIO;
+    public static final ModConfigSpec.DoubleValue OVERLOAD_COST_EXPONENT;
+    public static final ModConfigSpec.DoubleValue OVERLOAD_THRESHOLD_RATIO;
+    public static final ModConfigSpec.DoubleValue OVERLOAD_EFFECT_BONUS_RATIO;
 
     // ===== 詠唱時間コスト（CastCostCalculator） =====
     public static final ModConfigSpec.DoubleValue BASE_CAST_TICKS;
@@ -114,12 +115,16 @@ public class BalanceConfig {
         SAFE_COST_EXPONENT = builder
                 .comment("安全域のコスト凸カーブ指数(大きいほど大量要求が急激に割高になる)")
                 .defineInRange("safeCostExponent", 1.3, 1.0, 5.0);
-        OVERCHARGE_COST_EXPONENT = builder
-                .comment("オーバーチャージ域のコスト凸カーブ指数")
+
+        OVERLOAD_COST_EXPONENT = builder
+                .comment("オーバーロード域のコスト凸カーブ指数")
                 .defineInRange("overchargeCostExponent", 2.2, 1.0, 6.0);
-        OVERCHARGE_THRESHOLD_RATIO = builder
-                .comment("現在魔素量に対して、コストがこの比率を超えるとオーバーチャージ域に切り替わる")
+        OVERLOAD_THRESHOLD_RATIO = builder
+                .comment("現在魔素量に対して、コストがこの比率を超えるとオーバーロード域に切り替わる")
                 .defineInRange("overchargeThresholdRatio", 0.5, 0.01, 1.0);
+        OVERLOAD_EFFECT_BONUS_RATIO = builder
+                .comment("過剰域で超過投資した分に対する効果ボーナス倍率（例：0.4なら超過分の40%が効果に上乗せされる）")
+                .defineInRange("overchargeEffectBonusRatio", 0.4, 0.0, 5.0);
         builder.pop();
 
         builder.push("cast_cost");

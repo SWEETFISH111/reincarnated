@@ -3,13 +3,17 @@ package com.github.sweetfish111.reincarnated.event.handler;
 import com.github.sweetfish111.reincarnated.effect.ReincarnatedEffects;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.network.payload.SyncMasoPayload;
+import com.github.sweetfish111.reincarnated.player.MasoEvolutionStage;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
+import com.github.sweetfish111.reincarnated.system.ReincarnatedPlaySound;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import static com.github.sweetfish111.reincarnated.system.ReincarnatedPlaySound.playStageEvolutionSound;
 
 public class MasoRegenHandler {
     public static void onPlayerTick(PlayerTickEvent event){
@@ -20,6 +24,10 @@ public class MasoRegenHandler {
             float current = magicData.getCurrentMaso();
             float max = magicData.getMaxMaso();
 
+            MasoEvolutionStage evolvedStage = magicData.pollStageEvolutionEvent();
+            if (evolvedStage != null) {
+                playStageEvolutionSound(player, player.getData(ModAttachments.PLAYER_MAGIC_DATA).getMasoStage());
+            }
 
             if (current < max) {
                 float regenPerTick = magicData.getMasoRegenRate() / 20.0f;

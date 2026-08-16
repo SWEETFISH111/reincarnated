@@ -9,33 +9,71 @@ import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
 
 import java.util.*;
 
-/**
- * 詠唱時間コストの算出。
- * ノード数の単純合計ではなく「クリティカルパス深さ D」＋「総ノード数Nによる幅コスト」の
- * 二項で構成する。
- *
- *   castTimeTicks = baseCastTicks + k_t * D^1.3 + k_w * N^0.8
- *
- * D: トリガーから終端までの最長経路（EXEC辺・データ依存辺の両方を辺として扱う）の重み合計
- * N: 回路内の全ノード数（並列複製への抑止＝先日話した「3並列3倍」対策の時間側の分担）
- */
 public class CastCostCalculator {
-
 
     public static int calculateCastTimeTicks(MagiculeCircuit circuit) {
         CompiledCircuitGraph graph = CircuitCompileCache.getOrCompile(circuit);
         Map<UUID, AbstractMagicNode> nodes = graph.getInstancedNodes();
         if (nodes.isEmpty()) return 0;
 
-        // EXEC辺は発信元ノード側にしか記録されていないので、逆引き用に先に構築する
+        GraphMetrics metrics = computeGraphMetrics(nodes);
+        return (int) Math.ceil(applyCostFormula(metrics.maxDepth(), metrics.nodeCount()));
+    }
+
+    /**
+     * 特定のトリガーノードから到達可能な部分グラフだけを対象に、
+     * 詠唱時間コストと全く同じ公式で複雑さを算出する。
+     * 常駐術式(ON_TICK等)の演算負荷判定に使う。
+     */
+    public static double calculateSubgraphComplexity(AbstractMagicNode triggerNode) {
+        Map<UUID, AbstractMagicNode> reachable = collectReachableNodes(triggerNode);
+        GraphMetrics metrics = computeGraphMetrics(reachable);
+        return applyCostFormula(metrics.maxDepth(), metrics.nodeCount());
+    }
+
+    public static double applyCostFormula(double depth, int nodeCount) {
+        return BalanceConfig.BASE_CAST_TICKS.get()
+                + BalanceConfig.CAST_DEPTH_COEFFICIENT.get() * Math.pow(depth, BalanceConfig.CAST_DEPTH_EXPONENT.get())
+                + BalanceConfig.CAST_WIDTH_COEFFICIENT.get() * Math.pow(nodeCount, BalanceConfig.CAST_WIDTH_EXPONENT.get());
+    }
+
+    private record GraphMetrics(double maxDepth, int nodeCount) {}
+
+    private static Map<UUID, AbstractMagicNode> collectReachableNodes(AbstractMagicNode start) {
+        Map<UUID, AbstractMagicNode> reachable = new HashMap<>();
+        Deque<AbstractMagicNode> frontier = new ArrayDeque<>();
+        frontier.add(start);
+        reachable.put(start.getId(), start);
+
+        while (!frontier.isEmpty()) {
+            AbstractMagicNode node = frontier.poll();
+
+            for (List<MagicNode> targets : node.getOutputConnections().values()) {
+                for (MagicNode target : targets) {
+                    if (target instanceof AbstractMagicNode t && !reachable.containsKey(t.getId())) {
+                        reachable.put(t.getId(), t);
+                        frontier.add(t);
+                    }
+                }
+            }
+            for (MagicNode source : node.getDataInputSourceNodes()) {
+                if (source instanceof AbstractMagicNode s && !reachable.containsKey(s.getId())) {
+                    reachable.put(s.getId(), s);
+                    frontier.add(s);
+                }
+            }
+        }
+        return reachable;
+    }
+
+    /** 与えられたノード集合"の中だけ"でEXEC辺の逆引き＋クリティカルパス深さを計算する */
+    private static GraphMetrics computeGraphMetrics(Map<UUID, AbstractMagicNode> nodes) {
         Map<UUID, List<AbstractMagicNode>> execPredecessors = new HashMap<>();
         for (AbstractMagicNode node : nodes.values()) {
             for (List<MagicNode> targets : node.getOutputConnections().values()) {
                 for (MagicNode target : targets) {
-                    if (target instanceof AbstractMagicNode targetNode) {
-                        execPredecessors
-                                .computeIfAbsent(targetNode.getId(), k -> new ArrayList<>())
-                                .add(node);
+                    if (target instanceof AbstractMagicNode t && nodes.containsKey(t.getId())) {
+                        execPredecessors.computeIfAbsent(t.getId(), k -> new ArrayList<>()).add(node);
                     }
                 }
             }
@@ -45,22 +83,14 @@ public class CastCostCalculator {
         double maxDepth = 0.0;
         for (AbstractMagicNode node : nodes.values()) {
             maxDepth = Math.max(maxDepth,
-                    computeDepth(node, execPredecessors, depthCache, new HashSet<>()));
+                    computeDepth(node, nodes, execPredecessors, depthCache, new HashSet<>()));
         }
-
-        int totalNodes = nodes.size();
-        double castTime = BalanceConfig.BASE_CAST_TICKS.get()
-                + BalanceConfig.CAST_DEPTH_COEFFICIENT.get() * Math.pow(maxDepth, BalanceConfig.CAST_DEPTH_EXPONENT.get())
-                + BalanceConfig.CAST_WIDTH_COEFFICIENT.get() * Math.pow(totalNodes, BalanceConfig.CAST_WIDTH_EXPONENT.get());
-
-        return (int) Math.ceil(castTime);
+        return new GraphMetrics(maxDepth, nodes.size());
     }
 
-    /**
-     * 深さ = 自分の重み(castCost) + 依存先（EXECの前段 or データ供給元）の中で最大の深さ
-     */
     private static double computeDepth(
             AbstractMagicNode node,
+            Map<UUID, AbstractMagicNode> scope,
             Map<UUID, List<AbstractMagicNode>> execPredecessors,
             Map<UUID, Double> cache,
             Set<UUID> visiting
@@ -69,7 +99,6 @@ public class CastCostCalculator {
         Double cached = cache.get(id);
         if (cached != null) return cached;
 
-        // 循環参照の防御（コンパイル段階で弾かれる想定だが念のため）
         if (!visiting.add(id)) {
             return node.getCastCost();
         }
@@ -79,15 +108,13 @@ public class CastCostCalculator {
         List<AbstractMagicNode> execPreds = execPredecessors.get(id);
         if (execPreds != null) {
             for (AbstractMagicNode pred : execPreds) {
-                maxPredDepth = Math.max(maxPredDepth,
-                        computeDepth(pred, execPredecessors, cache, visiting));
+                maxPredDepth = Math.max(maxPredDepth, computeDepth(pred, scope, execPredecessors, cache, visiting));
             }
         }
 
         for (MagicNode source : node.getDataInputSourceNodes()) {
-            if (source instanceof AbstractMagicNode sourceNode) {
-                maxPredDepth = Math.max(maxPredDepth,
-                        computeDepth(sourceNode, execPredecessors, cache, visiting));
+            if (source instanceof AbstractMagicNode sourceNode && scope.containsKey(sourceNode.getId())) {
+                maxPredDepth = Math.max(maxPredDepth, computeDepth(sourceNode, scope, execPredecessors, cache, visiting));
             }
         }
 

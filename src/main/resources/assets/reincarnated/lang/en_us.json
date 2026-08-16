@@ -1,9 +1,11 @@
 {
   "itemGroup.reincarnated": "Reincarnated Mod Tab",
   "item.reincarnated.grimoire": "Grimoire of Secrets",
+
   "message.reincarnated.export_success": "Consumed a blank book and spun a new grimoire!",
   "message.reincarnated.export_error": "Error: Please hold a blank book in your main hand.",
   "message.reincarnated.compound_accessDenied": "Report. Higher authority level detected. Unable to analyze this circuit.",
+  "message.reincarnated.compute_capacity_exceeded": "《Notice》Compute capacity exceeded. Some resident spells could not activate.",
 
   "name.reincarnated.uniqueSkill.greedy": "greedy",
   "name.reincarnated.uniqueSkill.predator": "predator",
@@ -31,6 +33,8 @@
   "screen.reincarnated.status.damage_reduction": "Damage Reduction: %s%%",
   "screen.reincarnated.status.chip_type": "Reduction-type",
   "screen.reincarnated.status.heavy_type": "Capacity-type",
+  "screen.reincarnated.status.compute": "Compute Capacity",
+  "screen.reincarnated.status.compute_bar": "%s / %s",
   "screen.reincarnated.status.unique_skill": "Unique Skill",
   "screen.reincarnated.status.current_skill": "Current: %s",
   "screen.reincarnated.status.greedy_not_established": " (Greedy not established)",

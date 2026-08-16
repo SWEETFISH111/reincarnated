@@ -11,6 +11,7 @@ import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.config.BalanceConfig;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 
@@ -34,22 +35,22 @@ public class ActiveMagicManager {
         private final MagiculeCircuit sourceCircuit;
         private final RuntimeMagicCircuit runtimeCircuit;
         private final int intervalTicks;
+        private final double load;
         private int tickCounter = 0;
 
-        public ActiveNodeEntry(UUID nodeId, AbstractMagicNode nodeInstance, MagiculeCircuit sourceCircuit, RuntimeMagicCircuit runtimeCircuit, int intervalTicks) {
+        public ActiveNodeEntry(UUID nodeId, AbstractMagicNode nodeInstance, MagiculeCircuit sourceCircuit,
+                               RuntimeMagicCircuit runtimeCircuit, int intervalTicks, double load) {
             this.nodeId = nodeId;
             this.nodeInstance = nodeInstance;
             this.sourceCircuit = sourceCircuit;
             this.runtimeCircuit = runtimeCircuit;
             this.intervalTicks = Math.max(1, intervalTicks);
+            this.load = load;
         }
 
         public boolean shouldExecute() {
             tickCounter++;
-            if (tickCounter >= intervalTicks) {
-                tickCounter = 0;
-                return true;
-            }
+            if (tickCounter >= intervalTicks) { tickCounter = 0; return true; }
             return false;
         }
 
@@ -59,16 +60,23 @@ public class ActiveMagicManager {
         }
 
         public UUID getNodeId() { return nodeId; }
+        public double getLoad() { return load; }
     }
 
-    /**
-     * プレイヤーが新しい常駐ノードを有効化したときに登録する
-     */
-    public static void registerActiveNode(IMagicCaster caster, UUID nodeId, AbstractMagicNode node, MagiculeCircuit sourceCircuit, RuntimeMagicCircuit runtimeCircuit, int intervalTicks) {
+    public static void registerActiveNode(IMagicCaster caster, UUID nodeId, AbstractMagicNode node,
+                                          MagiculeCircuit sourceCircuit, RuntimeMagicCircuit runtimeCircuit,
+                                          int intervalTicks, double load) {
         activeRegistry.computeIfAbsent(caster.getCasterId(), k -> new CopyOnWriteArrayList<>())
                 .removeIf(entry -> entry.getNodeId().equals(nodeId));
+        activeRegistry.get(caster.getCasterId()).add(new ActiveNodeEntry(nodeId, node, sourceCircuit, runtimeCircuit, intervalTicks, load));
+    }
 
-        activeRegistry.get(caster.getCasterId()).add(new ActiveNodeEntry(nodeId, node, sourceCircuit, runtimeCircuit, intervalTicks));
+    public static double getComputeUsage(UUID playerId) {
+        List<ActiveNodeEntry> entries = activeRegistry.get(playerId);
+        if (entries == null) return 0.0;
+        double sum = 0.0;
+        for (ActiveNodeEntry entry : entries) sum += entry.getLoad();
+        return sum;
     }
 
     public static void unregisterActiveNode(IMagicCaster caster, UUID nodeId) {
@@ -100,10 +108,25 @@ public class ActiveMagicManager {
         RuntimeMagicCircuit runtimeCircuit = MagicCompiler.compileCircuit(caster, skillCircuit);
         if (runtimeCircuit == null) return;
 
+        double maxCapacity = magicData.getMaxComputeCapacity();
+        double usedCapacity = 0.0;
+        boolean anySkipped = false;
+
         for (AbstractMagicNode node : runtimeCircuit.getInstancedNodes().values()) {
             if (node.isTrigger() && "on_tick".equals(node.getTriggerType())) {
-                registerActiveNode(caster, node.getId(), node, skillCircuit, runtimeCircuit, BalanceConfig.RESIDENT_NODE_INTERVAL_TICKS.get());
+                double load = CastCostCalculator.calculateSubgraphComplexity(node); // ★前回話したクリティカルパス公式を再利用
+                if (usedCapacity + load > maxCapacity) {
+                    anySkipped = true;
+                    continue; // 演算能力が足りず、この常駐術式は起動できない
+                }
+                usedCapacity += load;
+                registerActiveNode(caster, node.getId(), node, skillCircuit, runtimeCircuit,
+                        BalanceConfig.RESIDENT_NODE_INTERVAL_TICKS.get(), load);
             }
+        }
+
+        if (anySkipped) {
+            player.sendSystemMessage(Component.translatable("message.reincarnated.compute_capacity_exceeded"));
         }
     }
 

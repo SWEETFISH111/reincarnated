@@ -3,6 +3,7 @@
   "message.reincarnated.export_success": "白紙の本を消費し、新たな魔導書を紡ぎ出しました！",
   "message.reincarnated.export_error": "エラー: メインハンドに白紙の本を持ってください。",
   "message.reincarnated.compound_accessDenied": "《告》。より上位の権限レベルを検出。この回路を解析できません。",
+  "message.reincarnated.compute_capacity_exceeded": "《告》演算能力の上限を超過。一部の常駐術式は起動できませんでした。",
 
   "name.reincarnated.uniqueSkill.greedy": "貪欲者",
   "name.reincarnated.uniqueSkill.predator": "捕食者",
@@ -30,6 +31,8 @@
   "screen.reincarnated.status.damage_reduction": "被弾軽減率: %s%%",
   "screen.reincarnated.status.chip_type": "減衰率型(チップ)",
   "screen.reincarnated.status.heavy_type": "容量型(ヘビー)",
+  "screen.reincarnated.status.compute": "演算能力",
+  "screen.reincarnated.status.compute_bar": "%s / %s",
   "screen.reincarnated.status.unique_skill": "ユニークスキル",
   "screen.reincarnated.status.current_skill": "現在: %s",
   "screen.reincarnated.status.greedy_not_established": " (貪欲未確立)",

@@ -2,14 +2,17 @@ package com.github.sweetfish111.reincarnated.magic.casting;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
+import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
+import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
+import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -30,21 +33,27 @@ public class CastingManager {
     private static final Map<UUID, CastingTask>activeCasts = new ConcurrentHashMap<>();
 
     public static void startCasting(MagicContext context) {
-
-        //くみ上げられたノードから静的に計算コストを算出。
         if(activeCasts.containsKey(context.getCaster().getCasterId())){
             return;
         }
 
-        int totalCalcCost = CastCostCalculator.calculateCastTimeTicks(context.getCircuit());
+        int baseCastTimeTicks = CastCostCalculator.calculateCastTimeTicks(context.getCircuit());
+        int totalCalcCost = baseCastTimeTicks;
+
+        if (context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
+            PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+            double computeCapacity = magicData.getMaxComputeCapacity();
+            double speedMultiplier = computeCastSpeedMultiplier(computeCapacity);
+            totalCalcCost = (int) Math.ceil(baseCastTimeTicks * speedMultiplier);
+
+            magicData.recordCastTime(baseCastTimeTicks); // ★演算能力の成長源として記録（短縮前の"本来の重さ"を記録する）
+        }
 
         boolean hasChantCancellation = false;
-
         IMagicCaster iMagicCaster = context.getCaster();
         if(iMagicCaster.getCasterEntity() instanceof ServerPlayer player){
             checkChantCancellationSkill(player);
         }
-
 
         if (hasChantCancellation || totalCalcCost <= 0) {
             RuntimeMagicCircuit runtimeMagicCircuit = MagicCompiler.compileCircuit(context.getCaster(), context.getCircuit());
@@ -52,9 +61,19 @@ public class CastingManager {
             return;
         }
 
-        // 3. 詠唱タスクをキューに登録
         CastingTask task = new CastingTask(context, totalCalcCost);
         activeCasts.put(context.getCaster().getCasterId(), task);
+    }
+
+    /**
+     * 演算能力に応じた詠唱時間の速度倍率。
+     * capacity=0で1.0（短縮なし）、capacityが増えるほど下限(MIN_CAST_MULTIPLIER)へ漸近する。
+     * 決してゼロにはならない（即時詠唱化を防ぐ）。
+     */
+    private static double computeCastSpeedMultiplier(double computeCapacity) {
+        double min = BalanceConfig.COMPUTE_CAPACITY_MIN_CAST_MULTIPLIER.get();
+        double halfLife = BalanceConfig.COMPUTE_CAPACITY_CAST_HALF_LIFE.get();
+        return min + (1.0 - min) / (1.0 + computeCapacity / halfLife);
     }
 
     public static void releaseCasting(IMagicCaster caster){

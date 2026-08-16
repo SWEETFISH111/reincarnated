@@ -32,6 +32,14 @@ public class BalanceConfig {
     public static final ModConfigSpec.DoubleValue OVERLOAD_THRESHOLD_RATIO;
     public static final ModConfigSpec.DoubleValue OVERLOAD_EFFECT_BONUS_RATIO;
 
+    //==== 演算能力系 ====
+    public static final ModConfigSpec.DoubleValue BASE_COMPUTE_CAPACITY;
+    public static final ModConfigSpec.DoubleValue COMPUTE_CAPACITY_SCALE;
+    public static final ModConfigSpec.DoubleValue COMPUTE_CAPACITY_STAGE_EXPONENT;
+    public static final ModConfigSpec.DoubleValue COMPUTE_CAPACITY_DIVISOR;
+    public static final ModConfigSpec.DoubleValue COMPUTE_CAPACITY_MIN_CAST_MULTIPLIER;
+    public static final ModConfigSpec.DoubleValue COMPUTE_CAPACITY_CAST_HALF_LIFE;
+
     // ===== 詠唱時間コスト（CastCostCalculator） =====
     public static final ModConfigSpec.DoubleValue BASE_CAST_TICKS;
     public static final ModConfigSpec.DoubleValue CAST_DEPTH_COEFFICIENT;
@@ -125,6 +133,27 @@ public class BalanceConfig {
         OVERLOAD_EFFECT_BONUS_RATIO = builder
                 .comment("過剰域で超過投資した分に対する効果ボーナス倍率（例：0.4なら超過分の40%が効果に上乗せされる）")
                 .defineInRange("overchargeEffectBonusRatio", 0.4, 0.0, 5.0);
+        builder.pop();
+
+        builder.push("compute_capacity");
+        BASE_COMPUTE_CAPACITY = builder
+                .comment("演算能力の基礎値（詠唱経験ゼロ・STAGE0時点の値）")
+                .defineInRange("baseComputeCapacity", 10.0, 0.0, 10000.0);
+        COMPUTE_CAPACITY_SCALE = builder
+                .comment("累計詠唱時間による対数成長の係数")
+                .defineInRange("computeCapacityScale", 8.0, 0.0, 1000.0);
+        COMPUTE_CAPACITY_STAGE_EXPONENT = builder
+                .comment("進化ステージが成長率に与える影響の強さ（(ステージ順+1)^この値を成長係数に掛ける）")
+                .defineInRange("computeCapacityStageExponent", 1.5, 0.0, 5.0);
+        COMPUTE_CAPACITY_DIVISOR = builder
+                .comment("累計詠唱時間(tick)の対数成長における割数")
+                .defineInRange("computeCapacityDivisor", 500.0, 1.0, 100000.0);
+        COMPUTE_CAPACITY_MIN_CAST_MULTIPLIER = builder
+                .comment("演算能力による詠唱時間短縮の下限倍率（0.3なら最短でも元の30%までしか縮まない）")
+                .defineInRange("computeCapacityMinCastMultiplier", 0.3, 0.05, 1.0);
+        COMPUTE_CAPACITY_CAST_HALF_LIFE = builder
+                .comment("詠唱短縮効果が最大短縮の半分に達する演算能力値")
+                .defineInRange("computeCapacityCastHalfLife", 50.0, 1.0, 100000.0);
         builder.pop();
 
         builder.push("cast_cost");

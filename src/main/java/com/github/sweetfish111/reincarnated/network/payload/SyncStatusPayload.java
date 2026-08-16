@@ -20,6 +20,9 @@ public record SyncStatusPayload(
         float barrierDamageReduction,
         double barrierStylePreference,
 
+        double computeUsage,        // ★追加
+        double maxComputeCapacity,
+
         String currentUniqueSkill,
         boolean completeGreedy,
         double greedyScore,
@@ -48,6 +51,9 @@ public record SyncStatusPayload(
                 ByteBufCodecs.FLOAT.encode(buf, payload.barrierDamageReduction());
                 ByteBufCodecs.DOUBLE.encode(buf, payload.barrierStylePreference());
 
+                ByteBufCodecs.DOUBLE.encode(buf, payload.computeUsage());
+                ByteBufCodecs.DOUBLE.encode(buf, payload.maxComputeCapacity());
+
                 ByteBufCodecs.STRING_UTF8.encode(buf, payload.currentUniqueSkill());
                 ByteBufCodecs.BOOL.encode(buf, payload.completeGreedy());
                 ByteBufCodecs.DOUBLE.encode(buf, payload.greedyScore());
@@ -69,6 +75,9 @@ public record SyncStatusPayload(
                 float barrierDamageReduction = ByteBufCodecs.FLOAT.decode(buf);
                 double barrierStylePreference = ByteBufCodecs.DOUBLE.decode(buf);
 
+                double computeUsage = ByteBufCodecs.DOUBLE.decode(buf);
+                double maxComputeCapacity = ByteBufCodecs.DOUBLE.decode(buf);
+
                 String currentUniqueSkill = ByteBufCodecs.STRING_UTF8.decode(buf);
                 boolean completeGreedy = ByteBufCodecs.BOOL.decode(buf);
                 double greedyScore = ByteBufCodecs.DOUBLE.decode(buf);
@@ -81,6 +90,7 @@ public record SyncStatusPayload(
                 return new SyncStatusPayload(
                         masoStageName, currentMaso, maxMaso, masoRegenRate, masoStylePreference,
                         barrierPoint, maxBarrierPoint, barrierDamageReduction, barrierStylePreference,
+                        computeUsage, maxComputeCapacity,
                         currentUniqueSkill, completeGreedy, greedyScore, predatorScore,
                         scavengerScore, hoarderScore, usurperScore, evolvableUniqueSkills
                 );

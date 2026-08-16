@@ -281,6 +281,12 @@ public class PlayerMagicData {
     public double getMasoStylePreference(){ return masoEconomy.getStylePreference(); }
     public void addTotalRegeneratedMaso(float amount){ masoEconomy.addTotalRegeneratedMaso(amount); }
 
+    //==== 演算能力 ====
+    private final ComputeCapacity computeCapacity = new ComputeCapacity();
+    public void recordCastTime(double castTimeTicks){ computeCapacity.recordCastTime(castTimeTicks); }
+    public double getTotalCastTimeSpent(){ return computeCapacity.getTotalCastTimeSpent(); }
+    public double getMaxComputeCapacity(){ return computeCapacity.getMaxComputeCapacity(masoEconomy.getMasoStage()); }
+
     // ===== バリア =====
     public float getBarrierPoint(){ return barrier.getCurrentPoint(); }
     public void setBarrierPoint(float point){ barrier.setCurrentPoint(point); }
@@ -377,6 +383,10 @@ public class PlayerMagicData {
         masoEconomy.saveToNBT(masoTag);
         rootTag.put("maso", masoTag);
 
+        CompoundTag computeTag = new CompoundTag();
+        computeCapacity.saveToNBT(computeTag);
+        rootTag.put("computeCapacity", computeTag);
+
         CompoundTag barrierTag = new CompoundTag();
         barrier.saveToNBT(barrierTag);
         rootTag.put("barrier", barrierTag);
@@ -437,6 +447,10 @@ public class PlayerMagicData {
 
         if(rootTag.contains("maso")){
             masoEconomy.loadFromNBT(rootTag.getCompoundOrEmpty("maso"));
+        }
+
+        if (rootTag.contains("computeCapacity")) {
+            computeCapacity.loadFromNBT(rootTag.getCompoundOrEmpty("computeCapacity"));
         }
 
         if(rootTag.contains("barrier")){

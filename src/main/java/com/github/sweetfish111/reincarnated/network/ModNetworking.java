@@ -101,6 +101,8 @@ public class ModNetworking {
                             magicData.getMaxBarrierPoint(),
                             magicData.getBarrierDamageReduction(),
                             magicData.getBarrierStylePreference(),
+                            ActiveMagicManager.getComputeUsage(player.getUUID()),
+                            magicData.getMaxComputeCapacity(),
                             magicData.getCurrentUniqueSkill(),
                             magicData.isCompleteGreedy(),
                             magicData.getGreedyScore(),

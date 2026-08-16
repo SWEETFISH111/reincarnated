@@ -32,7 +32,7 @@ public class StatusScreen extends Screen {
         int lineHeight = 14;
 
         graphics.centeredText(this.font, this.title.getString(), this.width / 2, y, 0xFFFFFFFF);
-        y += lineHeight * 2;
+        y += lineHeight;
 
         // --- 魔素 ---
         String stageDisplay = tr("name.reincarnated.masoStage." + status.masoStageName());
@@ -63,6 +63,17 @@ public class StatusScreen extends Screen {
         y += lineHeight;
         drawStyleBar(graphics, x, y, 260, status.barrierStylePreference(),
                 tr("screen.reincarnated.status.chip_type"), tr("screen.reincarnated.status.heavy_type"));
+        y += lineHeight * 2;
+
+        //---- 演算能力 ----
+        graphics.text(this.font, tr("screen.reincarnated.status.compute"), x, y, 0xFFFFFFFF);
+        y += lineHeight;
+        drawBar(graphics, x, y, 260,
+                (float) (status.maxComputeCapacity() > 0 ? status.computeUsage() / status.maxComputeCapacity() : 0f),
+                tr("screen.reincarnated.status.compute_bar",
+                        String.format("%.1f", status.computeUsage()),
+                        String.format("%.1f", status.maxComputeCapacity())),
+                0xFFCC88FF);
         y += lineHeight * 2;
 
         // --- ユニークスキル ---
@@ -131,7 +142,7 @@ public class StatusScreen extends Screen {
         int height = 10;
         graphics.fill(x, y, x + width, y + height, 0xFF333333);
         graphics.fill(x, y, x + (int)(width * ratio), y + height, fillColor);
-        graphics.centeredText(this.font, label, x + width / 2, y + 1, 0xFFFFFF);
+        graphics.centeredText(this.font, label, x + width / 2, y + 1, 0xFFFFFFFF);
     }
 
     private void drawStyleBar(GuiGraphicsExtractor graphics, int x, int y, int width, double r, String leftLabel, String rightLabel) {
@@ -139,8 +150,8 @@ public class StatusScreen extends Screen {
         graphics.fill(x, y, x + width, y + height, 0xFF333333);
         int markerX = x + (int) (width * Math.max(0.0, Math.min(1.0, r)));
         graphics.fill(markerX - 2, y - 2, markerX + 2, y + height + 2, 0xFFFFAA00);
-        graphics.text(this.font, leftLabel, x, y + height + 2, 0xAAAAAA);
-        graphics.text(this.font, rightLabel, x + width - this.font.width(rightLabel), y + height + 2, 0xAAAAAA);
+        graphics.text(this.font, leftLabel, x, y + height + 2, 0xFFAAAAAA);
+        graphics.text(this.font, rightLabel, x + width - this.font.width(rightLabel), y + height + 2, 0xFFAAAAAA);
     }
 
     @Override

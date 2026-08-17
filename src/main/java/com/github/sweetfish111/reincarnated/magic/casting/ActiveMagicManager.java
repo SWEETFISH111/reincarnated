@@ -11,6 +11,7 @@ import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.config.BalanceConfig;
+import com.github.sweetfish111.reincarnated.magic.context.
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
@@ -55,8 +56,10 @@ public class ActiveMagicManager {
         }
 
         public void execute() {
-            MagicContext context = new MagicContext(sourceCircuit, runtimeCircuit);
-            nodeInstance.execute(context);
+            PassiveExecutionContext.runAsPassive(() -> { // ★実行だけをpassive扱いで包む
+                MagicContext context = new MagicContext(sourceCircuit, runtimeCircuit);
+                nodeInstance.execute(context);
+            });
         }
 
         public UUID getNodeId() { return nodeId; }
@@ -98,7 +101,7 @@ public class ActiveMagicManager {
      * 「編集して回路からON_TICKを消した」場合も自然に反映される。
      */
     public static void scanAndRegisterResidentNodes(ServerPlayer player) {
-        IMagicCaster caster = new PlayerCasterAdapter(player);
+        IMagicCaster caster = new PlayerCasterAdapter(player); // ★true固定
         unregisterAllForPlayer(caster.getCasterId());
 
         PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);

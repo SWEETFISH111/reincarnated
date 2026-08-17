@@ -82,4 +82,10 @@ public class ReincarnatedPlaySound {
                 SoundEvents.AMETHYST_BLOCK_HIT, SoundSource.PLAYERS,0.7f,0.5f
         );
     }
+
+    public static void playTeleportSound(Level level, Vec3 pos){
+        level.playSound(null, pos.x, pos.y, pos.z,
+                SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS,0.6f, 1.4f
+        );
+    }
 }

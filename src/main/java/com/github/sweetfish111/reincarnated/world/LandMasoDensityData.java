@@ -83,18 +83,32 @@ public class LandMasoDensityData extends SavedData {
 
     private float generateDensity(ServerLevel level, ChunkPos chunkPos) {
         float biomeBase = getBiomeBaseDensity(level, chunkPos);
-        float ringBonus = getRingBonus(level, chunkPos);
+        double distance = getDistanceFromSpawn(level, chunkPos);
+
+        // ★修正：減衰の基準距離をMASO_DENSITY_DAMPING_DISTANCE(3000m)に変更。
+        //   リング加算の基準距離(MASO_DENSITY_RING_DISTANCE)とは別の値として独立させた。
+        double noiseDamping = Math.min(1.0, distance / BalanceConfig.MASO_DENSITY_DAMPING_DISTANCE.get());
+
+        float normalBase = BalanceConfig.MASO_DENSITY_NORMAL_BASE.get().floatValue();
+        float biomeDelta = biomeBase - normalBase;
+        float dampedBiomeBase = normalBase + biomeDelta * (float) noiseDamping;
+
+        float ringBonus = getRingBonus(distance); // こちらは従来通りMASO_DENSITY_RING_DISTANCE基準のまま
         float noise = valueNoise(chunkPos.x(), chunkPos.z(), worldSeed, BalanceConfig.MASO_DENSITY_NOISE_SCALE.get().floatValue());
-        float density = biomeBase + ringBonus + noise * BalanceConfig.MASO_DENSITY_NOISE_AMPLITUDE.get().floatValue();
+
+        float density = dampedBiomeBase + ringBonus
+                + noise * BalanceConfig.MASO_DENSITY_NOISE_AMPLITUDE.get().floatValue() * (float) noiseDamping;
         return Math.max(0f, density);
     }
 
-    private float getRingBonus(ServerLevel level, ChunkPos chunkPos) {
+    private double getDistanceFromSpawn(ServerLevel level, ChunkPos chunkPos) {
         BlockPos spawn = level.getRespawnData().pos();
         double dx = chunkPos.getMiddleBlockX() - spawn.getX();
         double dz = chunkPos.getMiddleBlockZ() - spawn.getZ();
-        double distance = Math.sqrt(dx * dx + dz * dz);
+        return Math.sqrt(dx * dx + dz * dz);
+    }
 
+    private float getRingBonus(double distance) {
         int ringTier = (int) (distance / BalanceConfig.MASO_DENSITY_RING_DISTANCE.get());
         return (float) (ringTier * BalanceConfig.MASO_DENSITY_RING_INCREMENT.get());
     }

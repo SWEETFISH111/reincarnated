@@ -2,6 +2,7 @@ package com.github.sweetfish111.reincarnated.magic.nodes.action;
 
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
+import com.github.sweetfish111.reincarnated.system.ReincarnatedPlaySound;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
@@ -25,6 +26,7 @@ public class TeleportNode extends AbstractMagicNode {
         if(rawTarget instanceof LivingEntity entity){
             if (pos != null && context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
                 entity.teleportTo(pos.x, pos.y, pos.z);
+                ReincarnatedPlaySound.playTeleportSound(context.getCaster().getCasterLevel(), pos);
             }
         }
         pushExecute(context);

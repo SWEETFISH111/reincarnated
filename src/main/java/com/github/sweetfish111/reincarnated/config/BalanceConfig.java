@@ -67,6 +67,7 @@ public class BalanceConfig {
     public static final ModConfigSpec.DoubleValue MASO_DENSITY_VERY_HIGH_BASE;
     public static final ModConfigSpec.DoubleValue MASO_DENSITY_NOISE_AMPLITUDE;
     public static final ModConfigSpec.DoubleValue MASO_DENSITY_NOISE_SCALE;
+    public static final ModConfigSpec.DoubleValue MASO_DENSITY_DAMPING_DISTANCE;
 
     public static final ModConfigSpec.DoubleValue MASO_DENSITY_RING_DISTANCE;
     public static final ModConfigSpec.DoubleValue MASO_DENSITY_RING_INCREMENT;
@@ -243,6 +244,9 @@ public class BalanceConfig {
         MASO_DENSITY_RING_INCREMENT = builder
                 .comment("リング1段階ごとに加算される濃度")
                 .defineInRange("masoDensityRingIncrement", 8.0, 0.0, 1000.0);
+        MASO_DENSITY_DAMPING_DISTANCE = builder
+                .comment("この距離(ブロック)でノイズ・バイオーム差分の減衰が完全に解ける(フル振幅になる)")
+                .defineInRange("masoDensityDampingDistance", 3000.0, 10.0, 100000.0);
         builder.pop();
 
         builder.push("land_density_mob_scaling");

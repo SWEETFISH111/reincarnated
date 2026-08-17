@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.magic.caster;
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.magic.context.PassiveExecutionContext;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -69,8 +70,12 @@ public class PlayerCasterAdapter implements IMagicCaster{
     @Override
     public void consumeMaso(float amount) {
         PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-        long currentTick = player.level().getGameTime();
-        magicData.consumeMasoAmount(amount, currentTick);
+        if (PassiveExecutionContext.isPassive()) {
+            magicData.consumeMasoAmountPassive(amount);
+        } else {
+            long currentTick = player.level().getGameTime();
+            magicData.consumeMasoAmount(amount, currentTick);
+        }
     }
 
     @Override

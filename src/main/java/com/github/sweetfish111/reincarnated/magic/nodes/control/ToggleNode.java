@@ -30,9 +30,9 @@ public class ToggleNode extends AbstractMagicNode {
             context.getCircuit().setNodeParam(this.id,"toggled", nextState);
         }
         if(currentState){
-            ReincarnatedPlaySound.playToggleOnSound(context.getLevel(), context.getCaster().getCasterPosition());
+            ReincarnatedPlaySound.playToggleOnSound(context.getCaster().getCasterLevel(), context.getCaster().getCasterPosition());
         }else{
-            ReincarnatedPlaySound.playToggleOffSound(context.getLevel(), context.getCaster().getCasterPosition());
+            ReincarnatedPlaySound.playToggleOffSound(context.getCaster().getCasterLevel(), context.getCaster().getCasterPosition());
         }
         pushExecute(context);
     }

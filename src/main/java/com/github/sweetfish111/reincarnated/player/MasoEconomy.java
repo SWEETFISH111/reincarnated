@@ -35,6 +35,11 @@ public class MasoEconomy implements PersistentComponent {
         recordCastForStyle(amount, currentTick);
     }
 
+    public void consumePassive(float amount) {
+        this.currentMaso -= amount;
+        this.totalConsumedMaso += amount;
+    }
+
     private void recordCastForStyle(float consumedAmount, long currentTick){
         advanceMasoStageIfNeeded();
         double baseMax = getBaseMaxMaso();

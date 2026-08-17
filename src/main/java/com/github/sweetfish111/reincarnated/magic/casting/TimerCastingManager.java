@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.magic.casting;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
+import com.github.sweetfish111.reincarnated.magic.context.PassiveExecutionContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
 import com.github.sweetfish111.reincarnated.reincarnated;
@@ -63,7 +64,9 @@ public class TimerCastingManager {
                 ctx.setNodeLocalVariable(task.getRepeatNodeId(), 0, task.getCurrentLoopIndex());
                 ctx.resetCount();
                 if(targetId != null) {
-                    executeNextNode(ctx.getCaster(), targetId, ctx);
+                    UUID finalTargetId = targetId; // ラムダ内で使うため
+                    PassiveExecutionContext.runAsPassive(() -> // ★追加
+                            executeNextNode(ctx.getCaster(), finalTargetId, ctx));
                 }
 
                 if (task.hasMore()) {
@@ -75,7 +78,8 @@ public class TimerCastingManager {
                     if(repeatNode != null){
                         MagicNode nextNode = repeatNode.getNextNode(2);
                         if(nextNode != null){
-                            executeNextNode(task.getContext().getCaster(), ((AbstractMagicNode)nextNode).getId(), task.getContext());
+                            PassiveExecutionContext.runAsPassive(() -> // ★追加
+                                    executeNextNode(task.getContext().getCaster(), ((AbstractMagicNode)nextNode).getId(), task.getContext()));
                         }
                     }
                 }

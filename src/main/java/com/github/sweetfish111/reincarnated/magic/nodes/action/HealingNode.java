@@ -29,9 +29,9 @@ public class HealingNode extends AbstractMagicNode {
         if(target instanceof LivingEntity targetEntity) {;
             targetEntity.heal(costResult.grantedAmount());
             super.execute(context);
-            ReincarnatedPlaySound.playHealSound(context.getLevel(), context.getCaster().getCasterPosition());
+            ReincarnatedPlaySound.playHealSound(context.getCaster().getCasterLevel(), context.getCaster().getCasterPosition());
         }else{
-            ReincarnatedPlaySound.playMissSound(context.getLevel(), context.getCaster().getCasterPosition());
+            ReincarnatedPlaySound.playMissSound(context.getCaster().getCasterLevel(), context.getCaster().getCasterPosition());
         }
     }
 }

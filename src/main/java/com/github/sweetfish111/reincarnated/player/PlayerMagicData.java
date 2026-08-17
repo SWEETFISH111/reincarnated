@@ -278,6 +278,7 @@ public class PlayerMagicData {
     public void addMasoAmount(float amount){ masoEconomy.addCurrentMaso(amount); }
     public void setCurrentMaso(float value){ masoEconomy.setCurrentMaso(value); }
     public void consumeMasoAmount(float amount, long currentTick){ masoEconomy.consumeMaso(amount, currentTick); }
+    public void consumeMasoAmountPassive(float amount){ masoEconomy.consumePassive(amount); }
     public double getMasoStylePreference(){ return masoEconomy.getStylePreference(); }
     public void addTotalRegeneratedMaso(float amount){ masoEconomy.addTotalRegeneratedMaso(amount); }
 

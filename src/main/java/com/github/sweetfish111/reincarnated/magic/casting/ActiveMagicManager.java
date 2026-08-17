@@ -8,10 +8,10 @@ import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
+import com.github.sweetfish111.reincarnated.magic.context.PassiveExecutionContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.config.BalanceConfig;
-import com.github.sweetfish111.reincarnated.magic.context.
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;

@@ -79,7 +79,7 @@ public abstract class AbstractMagicNode implements MagicNode{
     protected Vec3 pullVector3(int myInputPortIndex, MagicContext context){
         Object rawData = pullData(myInputPortIndex, context);
         return switch (rawData) {
-            case null -> Vec3.ZERO;
+            case null -> null;
             case Vec3 vec -> vec;
             case BlockPos pos -> Vec3.atBottomCenterOf(pos);
             default -> null;
@@ -179,6 +179,10 @@ public abstract class AbstractMagicNode implements MagicNode{
         if (maxAbsorption != null && maxAbsorption.getBaseValue() < needed) {
             maxAbsorption.setBaseValue(needed);
         }
+    }
+
+    public boolean isInputConnected(int portIndex) {
+        return dataInputs.containsKey(portIndex);
     }
 
     protected record DataLink(MagicNode sourceNode, int sourcePortIndex){}

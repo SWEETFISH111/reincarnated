@@ -67,6 +67,10 @@ public class NodeUnlockState implements PersistentComponent {
             types.add(MagiculeNodeType.REPEAT);
             types.add(MagiculeNodeType.TOGGLE);
             types.add(MagiculeNodeType.WHILE);
+            types.add(MagiculeNodeType.CHANNEL_SEND);
+            types.add(MagiculeNodeType.CHANNEL_RECEIVE);
+            types.add(MagiculeNodeType.ON_CHANNEL_SIGNAL);
+            types.add(MagiculeNodeType.TELEPORT);
             types.add(MagiculeNodeType.COMBERS_LOOK_DIRECTION);
             types.add(MagiculeNodeType.COMBERS_TARGET_POS);
             types.add(MagiculeNodeType.OFFSET);
@@ -80,6 +84,7 @@ public class NodeUnlockState implements PersistentComponent {
             types.add(MagiculeNodeType.GET_MAX_MASO);
             types.add(MagiculeNodeType.GET_CURRENT_HP);
             types.add(MagiculeNodeType.GET_MAX_HP);
+            types.add(MagiculeNodeType.GET_LAND_MASO_DENSITY);
             types.add(MagiculeNodeType.EVENT_KEY_ONE);
             types.add(MagiculeNodeType.ON_SLOT_ENABLE);
             types.add(MagiculeNodeType.NUMBER);

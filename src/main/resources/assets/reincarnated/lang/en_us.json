@@ -1,6 +1,7 @@
 {
   "itemGroup.reincarnated": "Reincarnated Mod Tab",
   "item.reincarnated.grimoire": "Grimoire of Secrets",
+  "item.reincarnated.maso_stone": "maso_stone",
 
   "message.reincarnated.export_success": "Consumed a blank book and spun a new grimoire!",
   "message.reincarnated.export_error": "Error: Please hold a blank book in your main hand.",
@@ -81,6 +82,7 @@
   "node.reincarnated.barrier": "barrier",
   "node.reincarnated.absorption": "absorption",
   "node.reincarnated.summon": "summon",
+  "node.reincarnated.teleport": "Teleport",
   "node.reincarnated.get_look_target": "look target",
   "node.reincarnated.get_nearest_entity_in_radius" : "nearest entity",
   "node.reincarnated.return_caster": "return caster",
@@ -90,6 +92,7 @@
   "node.reincarnated.get_max_maso" : "max maso",
   "node.reincarnated.get_current_hp" : "current hp",
   "node.reincarnated.get_max_hp" : "max hp",
+  "node.reincarnated.get_land_maso_density": "land's maso",
   "node.reincarnated.get_block_at_pos": "get block at pos",
   "node.reincarnated.combers_target_pos": "target pos",
   "node.reincarnated.combers_look_direction": "direction",
@@ -103,6 +106,9 @@
   "node.reincarnated.toggle": "toggle",
   "node.reincarnated.delay": "delay",
   "node.reincarnated.while": "while",
+  "node.reincarnated.channel_send": "Channel Send",
+  "node.reincarnated.channel_receive": "Channel Receive",
+  "node.reincarnated.on_channel_signal": "On Channel Signal",
   "node.reincarnated.number": "number",
   "node.reincarnated.boolean": "boolean",
   "node.reincarnated.vector": "vector",

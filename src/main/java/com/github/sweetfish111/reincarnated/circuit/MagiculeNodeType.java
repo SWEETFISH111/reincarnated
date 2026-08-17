@@ -71,6 +71,11 @@ public enum MagiculeNodeType {
             3, // castCost：DAMAGE(3)と同程度
             List.of(EditorTab.MAGIC)
     ),
+    TELEPORT("teleport", Component.translatable("node.reincarnated.teleport").getString(),
+            new PortDataType[]{PortDataType.EXEC, PortDataType.ENTITY, PortDataType.VECTORE},
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
     SHOOT_PROJECTILE("shoot_projectile", Component.translatable("node.reincarnated.shoot_projectile").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE,PortDataType.ENTITY},
@@ -178,6 +183,11 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.NUMBER},
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
+    GET_LAND_MASO_DENSITY("get_land_maso_density", Component.translatable("node.reincarnated.get_land_maso_density").getString(),
+            new PortDataType[]{PortDataType.VECTORE},
+            new PortDataType[]{PortDataType.NUMBER},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
     GET_BLOCK_AT_POS("get_block_at_pos", Component.translatable("node.reincarnated.get_block_at_pos").getString(),
             new PortDataType[]{PortDataType.VECTORE},
             new PortDataType[]{PortDataType.BLOCK},
@@ -246,6 +256,21 @@ public enum MagiculeNodeType {
     ),
     WHILE("while", Component.translatable(  "node.reincarnated.while").getString(),
             new PortDataType[]{PortDataType.EXEC,PortDataType.BOOLEAN, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    CHANNEL_SEND("channel_send", Component.translatable("node.reincarnated.channel_send").getString(),
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER, PortDataType.ANY},
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    CHANNEL_RECEIVE("channel_receive", Component.translatable("node.reincarnated.channel_receive").getString(),
+            new PortDataType[]{PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.ANY},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    ON_CHANNEL_SIGNAL("on_channel_signal", Component.translatable("node.reincarnated.on_channel_signal").getString(),
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC},
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),

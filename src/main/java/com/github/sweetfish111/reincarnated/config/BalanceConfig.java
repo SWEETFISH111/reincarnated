@@ -59,6 +59,23 @@ public class BalanceConfig {
     // ===== ユニークスキル進化 =====
     public static final ModConfigSpec.DoubleValue UNIQUE_SKILL_EVOLUTION_THRESHOLD;
 
+    //==== 土地魔素濃度関連 ====
+    public static final ModConfigSpec.DoubleValue MASO_DENSITY_NORMAL_BASE;
+    public static final ModConfigSpec.DoubleValue MASO_DENSITY_LOW_BASE;
+    public static final ModConfigSpec.DoubleValue MASO_DENSITY_VERY_LOW_BASE;
+    public static final ModConfigSpec.DoubleValue MASO_DENSITY_HIGH_BASE;
+    public static final ModConfigSpec.DoubleValue MASO_DENSITY_VERY_HIGH_BASE;
+    public static final ModConfigSpec.DoubleValue MASO_DENSITY_NOISE_AMPLITUDE;
+    public static final ModConfigSpec.DoubleValue MASO_DENSITY_NOISE_SCALE;
+
+    public static final ModConfigSpec.DoubleValue MASO_DENSITY_RING_DISTANCE;
+    public static final ModConfigSpec.DoubleValue MASO_DENSITY_RING_INCREMENT;
+    public static final ModConfigSpec.DoubleValue MASO_MOB_POWER_MIN_MULTIPLIER;
+    public static final ModConfigSpec.DoubleValue MASO_MOB_POWER_MAX_MULTIPLIER;
+    public static final ModConfigSpec.DoubleValue MASO_STONE_BASE_DROP_CHANCE;
+    public static final ModConfigSpec.DoubleValue MASO_STONE_DROP_SCALE;
+    public static final ModConfigSpec.DoubleValue MASO_STONE_MAX_DROP_CHANCE;
+
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
@@ -196,6 +213,54 @@ public class BalanceConfig {
         UNIQUE_SKILL_EVOLUTION_THRESHOLD = builder
                 .comment("ユニークスキルの各スコアが進化条件を満たす閾値")
                 .defineInRange("uniqueSkillEvolutionThreshold", 100.0, 1.0, 100000.0);
+        builder.pop();
+
+        builder.push("land_maso_density");
+        MASO_DENSITY_NORMAL_BASE = builder
+                .comment("タグ未指定バイオームの基礎魔素濃度")
+                .defineInRange("masoDensityNormalBase", 10.0, 0.0, 1000.0);
+        MASO_DENSITY_LOW_BASE = builder
+                .comment("maso_density_lowタグの基礎魔素濃度")
+                .defineInRange("masoDensityLowBase", 4.0, 0.0, 1000.0);
+        MASO_DENSITY_VERY_LOW_BASE = builder
+                .comment("maso_density_very_lowタグの基礎魔素濃度")
+                .defineInRange("masoDensityVeryLowBase", 1.0, 0.0, 1000.0);
+        MASO_DENSITY_HIGH_BASE = builder
+                .comment("maso_density_highタグの基礎魔素濃度")
+                .defineInRange("masoDensityHighBase", 25.0, 0.0, 1000.0);
+        MASO_DENSITY_VERY_HIGH_BASE = builder
+                .comment("maso_density_very_highタグの基礎魔素濃度")
+                .defineInRange("masoDensityVeryHighBase", 60.0, 0.0, 1000.0);
+        MASO_DENSITY_NOISE_AMPLITUDE = builder
+                .comment("地域差ノイズの振幅（基礎値に対して±この値までブレる）")
+                .defineInRange("masoDensityNoiseAmplitude", 8.0, 0.0, 500.0);
+        MASO_DENSITY_NOISE_SCALE = builder
+                .comment("ノイズの空間スケール（チャンク単位。大きいほど広範囲でゆるやかに変化する）")
+                .defineInRange("masoDensityNoiseScale", 12.0, 1.0, 500.0);
+        MASO_DENSITY_RING_DISTANCE = builder
+                .comment("この距離(ブロック)ごとにスポーン地点から1段階濃度が上がる")
+                .defineInRange("masoDensityRingDistance", 1000.0, 10.0, 100000.0);
+        MASO_DENSITY_RING_INCREMENT = builder
+                .comment("リング1段階ごとに加算される濃度")
+                .defineInRange("masoDensityRingIncrement", 8.0, 0.0, 1000.0);
+        builder.pop();
+
+        builder.push("land_density_mob_scaling");
+        MASO_MOB_POWER_MIN_MULTIPLIER = builder
+                .comment("濃度によるモブ強化倍率の下限")
+                .defineInRange("masoMobPowerMinMultiplier", 0.4, 0.05, 1.0);
+        MASO_MOB_POWER_MAX_MULTIPLIER = builder
+                .comment("濃度によるモブ強化倍率の上限")
+                .defineInRange("masoMobPowerMaxMultiplier", 6.0, 1.0, 50.0);
+        MASO_STONE_BASE_DROP_CHANCE = builder
+                .comment("倍率1.0(基準地帯)を超えたモブから魔石が落ちる基礎確率")
+                .defineInRange("masoStoneBaseDropChance", 0.02, 0.0, 1.0);
+        MASO_STONE_DROP_SCALE = builder
+                .comment("倍率が基準値を1超えるごとに加算されるドロップ確率")
+                .defineInRange("masoStoneDropScale", 0.05, 0.0, 1.0);
+        MASO_STONE_MAX_DROP_CHANCE = builder
+                .comment("魔石ドロップ確率の上限")
+                .defineInRange("masoStoneMaxDropChance", 0.6, 0.0, 1.0);
         builder.pop();
 
         SPEC = builder.build();

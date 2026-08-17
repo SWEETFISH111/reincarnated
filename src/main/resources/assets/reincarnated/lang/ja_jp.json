@@ -1,5 +1,7 @@
 {
   "item.reincarnated.grimoire": "秘術の魔導書",
+  "item.reincarnated.maso_stone": "魔石",
+
   "message.reincarnated.export_success": "白紙の本を消費し、新たな魔導書を紡ぎ出しました！",
   "message.reincarnated.export_error": "エラー: メインハンドに白紙の本を持ってください。",
   "message.reincarnated.compound_accessDenied": "《告》。より上位の権限レベルを検出。この回路を解析できません。",
@@ -67,6 +69,7 @@
   "node.reincarnated.on_kill": "殺害時",
   "node.reincarnated.on_attack_stronger": "格上攻撃時",
   "node.reincarnated.on_overcharge": "魔素過剰状態時",
+  "node.reincarnated.teleport": "転移",
   "node.reincarnated.shoot_projectile": "魔弾発射",
   "node.reincarnated.lightning": "落雷",
   "node.reincarnated.explosion": "爆発",
@@ -88,6 +91,7 @@
   "node.reincarnated.get_max_maso" : "最大魔素量",
   "node.reincarnated.get_current_hp" : "現在のHP",
   "node.reincarnated.get_max_hp" : "最大HP",
+  "node.reincarnated.get_land_maso_density": "土地の魔素濃度",
   "node.reincarnated.get_block_at_pos" : "指定座標のブロック",
   "node.reincarnated.combers_target_pos": "ターゲット座標変換",
   "node.reincarnated.combers_look_direction": "方向ベクトル変換",
@@ -101,6 +105,9 @@
   "node.reincarnated.toggle": "トグルスイッチ",
   "node.reincarnated.delay": "遅延 (Delay)",
   "node.reincarnated.while": "繰り返し（while）",
+  "node.reincarnated.channel_send": "チャンネル送信",
+  "node.reincarnated.channel_receive": "チャンネル受信",
+  "node.reincarnated.on_channel_signal": "信号待機",
   "node.reincarnated.number": "数値",
   "node.reincarnated.boolean": "真偽値",
   "node.reincarnated.vector": "ベクトル",

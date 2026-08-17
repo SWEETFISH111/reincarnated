@@ -273,6 +273,11 @@ public class MagicCompiler {
             case "null":return new NullNode(nodeId);
             case "get_nearest_entity_in_radius":return new GetNearestEntityInRadius(nodeId);
             case "summon":return new SummonNode(nodeId);
+            case "get_land_maso_density":return new GetLandMasoDensityNode(nodeId);
+            case "channel_send":return new ChannelSendNode(nodeId);
+            case "channel_receive":return new ChannelReceiveNode(nodeId);
+            case "on_channel_signal":return new OnChannelSignalNode(nodeId);
+            case "teleport":return new TeleportNode(nodeId);
             default : return null;
         }
     }

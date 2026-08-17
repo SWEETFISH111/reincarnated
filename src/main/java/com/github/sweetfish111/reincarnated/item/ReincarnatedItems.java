@@ -4,6 +4,7 @@ import com.github.sweetfish111.reincarnated.reincarnated;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.component.Consumable;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -19,6 +20,11 @@ public class ReincarnatedItems {
             "grimoire",
             GrimoireItem::new, // コンストラクタ参照（またはラムダ式）
             props -> props.stacksTo(1)
+    );
+    public static final DeferredItem<Item> MASO_STONE = ITEMS.registerItem(
+            "maso_stone",
+            Item::new,
+            props -> props.rarity(Rarity.UNCOMMON)
     );
 
     // 3. メインのMODクラスから呼び出す初期化メソッド

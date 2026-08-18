@@ -41,17 +41,23 @@ public class ReincarnatedDamageHandler {
             float effectiveDamage = rawDamage * (1.0f - BARRIER_DAMAGE_REDUCTION);
 
             // ② 半減後のダメージをbarrierPointから定数引き算
+            boolean barrierBroke; // ★追加：分岐結果を後で記録処理に渡すため保持
             if (barrierPoint >= effectiveDamage) {
                 barrierPoint -= effectiveDamage;
                 magicData.setBarrierPoint(barrierPoint);
                 event.setNewDamage(0);
                 playBarrierHitEffects(player, true);
+                barrierBroke = false;
             } else {
                 float finalDamage = effectiveDamage - barrierPoint;
                 magicData.setBarrierPoint(0);
                 event.setNewDamage(finalDamage);
                 playBarrierHitEffects(player, false);
+                barrierBroke = true;
             }
+
+            long currentTick = player.level().getGameTime();
+            magicData.recordBarrierHit(rawDamage, barrierBroke, currentTick);
         }
     }
 

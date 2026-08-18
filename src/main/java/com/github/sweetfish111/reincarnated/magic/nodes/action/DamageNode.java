@@ -38,19 +38,23 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
             return;
         }
 
-        double investedMaso = pullDouble(2, context);
-        float availableMaso = context.getCaster().getMasoAmount();
-
-        MasoInvestmentScaling.EffectResult effectResult =
-                MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);
-        masoCost = effectResult.masoCost();
-
-        if (effectResult.isOvercharge() && context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
-            CausalityObserver.onOverCharge(player);
-        }
-
         Object target = pullData(1, context);
         if (target instanceof Entity targetEntity) {
+            double investedMaso = pullDouble(2, context);
+            float availableMaso = context.getCaster().getMasoAmount();
+
+            MasoInvestmentScaling.EffectResult effectResult =
+                    MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);
+            masoCost = effectResult.masoCost();
+
+            // ★魔素チェック＆消費はダメージ適用より先に行う
+            //   （不足時はここで例外が飛び、hurtServerに到達しない＝無料ダメージを防ぐ）
+            super.execute(context);
+
+            if (effectResult.isOvercharge() && context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
+                CausalityObserver.onOverCharge(player);
+            }
+
             DamageSource source;
             var damageType = context.getCaster().getCasterLevel().registryAccess()
                     .lookupOrThrow(Registries.DAMAGE_TYPE)
@@ -62,13 +66,13 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
                 source = new DamageSource(damageType, null, null, null);
             }
             targetEntity.hurtServer(context.getLevel(), source, effectResult.effectAmount());
-            super.execute(context);
             lastDamageTick = now; // ★実際にヒットした時だけクールダウン更新
 
             if (context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
                 ReincarnatedPlaySound.playHitSound(player.level(), player.getPosition(1.0f));
             }
         } else {
+            // ターゲットが取れなかった場合：Masoも消費せず、演出のみ
             ReincarnatedPlaySound.playMissSound(context.getCaster().getCasterLevel(), context.getCaster().getCasterPosition());
         }
     }
@@ -83,6 +87,6 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
         MasoInvestmentScaling.EffectResult effectResult =
                 MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);
 
-        return effectResult.masoCost();
+        return (double) effectResult.effectAmount(); // ★出力ポートは「実際の効果量」を返す（投入魔素量の受け渡しではない）
     }
 }

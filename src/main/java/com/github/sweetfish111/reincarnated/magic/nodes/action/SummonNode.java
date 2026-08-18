@@ -61,6 +61,6 @@ public class SummonNode extends AbstractMagicNode {
         float availableMaso = context.getCaster().getMasoAmount();
         MasoInvestmentScaling.EffectResult effectResult =
                 MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);
-        return effectResult.masoCost();
+        return (double) effectResult.effectAmount(); // ★出力ポートは「実際の効果量」を返す（投入魔素量の受け渡しではない）
     }
 }

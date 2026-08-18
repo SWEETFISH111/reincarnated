@@ -56,11 +56,18 @@ public class MasoInvestmentScaling {
 
         double safeExponent = BalanceConfig.SAFE_COST_EXPONENT.get();
         double desiredAtThreshold = Math.pow(threshold / baseCostPerUnit, 1.0 / safeExponent);
-        double extraAmount = Math.max(0, desiredAmount - desiredAtThreshold);
+
+        // ★computeEffectでは extra に (1+ボーナス率) を掛けたものが最終効果量に含まれているため、
+        //   逆算時はまずボーナス分を割り戻してから「超過分(extra)」を復元する必要がある。
+        //   ここを割り戻さずに (desiredAmount - desiredAtThreshold) をそのまま冪乗すると、
+        //   ボーナスで水増しされた分まで含めて必要投入量を計算してしまい、
+        //   computeEffectとの往復（投入→効果→逆算）で必要投入量が実際より多く出てしまう。
+        double bonusRatio = BalanceConfig.OVERLOAD_EFFECT_BONUS_RATIO.get();
+        double extraAmount = Math.max(0, (desiredAmount - desiredAtThreshold) / (1.0 + bonusRatio));
         double overloadCost = baseCostPerUnit * Math.pow(extraAmount, BalanceConfig.OVERLOAD_COST_EXPONENT.get());
 
         // ★過剰域：要求量に加えて、超過分に比例したボーナス効果を上乗せする（リスクに見合うリターン）
-        double bonusAmount = extraAmount * BalanceConfig.OVERLOAD_EFFECT_BONUS_RATIO.get();
+        double bonusAmount = extraAmount * bonusRatio;
         float grantedAmount = (float) (desiredAmount + bonusAmount);
 
         return new CostResult((float) (threshold + overloadCost), grantedAmount, true);

@@ -5,6 +5,9 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 public class BalanceConfig {
     public static final ModConfigSpec SPEC;
 
+    //==== 魔法ダメージ ====
+    public static final ModConfigSpec.IntValue DAMAGE_NODE_COOLDOWN_TICKS;
+
     // ===== 魔素経済（MasoEconomy） =====
     public static final ModConfigSpec.DoubleValue STAGE_CARRYOVER_RATIO;
     public static final ModConfigSpec.DoubleValue REGEN_RECOVERY_MIDPOINT_RATIO;
@@ -79,6 +82,12 @@ public class BalanceConfig {
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
+
+        builder.push("magic_damage");
+        DAMAGE_NODE_COOLDOWN_TICKS = builder
+                .comment("DamageNode単体が同一tick内で連続ダメージを与えられるまでの最小間隔(tick)")
+                .defineInRange("damageNodeCooldownTicks", 4, 0, 200);
+        builder.pop();
 
         builder.push("maso_economy");
         STAGE_CARRYOVER_RATIO = builder

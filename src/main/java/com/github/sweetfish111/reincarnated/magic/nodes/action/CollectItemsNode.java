@@ -23,13 +23,14 @@ public class CollectItemsNode extends AbstractMagicNode {
     @Override
     public void execute(MagicContext context) {
         Vec3 center = pullVector3(1, context);
-        double radius = Math.max(0.5, pullDouble(2, context)); // 極端に小さい値の暴発防止
+        double investedMaso = pullDouble(2, context);
 
         float availableMaso = context.getCaster().getMasoAmount();
 
-        MasoInvestmentScaling.CostResult costResult =
-                MasoInvestmentScaling.computeCost(BASECOST, (float) radius, availableMaso);
-        masoCost = costResult.cost();
+        MasoInvestmentScaling.EffectResult effectResult =
+                MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+        double radius = Math.max(0.5, effectResult.effectAmount()); // 極端に小さい値の暴発防止
+        masoCost = effectResult.masoCost();
         super.execute(context);
 
         int collectedCount = 0;
@@ -77,11 +78,11 @@ public class CollectItemsNode extends AbstractMagicNode {
             Object val = context.getMagicValue("collected_count_" + this.id);
             return (val instanceof Number n) ? n.doubleValue() : 0.0;
         }else if(portIndex == 2){
-            double radius = Math.max(0.5, pullDouble(2, context)); // 極端に小さい値の暴発防止
+            double investedMaso = pullDouble(2, context);
             float availableMaso = context.getCaster().getMasoAmount();
-            MasoInvestmentScaling.CostResult costResult =
-                    MasoInvestmentScaling.computeCost(BASECOST, (float) radius, availableMaso);
-            return costResult.cost();
+            MasoInvestmentScaling.EffectResult effectResult =
+                    MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+            return effectResult.masoCost();
         }
         return null;
     }

@@ -19,15 +19,15 @@ public class HealingNode extends AbstractMagicNode {
 
     @Override
     public void execute(MagicContext context) {
-        double healingAmount = pullDouble(2, context);
+        double investedMaso = pullDouble(2, context);
         float availableMaso = context.getCaster().getMasoAmount();
 
-        MasoInvestmentScaling.CostResult costResult =
-                MasoInvestmentScaling.computeCost(BASECOST, (float) healingAmount, availableMaso);
-        masoCost = costResult.cost();
+        MasoInvestmentScaling.EffectResult effectResult =
+                MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+        masoCost = effectResult.masoCost();
         Object target = pullData(1, context);
         if(target instanceof LivingEntity targetEntity) {;
-            targetEntity.heal(costResult.grantedAmount());
+            targetEntity.heal(effectResult.effectAmount());
             super.execute(context);
             ReincarnatedPlaySound.playHealSound(context.getCaster().getCasterLevel(), context.getCaster().getCasterPosition());
         }else{
@@ -37,10 +37,10 @@ public class HealingNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
-        double healingAmount = pullDouble(2, context);
+        double investedMaso = pullDouble(2, context);
         float availableMaso = context.getCaster().getMasoAmount();
-        MasoInvestmentScaling.CostResult costResult =
-                MasoInvestmentScaling.computeCost(BASECOST, (float) healingAmount, availableMaso);
-        return costResult.cost();
+        MasoInvestmentScaling.EffectResult effectResult =
+                MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+        return effectResult.masoCost();
     }
 }

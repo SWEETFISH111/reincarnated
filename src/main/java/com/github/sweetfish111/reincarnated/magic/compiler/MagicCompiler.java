@@ -13,8 +13,7 @@ import com.github.sweetfish111.reincarnated.magic.nodes.conversion.CombersTarget
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.OffsetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.OnSlotEnableNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.value.NullNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.value.VectorNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.value.*;
 import com.github.sweetfish111.reincarnated.magic.skill.node.action.AbsorptionNode;
 import com.github.sweetfish111.reincarnated.magic.skill.node.action.BarrierNode;
 import com.github.sweetfish111.reincarnated.magic.skill.node.conversion.ConbersKillToMaso;
@@ -23,8 +22,6 @@ import com.github.sweetfish111.reincarnated.magic.skill.node.conversion.ConbersS
 import com.github.sweetfish111.reincarnated.magic.skill.node.conversion.ConbersXpToMaso;
 import com.github.sweetfish111.reincarnated.magic.skill.node.action.AddMasoNode;
 import com.github.sweetfish111.reincarnated.magic.skill.node.trigger.*;
-import com.github.sweetfish111.reincarnated.magic.nodes.value.BooleanNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.value.NumberNode;
 
 import java.util.*;
 
@@ -221,6 +218,7 @@ public class MagicCompiler {
             case "offset":return new OffsetNode(nodeId);
             case "get_look_forward":return new GetLookForwardNode(nodeId);
             case "number":return new NumberNode(nodeId);
+            case "maso_investment":return new MasoInvestmentNode(nodeId);
             case "combers_target_pos":return new CombersTargetPos(nodeId);
             case "combers_look_direction":return new CombersLookDirection(nodeId);
             case "if":return new IfNode(nodeId);

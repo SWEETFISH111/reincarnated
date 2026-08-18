@@ -91,6 +91,7 @@ public class NodeUnlockState implements PersistentComponent {
             types.add(MagiculeNodeType.BOOLEAN);
             types.add(MagiculeNodeType.VECTOR);
             types.add(MagiculeNodeType.NULL);
+            types.add(MagiculeNodeType.MASO_INVESTMENT);
             types.add(MagiculeNodeType.ADD);
             types.add(MagiculeNodeType.AND);
             types.add(MagiculeNodeType.DIVIDE);

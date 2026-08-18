@@ -16,6 +16,15 @@ public class MasoInvestmentScaling {
     }
 
     /**
+     * computeEffectの戻り値。
+     * effectAmount: 投入魔素量から算出された効果量
+     * masoCost    : 実際に消費される魔素量（＝investedMasoそのもの。呼び出し側の記述を統一するために保持）
+     * isOvercharge: 過剰域（オーバーロードの崖の向こう側）に突入したか
+     */
+    public record EffectResult(float effectAmount, float masoCost, boolean isOvercharge) {
+    }
+
+    /**
      * 安全域のみのコスト（オーバーロードを起こさせたくないノード向け）
      */
     public static float safeCost(float baseCostPerUnit, float desiredAmount) {
@@ -55,5 +64,40 @@ public class MasoInvestmentScaling {
         float grantedAmount = (float) (desiredAmount + bonusAmount);
 
         return new CostResult((float) (threshold + overloadCost), grantedAmount, true);
+    }
+
+    /**
+     * computeCostの厳密な逆関数。
+     * 「望む効果量→コスト」ではなく「投入した魔素量→効果量」を算出する。
+     * 投入量が安全域の閾値(availableMaso×閾値比率)以下なら安全域カーブの逆算、
+     * 閾値を超えた分は過剰域カーブの逆算＋オーバーロードボーナスを上乗せする。
+     * <p>
+     * 消費される魔素量は投入量そのもの（investedMaso）。
+     * 実際に足りるかどうか（MasoShortageExceptionを投げるか）は
+     * 呼び出し側のconsumeMaso()に委ねる。
+     */
+    public static EffectResult computeEffect(float baseCostPerUnit, float investedMaso, float availableMaso) {
+        if (investedMaso <= 0 || baseCostPerUnit <= 0) return new EffectResult(0f, Math.max(0f, investedMaso), false);
+
+        double safeExponent = BalanceConfig.SAFE_COST_EXPONENT.get();
+        float threshold = availableMaso * BalanceConfig.OVERLOAD_THRESHOLD_RATIO.get().floatValue();
+
+        if (threshold <= 0 || investedMaso <= threshold) {
+            // 安全域：safeCostの逆関数（＝maxAffordableSafeAmountと同じ形）をBalanceConfigの指数で計算
+            double effectAmount = Math.pow(investedMaso / baseCostPerUnit, 1.0 / safeExponent);
+            return new EffectResult((float) effectAmount, investedMaso, false);
+        }
+
+        // 過剰域：閾値までの効果量 ＋ 超過投資分から逆算した追加効果量 ＋ オーバーロードボーナス
+        double desiredAtThreshold = Math.pow(threshold / baseCostPerUnit, 1.0 / safeExponent);
+
+        double overloadExponent = BalanceConfig.OVERLOAD_COST_EXPONENT.get();
+        double extraCost = investedMaso - threshold;
+        double extraAmount = Math.pow(extraCost / baseCostPerUnit, 1.0 / overloadExponent);
+
+        double bonusAmount = extraAmount * BalanceConfig.OVERLOAD_EFFECT_BONUS_RATIO.get();
+        float effectAmount = (float) (desiredAtThreshold + extraAmount + bonusAmount);
+
+        return new EffectResult(effectAmount, investedMaso, true);
     }
 }

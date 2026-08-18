@@ -22,21 +22,22 @@ public class SummonNode extends AbstractMagicNode {
         context.incrementAndCheck();
 
         Vec3 position = pullVector3(1, context);
-        double livingSeconds = pullDouble(2, context);
+        double investedMaso = pullDouble(2, context);
         double behaviorRaw = pullDouble(3, context);
 
         if (position != null) {
             ServerLevel level = context.getLevel();
             UUID ownerId = context.getCaster().getCasterId();
-            int livingTicks = (int) Math.max(20, livingSeconds * 20); // 最低1秒
 
             float availableMaso = context.getCaster().getMasoAmount();
 
-            MasoInvestmentScaling.CostResult costResult =
-                    MasoInvestmentScaling.computeCost(BASECOST, (float) livingTicks, availableMaso);
-            masoCost = costResult.cost();
+            MasoInvestmentScaling.EffectResult effectResult =
+                    MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+            masoCost = effectResult.masoCost();
 
-            SummonManager.createSummon(ownerId, position, (int)costResult.grantedAmount(), SummonBehavior.fromId((int) behaviorRaw));
+            int livingTicks = (int) Math.max(20, effectResult.effectAmount()); // 最低1秒
+
+            SummonManager.createSummon(ownerId, position, livingTicks, SummonBehavior.fromId((int) behaviorRaw));
 
             super.execute(context);
             if (level != null) {
@@ -50,11 +51,10 @@ public class SummonNode extends AbstractMagicNode {
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
-        double livingSeconds = pullDouble(2, context);
-        int livingTicks = (int) Math.max(20, livingSeconds * 20); // 最低1秒
+        double investedMaso = pullDouble(2, context);
         float availableMaso = context.getCaster().getMasoAmount();
-        MasoInvestmentScaling.CostResult costResult =
-                MasoInvestmentScaling.computeCost(BASECOST, (float) livingTicks, availableMaso);
-        return costResult.cost();
+        MasoInvestmentScaling.EffectResult effectResult =
+                MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+        return effectResult.masoCost();
     }
 }

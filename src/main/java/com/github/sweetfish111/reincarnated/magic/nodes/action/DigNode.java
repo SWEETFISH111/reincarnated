@@ -15,19 +15,28 @@ public class DigNode extends AbstractMagicNode {
         super(id);
     }
 
+    // 投入魔素量から算出した総掘削量(体積)予算を、幅×高さの断面積で割って奥行きに変換する。
+    // 幅・高さは形状（アスペクト比）を決める純粋なNumberNode入力のまま残し、
+    // 「どれだけ深く掘れるか」だけを投入魔素量が決める。
+    private int computeDepth(int width, int height, MagicContext context) {
+        double investedMaso = pullDouble(4, context);
+        float availableMaso = context.getCaster().getMasoAmount();
+
+        MasoInvestmentScaling.EffectResult effectResult =
+                MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+        masoCost = effectResult.masoCost();
+
+        int crossSection = Math.max(1, width * height);
+        return Math.max(1, Math.round(effectResult.effectAmount() / crossSection));
+    }
+
     @Override
     public void execute(MagicContext context) {
         Vec3 posVec = pullVector3(1, context);
         int width  = Math.max(1, (int) Math.round(pullDouble(2, context)));
         int height = Math.max(1, (int) Math.round(pullDouble(3, context)));
-        int depth  = Math.max(1, (int) Math.round(pullDouble(4, context)));
+        int depth  = computeDepth(width, height, context);
 
-        // 掘削量（幅×高さ×奥行き）に応じてコストをスケール
-        float availableMaso = context.getCaster().getMasoAmount();
-
-        MasoInvestmentScaling.CostResult costResult =
-                MasoInvestmentScaling.computeCost(BASECOST, ((float) (width * height * depth)), availableMaso);
-        masoCost = costResult.cost();
         super.execute(context);
 
         if (posVec == null) return;
@@ -75,10 +84,10 @@ public class DigNode extends AbstractMagicNode {
         super.getOutputData(portIndex, context);
         int width  = Math.max(1, (int) Math.round(pullDouble(2, context)));
         int height = Math.max(1, (int) Math.round(pullDouble(3, context)));
-        int depth  = Math.max(1, (int) Math.round(pullDouble(4, context)));
+        double investedMaso = pullDouble(4, context);
         float availableMaso = context.getCaster().getMasoAmount();
-        MasoInvestmentScaling.CostResult costResult =
-                MasoInvestmentScaling.computeCost(BASECOST, ((float) (width * height * depth)), availableMaso);
-        return costResult.cost();
+        MasoInvestmentScaling.EffectResult effectResult =
+                MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+        return effectResult.masoCost();
     }
 }

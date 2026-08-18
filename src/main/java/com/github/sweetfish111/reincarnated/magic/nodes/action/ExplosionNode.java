@@ -21,15 +21,15 @@ public class ExplosionNode extends AbstractMagicNode {
 
     @Override
     public void execute(MagicContext context) {
-        double rawData = pullDouble(2,context);
+        double investedMaso = pullDouble(2,context);
         float availableMaso = context.getCaster().getMasoAmount();
 
-        MasoInvestmentScaling.CostResult costResult =
-                MasoInvestmentScaling.computeCost(BASECOST, (float) rawData, availableMaso);
-        masoCost = costResult.cost();
+        MasoInvestmentScaling.EffectResult effectResult =
+                MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+        masoCost = effectResult.masoCost();
         super.execute(context);
 
-        if (costResult.isOvercharge() && context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
+        if (effectResult.isOvercharge() && context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
             CausalityObserver.onOverCharge(player); // 既存のhoarderスコア加算＋on_overchargeトリガーに相乗り
         }
 
@@ -42,7 +42,7 @@ public class ExplosionNode extends AbstractMagicNode {
             }
         }
         if(context.getCaster().getCasterLevel() instanceof ServerLevel serverLevel){
-            float explosionPower = costResult.grantedAmount();
+            float explosionPower = effectResult.effectAmount();
             Entity sourceEntity = context.getCaster().getCasterEntity();
             serverLevel.explode(
                     sourceEntity,
@@ -57,10 +57,10 @@ public class ExplosionNode extends AbstractMagicNode {
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(0,context);
-        double rawData = pullDouble(2,context);
+        double investedMaso = pullDouble(2,context);
         float availableMaso = context.getCaster().getMasoAmount();
-        MasoInvestmentScaling.CostResult costResult =
-                MasoInvestmentScaling.computeCost(BASECOST, (float) rawData, availableMaso);
-        return costResult.cost();
+        MasoInvestmentScaling.EffectResult effectResult =
+                MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+        return effectResult.masoCost();
     }
 }

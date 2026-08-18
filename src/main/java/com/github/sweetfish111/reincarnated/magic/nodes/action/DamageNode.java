@@ -20,7 +20,7 @@ import java.util.UUID;
 
 public class DamageNode extends AbstractMagicNode implements MagicNode {
     float BASECOST = 2;
-    private long lastDamageTick = Long.MIN_VALUE / 2;// ★ノード単位の連射防止
+    private long lastDamageTick = Long.MIN_VALUE / 2; // ★ノード単位の連射防止
 
     public DamageNode(UUID id) {
         super(id);
@@ -35,14 +35,14 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
             return;
         }
 
-        double damageAmount = pullDouble(2, context);
+        double investedMaso = pullDouble(2, context);
         float availableMaso = context.getCaster().getMasoAmount();
 
-        MasoInvestmentScaling.CostResult costResult =
-                MasoInvestmentScaling.computeCost(BASECOST, (float) damageAmount, availableMaso);
-        masoCost = costResult.cost();
+        MasoInvestmentScaling.EffectResult effectResult =
+                MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+        masoCost = effectResult.masoCost();
 
-        if (costResult.isOvercharge() && context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
+        if (effectResult.isOvercharge() && context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
             CausalityObserver.onOverCharge(player);
         }
 
@@ -58,7 +58,7 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
             } else {
                 source = new DamageSource(damageType, null, null, null);
             }
-            targetEntity.hurtServer(context.getLevel(), source, costResult.grantedAmount());
+            targetEntity.hurtServer(context.getLevel(), source, effectResult.effectAmount());
             super.execute(context);
             lastDamageTick = now; // ★実際にヒットした時だけクールダウン更新
 
@@ -74,12 +74,12 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
 
-        double damageAmount = pullDouble(2, context);
+        double investedMaso = pullDouble(2, context);
         float availableMaso = context.getCaster().getMasoAmount();
 
-        MasoInvestmentScaling.CostResult costResult =
-                MasoInvestmentScaling.computeCost(BASECOST, (float) damageAmount, availableMaso);
+        MasoInvestmentScaling.EffectResult effectResult =
+                MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
 
-        return costResult.cost();
+        return effectResult.masoCost();
     }
 }

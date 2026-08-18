@@ -112,6 +112,7 @@
   "node.reincarnated.channel_receive": "Channel Receive",
   "node.reincarnated.on_channel_signal": "On Channel Signal",
   "node.reincarnated.number": "number",
+  "node.reincarnated.maso_investment": "invest maso",
   "node.reincarnated.boolean": "boolean",
   "node.reincarnated.vector": "vector",
   "node.reincarnated.null": "null",

@@ -50,6 +50,8 @@ public class NodeUnlockState implements PersistentComponent {
             types.add(MagiculeNodeType.LESS_OR_EQUAL);
             types.add(MagiculeNodeType.MODULO);
             types.add(MagiculeNodeType.MULTIPLY);
+            types.add(MagiculeNodeType.MIN);
+            types.add(MagiculeNodeType.MAX);
             types.add(MagiculeNodeType.NOT);
             types.add(MagiculeNodeType.OR);
             types.add(MagiculeNodeType.SUBTACT);
@@ -92,6 +94,8 @@ public class NodeUnlockState implements PersistentComponent {
             types.add(MagiculeNodeType.VECTOR);
             types.add(MagiculeNodeType.NULL);
             types.add(MagiculeNodeType.MASO_INVESTMENT);
+            types.add(MagiculeNodeType.REQUIRED_MASO);
+            types.add(MagiculeNodeType.GET_BASE_COST);
             types.add(MagiculeNodeType.ADD);
             types.add(MagiculeNodeType.AND);
             types.add(MagiculeNodeType.DIVIDE);
@@ -102,6 +106,8 @@ public class NodeUnlockState implements PersistentComponent {
             types.add(MagiculeNodeType.LESS_OR_EQUAL);
             types.add(MagiculeNodeType.MODULO);
             types.add(MagiculeNodeType.MULTIPLY);
+            types.add(MagiculeNodeType.MIN);
+            types.add(MagiculeNodeType.MAX);
             types.add(MagiculeNodeType.NOT);
             types.add(MagiculeNodeType.OR);
             types.add(MagiculeNodeType.SUBTACT);
@@ -121,6 +127,8 @@ public class NodeUnlockState implements PersistentComponent {
             types.add(MagiculeNodeType.LESS_OR_EQUAL);
             types.add(MagiculeNodeType.MODULO);
             types.add(MagiculeNodeType.MULTIPLY);
+            types.add(MagiculeNodeType.MIN);
+            types.add(MagiculeNodeType.MAX);
             types.add(MagiculeNodeType.NOT);
             types.add(MagiculeNodeType.OR);
             types.add(MagiculeNodeType.SUBTACT);

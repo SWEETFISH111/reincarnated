@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.action;
 
+import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import com.github.sweetfish111.reincarnated.magic.casting.MasoInvestmentScaling;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
@@ -14,10 +15,13 @@ import java.util.List;
 import java.util.UUID;
 
 public class CollectItemsNode extends AbstractMagicNode {
-    float BASECOST = 0.2f;
 
     public CollectItemsNode(UUID id) {
         super(id);
+    }
+
+    private float baseCost() {
+        return BalanceConfig.COLLECT_ITEMS_BASE_COST.get().floatValue();
     }
 
     @Override
@@ -28,7 +32,7 @@ public class CollectItemsNode extends AbstractMagicNode {
         float availableMaso = context.getCaster().getMasoAmount();
 
         MasoInvestmentScaling.EffectResult effectResult =
-                MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+                MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);
         double radius = Math.max(0.5, effectResult.effectAmount()); // 極端に小さい値の暴発防止
         masoCost = effectResult.masoCost();
         super.execute(context);
@@ -81,7 +85,7 @@ public class CollectItemsNode extends AbstractMagicNode {
             double investedMaso = pullDouble(2, context);
             float availableMaso = context.getCaster().getMasoAmount();
             MasoInvestmentScaling.EffectResult effectResult =
-                    MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+                    MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);
             return effectResult.masoCost();
         }
         return null;

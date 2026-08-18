@@ -35,6 +35,14 @@ public class BalanceConfig {
     public static final ModConfigSpec.DoubleValue OVERLOAD_THRESHOLD_RATIO;
     public static final ModConfigSpec.DoubleValue OVERLOAD_EFFECT_BONUS_RATIO;
 
+    // ===== アクションノード基礎コスト（各ノードのBASECOST。get_base_costノードもここを参照する） =====
+    public static final ModConfigSpec.DoubleValue DAMAGE_BASE_COST;
+    public static final ModConfigSpec.DoubleValue HEALING_BASE_COST;
+    public static final ModConfigSpec.DoubleValue EXPLOSION_BASE_COST;
+    public static final ModConfigSpec.DoubleValue DIG_BASE_COST;
+    public static final ModConfigSpec.DoubleValue COLLECT_ITEMS_BASE_COST;
+    public static final ModConfigSpec.DoubleValue SUMMON_BASE_COST;
+
     //==== 演算能力系 ====
     public static final ModConfigSpec.DoubleValue BASE_COMPUTE_CAPACITY;
     public static final ModConfigSpec.DoubleValue COMPUTE_CAPACITY_SCALE;
@@ -160,6 +168,27 @@ public class BalanceConfig {
         OVERLOAD_EFFECT_BONUS_RATIO = builder
                 .comment("過剰域で超過投資した分に対する効果ボーナス倍率（例：0.4なら超過分の40%が効果に上乗せされる）")
                 .defineInRange("overchargeEffectBonusRatio", 0.4, 0.0, 5.0);
+        builder.pop();
+
+        builder.push("action_node_base_cost");
+        DAMAGE_BASE_COST = builder
+                .comment("DamageNodeの基礎コスト係数")
+                .defineInRange("damageBaseCost", 2.0, 0.0, 1000.0);
+        HEALING_BASE_COST = builder
+                .comment("HealingNodeの基礎コスト係数")
+                .defineInRange("healingBaseCost", 5.0, 0.0, 1000.0);
+        EXPLOSION_BASE_COST = builder
+                .comment("ExplosionNodeの基礎コスト係数")
+                .defineInRange("explosionBaseCost", 4.0, 0.0, 1000.0);
+        DIG_BASE_COST = builder
+                .comment("DigNodeの基礎コスト係数")
+                .defineInRange("digBaseCost", 0.7, 0.0, 1000.0);
+        COLLECT_ITEMS_BASE_COST = builder
+                .comment("CollectItemsNodeの基礎コスト係数")
+                .defineInRange("collectItemsBaseCost", 0.2, 0.0, 1000.0);
+        SUMMON_BASE_COST = builder
+                .comment("SummonNodeの基礎コスト係数")
+                .defineInRange("summonBaseCost", 1.2, 0.0, 1000.0);
         builder.pop();
 
         builder.push("compute_capacity");

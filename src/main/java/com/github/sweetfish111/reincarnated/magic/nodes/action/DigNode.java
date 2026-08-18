@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.action;
 
+import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import com.github.sweetfish111.reincarnated.magic.casting.MasoInvestmentScaling;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
@@ -9,10 +10,13 @@ import net.minecraft.world.phys.Vec3;
 import java.util.UUID;
 
 public class DigNode extends AbstractMagicNode {
-    float BASECOST = 0.7f;
 
     public DigNode(UUID id) {
         super(id);
+    }
+
+    private float baseCost() {
+        return BalanceConfig.DIG_BASE_COST.get().floatValue();
     }
 
     // 投入魔素量から算出した総掘削量(体積)予算を、幅×高さの断面積で割って奥行きに変換する。
@@ -23,7 +27,7 @@ public class DigNode extends AbstractMagicNode {
         float availableMaso = context.getCaster().getMasoAmount();
 
         MasoInvestmentScaling.EffectResult effectResult =
-                MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+                MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);
         masoCost = effectResult.masoCost();
 
         int crossSection = Math.max(1, width * height);
@@ -87,7 +91,7 @@ public class DigNode extends AbstractMagicNode {
         double investedMaso = pullDouble(4, context);
         float availableMaso = context.getCaster().getMasoAmount();
         MasoInvestmentScaling.EffectResult effectResult =
-                MasoInvestmentScaling.computeEffect(BASECOST, (float) investedMaso, availableMaso);
+                MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);
         return effectResult.masoCost();
     }
 }

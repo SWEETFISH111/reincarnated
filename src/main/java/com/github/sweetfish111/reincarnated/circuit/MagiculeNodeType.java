@@ -297,6 +297,16 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.MASO},
             List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
+    REQUIRED_MASO("required_maso", Component.translatable("node.reincarnated.required_maso").getString(),
+            new PortDataType[]{PortDataType.NUMBER, PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.MASO},
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
+    ),
+    GET_BASE_COST("get_base_cost", Component.translatable("node.reincarnated.get_base_cost").getString(),
+            new PortDataType[]{PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.NUMBER},
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
+    ),
     BOOLEAN("boolean", Component.translatable("node.reincarnated.boolean").getString(),
             new PortDataType[]{},
             new PortDataType[]{PortDataType.BOOLEAN},
@@ -331,6 +341,16 @@ public enum MagiculeNodeType {
             List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     DIVIDE("divide", Component.translatable("node.reincarnated.divide").getString(),
+            new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
+            new PortDataType[]{PortDataType.ANY},
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
+    ),
+    MIN("min", Component.translatable("node.reincarnated.min").getString(),
+            new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
+            new PortDataType[]{PortDataType.ANY},
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
+    ),
+    MAX("max", Component.translatable("node.reincarnated.max").getString(),
             new PortDataType[]{PortDataType.ANY, PortDataType.ANY},
             new PortDataType[]{PortDataType.ANY},
             List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)

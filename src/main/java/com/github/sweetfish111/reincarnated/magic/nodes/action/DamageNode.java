@@ -20,7 +20,7 @@ import java.util.UUID;
 
 public class DamageNode extends AbstractMagicNode implements MagicNode {
     float BASECOST = 2;
-    private long lastDamageTick = Long.MIN_VALUE; // ★ノード単位の連射防止
+    private long lastDamageTick = Long.MIN_VALUE / 2;// ★ノード単位の連射防止
 
     public DamageNode(UUID id) {
         super(id);
@@ -41,7 +41,6 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
         MasoInvestmentScaling.CostResult costResult =
                 MasoInvestmentScaling.computeCost(BASECOST, (float) damageAmount, availableMaso);
         masoCost = costResult.cost();
-        super.execute(context);
 
         if (costResult.isOvercharge() && context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
             CausalityObserver.onOverCharge(player);
@@ -60,6 +59,7 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
                 source = new DamageSource(damageType, null, null, null);
             }
             targetEntity.hurtServer(context.getLevel(), source, costResult.grantedAmount());
+            super.execute(context);
             lastDamageTick = now; // ★実際にヒットした時だけクールダウン更新
 
             if (context.getCaster().getCasterEntity() instanceof ServerPlayer player) {

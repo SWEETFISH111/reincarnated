@@ -46,7 +46,7 @@ public class GetNearestEntityInRadius extends AbstractMagicNode {
         double nearestDistSq = Double.MAX_VALUE;
         for (LivingEntity entity : candidates) {
             double distSq = entity.position().distanceToSqr(center);
-            if (distSq < nearestDistSq) {
+            if (distSq < nearestDistSq && !entity.equals(context.getCaster().getCasterEntity())) {
                 nearestDistSq = distSq;
                 nearest = entity;
             }

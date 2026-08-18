@@ -53,7 +53,7 @@ public enum MagiculeNodeType {
     ),
     DIG("dig", Component.translatable("node.reincarnated.dig").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.NUMBER},
-            new PortDataType[]{PortDataType.EXEC},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             List.of(EditorTab.MAGIC)
     ),
     DIG_ALl("dig_all", Component.translatable("node.reincarnated.dig_all").getString(),
@@ -73,7 +73,7 @@ public enum MagiculeNodeType {
     ),
     TELEPORT("teleport", Component.translatable("node.reincarnated.teleport").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.ENTITY, PortDataType.VECTORE},
-            new PortDataType[]{PortDataType.EXEC},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     SHOOT_PROJECTILE("shoot_projectile", Component.translatable("node.reincarnated.shoot_projectile").getString(),
@@ -85,38 +85,38 @@ public enum MagiculeNodeType {
     ),
     LIGHTNING("lightning", Component.translatable("node.reincarnated.lightning").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE},
-            new PortDataType[]{PortDataType.EXEC},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             null,null,
                     8
     ),
     EXPLOSION("explosion",Component.translatable("node.reincarnated.explosion").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER},
-            new PortDataType[]{PortDataType.EXEC},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             ContentWidgetType.SWITCH,
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER},
             8
     ),
     DAMAGE("damage", Component.translatable("node.reincarnated.damage").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.ENTITY, PortDataType.NUMBER},
-            new PortDataType[]{PortDataType.EXEC},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             null, null,
             3
     ),
     HEALING("healing", Component.translatable("node.reincarnated.healing").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.ENTITY, PortDataType.NUMBER},
-            new PortDataType[]{PortDataType.EXEC},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             null, null,
             5,
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     BARRIER("barrier", Component.translatable("node.reincarnated.barrier").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
-            new PortDataType[]{PortDataType.EXEC},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             List.of(EditorTab.MAGIC,EditorTab.SKILL)
     ),
     ABSORPTION("absorption", Component.translatable("node.reincarnated.absorption").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
-            new PortDataType[]{PortDataType.EXEC},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
     ),
     ADD_MASO("add_maso", Component.translatable("node.reincarnated.add_maso").getString(),
@@ -126,7 +126,7 @@ public enum MagiculeNodeType {
     ),
     SUMMON("summon", Component.translatable("node.reincarnated.summon").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER},
-            new PortDataType[]{PortDataType.EXEC},
+            new PortDataType[]{PortDataType.EXEC, PortDataType.NUMBER},
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     GET_LOOK_TARGET("get_look_target",Component.translatable("node.reincarnated.get_look_target").getString(),
@@ -179,6 +179,16 @@ public enum MagiculeNodeType {
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     GET_MAX_HP("get_max_hp", Component.translatable("node.reincarnated.get_max_hp").getString(),
+            new PortDataType[]{PortDataType.ENTITY},
+            new PortDataType[]{PortDataType.NUMBER},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    GET_CURRENT_BARRIER("get_current_barrier", Component.translatable( "node.reincarnated.get_current_barrier").getString(),
+            new PortDataType[]{PortDataType.ENTITY},
+            new PortDataType[]{PortDataType.NUMBER},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    GET_MAX_BARRIER("get_max_barrier", Component.translatable( "node.reincarnated.get_max_barrier").getString(),
             new PortDataType[]{PortDataType.ENTITY},
             new PortDataType[]{PortDataType.NUMBER},
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)

@@ -91,6 +91,8 @@
   "node.reincarnated.get_max_maso" : "最大魔素量",
   "node.reincarnated.get_current_hp" : "現在のHP",
   "node.reincarnated.get_max_hp" : "最大HP",
+  "node.reincarnated.get_current_barrier": "現在のバリア量",
+  "node.reincarnated.get_max_barrier": "最大バリア量",
   "node.reincarnated.get_land_maso_density": "土地の魔素濃度",
   "node.reincarnated.get_block_at_pos" : "指定座標のブロック",
   "node.reincarnated.combers_target_pos": "ターゲット座標変換",

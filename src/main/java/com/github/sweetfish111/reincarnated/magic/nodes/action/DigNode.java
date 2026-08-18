@@ -69,4 +69,16 @@ public class DigNode extends AbstractMagicNode {
             }
         }
     }
+
+    @Override
+    public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
+        int width  = Math.max(1, (int) Math.round(pullDouble(2, context)));
+        int height = Math.max(1, (int) Math.round(pullDouble(3, context)));
+        int depth  = Math.max(1, (int) Math.round(pullDouble(4, context)));
+        float availableMaso = context.getCaster().getMasoAmount();
+        MasoInvestmentScaling.CostResult costResult =
+                MasoInvestmentScaling.computeCost(BASECOST, ((float) (width * height * depth)), availableMaso);
+        return costResult.cost();
+    }
 }

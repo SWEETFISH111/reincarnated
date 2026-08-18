@@ -14,6 +14,8 @@ import java.util.UUID;
  * 座標の出どころは問わない(固定VECTOR、GET_LOOK_TARGET、ChannelReceive等どれでも接続可能)。
  */
 public class TeleportNode extends AbstractMagicNode {
+    double BASECOST = 8;
+
     public TeleportNode(UUID id) {
         super(id);
     }
@@ -30,5 +32,11 @@ public class TeleportNode extends AbstractMagicNode {
             }
         }
         pushExecute(context);
+    }
+
+    @Override
+    public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
+        return BASECOST;
     }
 }

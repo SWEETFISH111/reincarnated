@@ -92,6 +92,8 @@
   "node.reincarnated.get_max_maso" : "max maso",
   "node.reincarnated.get_current_hp" : "current hp",
   "node.reincarnated.get_max_hp" : "max hp",
+  "node.reincarnated.get_current_barrier": "current barrier",
+  "node.reincarnated.get_max_barrier": "max barrier",
   "node.reincarnated.get_land_maso_density": "land's maso",
   "node.reincarnated.get_block_at_pos": "get block at pos",
   "node.reincarnated.combers_target_pos": "target pos",

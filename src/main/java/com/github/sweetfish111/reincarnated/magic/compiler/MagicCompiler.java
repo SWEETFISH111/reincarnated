@@ -278,6 +278,8 @@ public class MagicCompiler {
             case "channel_receive":return new ChannelReceiveNode(nodeId);
             case "on_channel_signal":return new OnChannelSignalNode(nodeId);
             case "teleport":return new TeleportNode(nodeId);
+            case  "get_current_barrier":return new GetCurrentBarrierPointNode(nodeId);
+            case  "get_max_barrier":return new GetMaxBarrier(nodeId);
             default : return null;
         }
     }

@@ -46,4 +46,15 @@ public class SummonNode extends AbstractMagicNode {
 
         pushExecute(context);
     }
+
+    @Override
+    public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
+        double livingSeconds = pullDouble(2, context);
+        int livingTicks = (int) Math.max(20, livingSeconds * 20); // 最低1秒
+        float availableMaso = context.getCaster().getMasoAmount();
+        MasoInvestmentScaling.CostResult costResult =
+                MasoInvestmentScaling.computeCost(BASECOST, (float) livingTicks, availableMaso);
+        return costResult.cost();
+    }
 }

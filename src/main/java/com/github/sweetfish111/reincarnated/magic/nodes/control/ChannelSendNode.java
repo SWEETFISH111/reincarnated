@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.magic.nodes.action;
+package com.github.sweetfish111.reincarnated.magic.nodes.control;
 
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;

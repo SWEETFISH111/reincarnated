@@ -56,6 +56,11 @@ public class ExplosionNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
-        return null;
+        super.getOutputData(0,context);
+        double rawData = pullDouble(2,context);
+        float availableMaso = context.getCaster().getMasoAmount();
+        MasoInvestmentScaling.CostResult costResult =
+                MasoInvestmentScaling.computeCost(BASECOST, (float) rawData, availableMaso);
+        return costResult.cost();
     }
 }

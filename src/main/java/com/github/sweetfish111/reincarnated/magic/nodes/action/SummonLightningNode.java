@@ -49,6 +49,7 @@ public class SummonLightningNode extends AbstractMagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
-        return null; // 雷ノード自体はデータを出力しない
+        super.getOutputData(0,context);
+        return BASECOST; // 雷ノード自体はデータを出力しない
     }
 }

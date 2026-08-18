@@ -76,6 +76,12 @@ public class CollectItemsNode extends AbstractMagicNode {
         if (portIndex == 1) {
             Object val = context.getMagicValue("collected_count_" + this.id);
             return (val instanceof Number n) ? n.doubleValue() : 0.0;
+        }else if(portIndex == 2){
+            double radius = Math.max(0.5, pullDouble(2, context)); // 極端に小さい値の暴発防止
+            float availableMaso = context.getCaster().getMasoAmount();
+            MasoInvestmentScaling.CostResult costResult =
+                    MasoInvestmentScaling.computeCost(BASECOST, (float) radius, availableMaso);
+            return costResult.cost();
         }
         return null;
     }

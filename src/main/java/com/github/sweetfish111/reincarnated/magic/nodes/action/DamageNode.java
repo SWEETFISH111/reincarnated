@@ -1,6 +1,7 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.action;
 
 import com.github.sweetfish111.reincarnated.config.BalanceConfig;
+import com.github.sweetfish111.reincarnated.magic.MasoAmount;
 import com.github.sweetfish111.reincarnated.magic.casting.MasoInvestmentScaling;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
@@ -71,6 +72,14 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
 
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
-        return super.getOutputData(portIndex, context);
+        super.getOutputData(portIndex, context);
+
+        double damageAmount = pullDouble(2, context);
+        float availableMaso = context.getCaster().getMasoAmount();
+
+        MasoInvestmentScaling.CostResult costResult =
+                MasoInvestmentScaling.computeCost(BASECOST, (float) damageAmount, availableMaso);
+
+        return costResult.cost();
     }
 }

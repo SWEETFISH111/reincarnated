@@ -37,4 +37,14 @@ public class AbsorptionNode extends AbstractMagicNode {
             super.execute(context);
         }
     }
+
+    @Override
+    public Object getOutputData(int portIndex, MagicContext context) {
+        super.getOutputData(portIndex, context);
+        float amount = (float) pullDouble(1, context) * RATE;
+        float availableMaso = context.getCaster().getMasoAmount();
+        MasoInvestmentScaling.CostResult costResult =
+                MasoInvestmentScaling.computeCost(BASECOST, amount, availableMaso);
+        return costResult.cost();
+    }
 }

@@ -34,4 +34,13 @@ public class HealingNode extends AbstractMagicNode {
             ReincarnatedPlaySound.playMissSound(context.getCaster().getCasterLevel(), context.getCaster().getCasterPosition());
         }
     }
+
+    @Override
+    public Object getOutputData(int portIndex, MagicContext context) {
+        double healingAmount = pullDouble(2, context);
+        float availableMaso = context.getCaster().getMasoAmount();
+        MasoInvestmentScaling.CostResult costResult =
+                MasoInvestmentScaling.computeCost(BASECOST, (float) healingAmount, availableMaso);
+        return costResult.cost();
+    }
 }

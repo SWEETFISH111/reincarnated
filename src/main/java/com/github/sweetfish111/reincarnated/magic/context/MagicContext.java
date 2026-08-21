@@ -3,11 +3,11 @@ package com.github.sweetfish111.reincarnated.magic.context;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
+import com.github.sweetfish111.reincarnated.magic.tank.MasoTank;
 import com.github.sweetfish111.reincarnated.magic.caster.CasterSnapshot;
 import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,9 +15,10 @@ import java.util.UUID;
 
 public class MagicContext {
     final IMagicCaster caster;
+    private final CasterSnapshot snapshot;
     private final MagiculeCircuit circuit;
     private final RuntimeMagicCircuit runtimeCircuit;
-    private final CasterSnapshot snapshot;
+    private final MasoTank masoTank;
     private final Map<UUID, Map<Integer, Double>> LocalVariable = new HashMap<>();
     private final Map<String, Object> magicValue = new HashMap<>();
     private final ExecutionTrace trace = new ExecutionTrace();
@@ -31,6 +32,7 @@ public class MagicContext {
         this.caster = runtimeCircuit.getCaster();
         this.level = caster.getCasterLevel();
         this.snapshot = CasterSnapshot.capture(caster);
+        this.masoTank = new MasoTank(caster.getMasoTankCapacity());
     }
 
     public ServerLevel getLevel() {
@@ -44,6 +46,9 @@ public class MagicContext {
     public IMagicCaster getCaster() {
         return this.caster;
     }
+
+    public MasoTank getMasoTank(){return this.masoTank;}
+
     public double getNodeLocalVariable(UUID nodeId, int portIndex){
         Map<Integer, Double> vars = this.LocalVariable.get(nodeId);
         if(vars != null && vars.containsKey(portIndex)){

@@ -4,6 +4,7 @@ import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.init.ModAttachments;
 import com.github.sweetfish111.reincarnated.magic.context.PassiveExecutionContext;
+import com.github.sweetfish111.reincarnated.magic.tank.MasoTankLimiter;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -101,5 +102,11 @@ public class PlayerCasterAdapter implements IMagicCaster{
             }
         }
         return false;
+    }
+
+    @Override
+    public double getMasoTankCapacity() {
+        PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        return MasoTankLimiter.getMasoTankCapacity(magicData);
     }
 }

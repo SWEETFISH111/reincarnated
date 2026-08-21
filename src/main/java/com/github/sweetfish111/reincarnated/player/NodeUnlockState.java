@@ -115,6 +115,7 @@ public class NodeUnlockState implements PersistentComponent {
             types.add(MagiculeNodeType.SUMMON);
             types.add(MagiculeNodeType.INPUT_PROXY);
             types.add(MagiculeNodeType.OUTPUT_PROXY);
+            types.add(MagiculeNodeType.MASO_POOL);
         } else if (tab == EditorTab.ARTS) {
             Set<MagiculeNodeType> types = unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>());
             types.add(MagiculeNodeType.ADD);

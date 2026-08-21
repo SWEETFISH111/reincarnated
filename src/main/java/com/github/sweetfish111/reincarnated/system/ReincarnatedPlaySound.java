@@ -36,15 +36,15 @@ public class ReincarnatedPlaySound {
 
     public static void playHitSound(Level level, Vec3 pos){
         level.playSound(null, pos.x, pos.y, pos.z,
-                SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1.2f, 1.0f);
+                SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 0.8f, 1.0f);
 
         // 2. 魔力プラズマ衝撃音
         level.playSound(null, pos.x, pos.y, pos.z,
-                SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 1.0f, 0.4f);
+                SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 0.7f, 0.4f);
 
         // 3. 術式粉砕音（ガラス割れ音）
         level.playSound(null, pos.x, pos.y, pos.z,
-                SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 1.4f, 0.5f);
+                SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 0.9f, 0.5f);
     }
 
     public static void playMissSound(Level level, Vec3 pos){

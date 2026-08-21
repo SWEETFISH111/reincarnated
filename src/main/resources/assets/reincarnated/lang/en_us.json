@@ -70,6 +70,7 @@
   "node.reincarnated.on_kill": "on kill",
   "node.reincarnated.on_attack_stronger": "on attack stronger",
   "node.reincarnated.on_overcharge": "on overcharge",
+  "node.reincarnated.maso_pool": "maso pool",
   "node.reincarnated.dig": "dig",
   "node.reincarnated.dig_all": "digAll",
   "node.reincarnated.collect_items": "collect items",

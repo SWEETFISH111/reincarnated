@@ -5,17 +5,12 @@ import java.util.List;
 import java.util.UUID;
 
 import com.github.sweetfish111.reincarnated.circuit.*;
+import com.github.sweetfish111.reincarnated.magic.tank.MasoPool;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.fml.common.Mod;
-
-import javax.sound.sampled.Port;
 
 
 public class DraggableNodeWidget extends AbstructDraggingNodeWidget {

@@ -74,6 +74,7 @@
   "node.reincarnated.lightning": "落雷",
   "node.reincarnated.explosion": "爆発",
   "node.reincarnated.damage": "瞬間ダメージ",
+  "node.reincarnated.maso_pool": "魔素の持ち主",
   "node.reincarnated.dig": "掘削",
   "node.reincarnated.dig_all": "全掘削",
   "node.reincarnated.collect_items": "アイテム回収",

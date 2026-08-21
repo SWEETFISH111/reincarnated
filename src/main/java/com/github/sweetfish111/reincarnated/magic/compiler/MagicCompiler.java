@@ -13,6 +13,7 @@ import com.github.sweetfish111.reincarnated.magic.nodes.conversion.CombersTarget
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.OffsetNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.RequiredMasoNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.conversion.GetBaseCostNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.tank.MasoPoolNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.OnSlotEnableNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.*;
@@ -284,6 +285,7 @@ public class MagicCompiler {
             case "teleport":return new TeleportNode(nodeId);
             case  "get_current_barrier":return new GetCurrentBarrierPointNode(nodeId);
             case  "get_max_barrier":return new GetMaxBarrier(nodeId);
+            case "maso_pool":return new MasoPoolNode(nodeId);
             default : return null;
         }
     }

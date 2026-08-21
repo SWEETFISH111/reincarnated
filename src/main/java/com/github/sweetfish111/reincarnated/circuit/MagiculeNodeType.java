@@ -1,6 +1,5 @@
 package com.github.sweetfish111.reincarnated.circuit;
 
-import com.github.sweetfish111.reincarnated.client.screen.AbstractContentWidget;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
@@ -50,6 +49,11 @@ public enum MagiculeNodeType {
     ON_ATTACK_STRONGER("on_attack_stronger", Component.translatable("node.reincarnated.on_attack_stronger").getString(),
             new PortDataType[]{},
             new PortDataType[]{PortDataType.EXEC, PortDataType.POWERGAP}
+    ),
+    MASO_POOL("maso_pool", Component.translatable("node.reincarnated.maso_pool").getString(),
+            new PortDataType[]{PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     DIG("dig", Component.translatable("node.reincarnated.dig").getString(),
             new PortDataType[]{PortDataType.EXEC, PortDataType.VECTORE, PortDataType.NUMBER, PortDataType.NUMBER, PortDataType.MASO},

@@ -1,6 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.skill.node.trigger;
 
-import com.github.sweetfish111.reincarnated.magic.KillScoreAmount;
+import com.github.sweetfish111.reincarnated.magic.record.KillScoreAmount;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 

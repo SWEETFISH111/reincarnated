@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.config;
 
+import com.github.sweetfish111.reincarnated.world.LandMasoDensityData;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class BalanceConfig {
@@ -50,6 +51,10 @@ public class BalanceConfig {
     public static final ModConfigSpec.DoubleValue COMPUTE_CAPACITY_DIVISOR;
     public static final ModConfigSpec.DoubleValue COMPUTE_CAPACITY_MIN_CAST_MULTIPLIER;
     public static final ModConfigSpec.DoubleValue COMPUTE_CAPACITY_CAST_HALF_LIFE;
+
+    //===== 魔素タンク容量 ====
+    public static final ModConfigSpec.DoubleValue TANK_BASE_CAPACITY;
+    public static final ModConfigSpec.DoubleValue TANK_CAPACITY_PER_COMPUTE;
 
     // ===== 詠唱時間コスト（CastCostCalculator） =====
     public static final ModConfigSpec.DoubleValue BASE_CAST_TICKS;
@@ -206,10 +211,19 @@ public class BalanceConfig {
                 .defineInRange("computeCapacityDivisor", 500.0, 1.0, 100000.0);
         COMPUTE_CAPACITY_MIN_CAST_MULTIPLIER = builder
                 .comment("演算能力による詠唱時間短縮の下限倍率（0.3なら最短でも元の30%までしか縮まない）")
-                .defineInRange("computeCapacityMinCastMultiplier", 0.3, 0.05, 1.0);
+                .defineInRange("computeCapacityMinCastMultiplier", 0.1, 0.05, 1.0);
         COMPUTE_CAPACITY_CAST_HALF_LIFE = builder
                 .comment("詠唱短縮効果が最大短縮の半分に達する演算能力値")
                 .defineInRange("computeCapacityCastHalfLife", 50.0, 1.0, 100000.0);
+        builder.pop();
+
+        builder.push("maso_tank");
+        TANK_BASE_CAPACITY = builder
+                .comment("演算能力ゼロの時点でも保証される、タンクの基礎容量")
+                .defineInRange("tankBaseCapacity", 20.0, 0.0, 1000.0);
+        TANK_CAPACITY_PER_COMPUTE = builder
+                .comment("演算能力1につき、タンク容量がどれだけ増えるか")
+                .defineInRange("tankCapacityPerCompute", 1.0, 0.0, 100.0);
         builder.pop();
 
         builder.push("cast_cost");

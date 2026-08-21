@@ -1,15 +1,15 @@
 package com.github.sweetfish111.reincarnated.magic.nodes;
 
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
-import com.github.sweetfish111.reincarnated.magic.*;
 import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
+import com.github.sweetfish111.reincarnated.magic.record.*;
+import com.github.sweetfish111.reincarnated.magic.tank.MasoTank;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 
 import java.util.*;
 
@@ -146,7 +146,7 @@ public abstract class AbstractMagicNode implements MagicNode{
 
     @Override
     public void execute(MagicContext context) {
-        consumeMaso(masoCost, context.getCaster());
+        consumeMaso(masoCost, context.getMasoTank());
         context.incrementAndCheck();
     }
 
@@ -165,13 +165,8 @@ public abstract class AbstractMagicNode implements MagicNode{
         executeOutputPort(outputPortIndex, context);
     }
 
-    protected void consumeMaso(float masoCost, IMagicCaster caster){
-        if(caster.getMasoAmount() >= masoCost){
-            caster.consumeMaso(masoCost);
-        }else{
-            throw new MasoShortageException(masoCost, caster.getMasoAmount());
-        }
-        System.out.println("AbstractMagicNode:cost_" + masoCost + " current_" + caster.getMasoAmount());
+    protected void consumeMaso(float masoCost, MasoTank tank){
+        tank.withdraw(masoCost);
     }
 
     public static void ensureMaxAbsorption(ServerPlayer player, float needed) {

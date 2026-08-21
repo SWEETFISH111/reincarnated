@@ -89,7 +89,7 @@ public class DigAllNode extends AbstractMagicNode {
         }
 
         if (actualCount > 0) {
-            consumeMaso(actualCount * COST_PER_BLOCK, context.getCaster());
+            consumeMaso(actualCount * COST_PER_BLOCK, context.getMasoTank());
         }
 
         pushExecute(context);

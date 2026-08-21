@@ -52,7 +52,7 @@ public class BarrierNode extends AbstractMagicNode {
 
         if (grantedPoint > 0) {
             magicData.setBarrierPoint(currentBarrierPoint + grantedPoint);
-            consumeMaso(cost, context.getCaster());
+            consumeMaso(cost, context.getMasoTank());
         }
     }
 

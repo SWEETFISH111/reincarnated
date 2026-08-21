@@ -1,7 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.action;
 
 import com.github.sweetfish111.reincarnated.config.BalanceConfig;
-import com.github.sweetfish111.reincarnated.magic.MasoAmount;
 import com.github.sweetfish111.reincarnated.magic.casting.MasoInvestmentScaling;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
@@ -12,7 +11,6 @@ import com.github.sweetfish111.reincarnated.system.ReincarnatedPlaySound;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 
 import java.util.UUID;

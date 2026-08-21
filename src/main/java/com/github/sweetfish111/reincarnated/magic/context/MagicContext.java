@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.magic.context;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
+import com.github.sweetfish111.reincarnated.magic.OverLoadBuff;
 import com.github.sweetfish111.reincarnated.magic.tank.MasoTank;
 import com.github.sweetfish111.reincarnated.magic.caster.CasterSnapshot;
 import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
@@ -19,6 +20,7 @@ public class MagicContext {
     private final MagiculeCircuit circuit;
     private final RuntimeMagicCircuit runtimeCircuit;
     private final MasoTank masoTank;
+    private final OverLoadBuff overLoadBuff = new OverLoadBuff();
     private final Map<UUID, Map<Integer, Double>> LocalVariable = new HashMap<>();
     private final Map<String, Object> magicValue = new HashMap<>();
     private final ExecutionTrace trace = new ExecutionTrace();
@@ -48,6 +50,8 @@ public class MagicContext {
     }
 
     public MasoTank getMasoTank(){return this.masoTank;}
+
+    public OverLoadBuff getOverLoadBuff(){return this.overLoadBuff;}
 
     public double getNodeLocalVariable(UUID nodeId, int portIndex){
         Map<Integer, Double> vars = this.LocalVariable.get(nodeId);

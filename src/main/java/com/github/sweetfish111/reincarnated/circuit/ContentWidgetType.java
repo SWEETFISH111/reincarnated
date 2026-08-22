@@ -5,4 +5,5 @@ public enum ContentWidgetType {
     NUMBER_INPUT,
     SWITCH,
     MODE_SELECT,
+    POOL
 }

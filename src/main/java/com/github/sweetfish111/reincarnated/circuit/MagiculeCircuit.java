@@ -1,9 +1,11 @@
 package com.github.sweetfish111.reincarnated.circuit;
 
+import com.github.sweetfish111.reincarnated.magic.PoolType;
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.skill.SkillAccessLevel;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
+import com.github.sweetfish111.reincarnated.reincarnated;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
@@ -44,6 +46,7 @@ public class MagiculeCircuit {
     }
     public void setNodeParam(UUID nodeId, String key, Object value){
         nodeParameters.computeIfAbsent(nodeId, k -> new HashMap<>()).put(key, value);
+        reincarnated.LOGGER.info("MagiculeCircuit" + value.toString());
     }
     public void setCompoundNodes(List<CompoundNodeData> nodes){
         this.compoundNodes.clear();
@@ -217,6 +220,8 @@ public class MagiculeCircuit {
                 CompoundTag paramsTag = new CompoundTag();
                 for(Map.Entry<String, Object> entry : params.entrySet()){
                     Tag convertedTag = toNbtTag(entry.getValue());
+                    reincarnated.LOGGER.info("save param key={} value={} convertedTag={}",
+                            entry.getKey(), entry.getValue(), convertedTag);
                     if (convertedTag != null) {
                         paramsTag.put(entry.getKey(), convertedTag);
                     }
@@ -281,6 +286,8 @@ public class MagiculeCircuit {
                         for (String key : paramsTag.keySet()) {
                             Tag rawTag = paramsTag.get(key);
                             Object val = fromNbtTag(rawTag);
+                            reincarnated.LOGGER.info("load param key={} rawTag={} val={}",
+                                    key, rawTag, val);
                             if (val != null) {
                                 params.put(key, val);
                             }
@@ -536,6 +543,7 @@ public class MagiculeCircuit {
             case Float f -> FloatTag.valueOf(f);
             case String s -> StringTag.valueOf(s);
             case Tag t -> t;
+            case Enum<?> e -> StringTag.valueOf(e.getDeclaringClass().getName() + ":" + e.name());
             default -> null;
         };
     }
@@ -544,7 +552,6 @@ public class MagiculeCircuit {
     private Object fromNbtTag(Tag tag) {
         if (tag == null) return null;
         if (tag instanceof ByteTag byteTag) {
-            System.out.println(byteTag.byteValue());
             return byteTag.byteValue() != 0; // Byte(1/0)をBooleanへ戻す
         } else if (tag instanceof DoubleTag doubleTag) {
             return doubleTag.doubleValue();
@@ -553,7 +560,23 @@ public class MagiculeCircuit {
         } else if (tag instanceof FloatTag floatTag) {
             return floatTag.floatValue();
         } else if (tag instanceof StringTag stringTag) {
-            return stringTag.toString();
+            String str = stringTag.value(); // ★修正
+            int separatorIndex = str.indexOf(':');
+            if (separatorIndex > 0) {
+                String className = str.substring(0, separatorIndex);
+                String enumName = str.substring(separatorIndex + 1);
+                try {
+                    Class<?> clazz = Class.forName(className);
+                    if (clazz.isEnum()) {
+                        @SuppressWarnings({"unchecked", "rawtypes"})
+                        Object result = Enum.valueOf((Class<Enum>) clazz.asSubclass(Enum.class), enumName);
+                        return result;
+                    }
+                } catch (ClassNotFoundException | IllegalArgumentException ignored) {
+                    // enumとして復元できなければ、下の通常の文字列として扱う
+                }
+            }
+            return str;
         }
         return null;
     }

@@ -5,6 +5,7 @@ import com.github.sweetfish111.reincarnated.magic.casting.CastingManager;
 import com.github.sweetfish111.reincarnated.magic.casting.DelayCastingManager;
 import com.github.sweetfish111.reincarnated.magic.casting.TimerCastingManager;
 import com.github.sweetfish111.reincarnated.magic.summon.SummonManager;
+import com.github.sweetfish111.reincarnated.world.LandMasoDensityData;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -17,9 +18,13 @@ public class ServerTickHandler {
         for (ServerLevel level : e.getServer().getAllLevels()) {
             ActiveMagicManager.onServerTick(level);
             SummonManager.onServerTick(level);
+            if(level.getOverworldClockTime() % 24000 == 0){
+                LandMasoDensityData.get(level).refillAllToMax(level);
+            }
         }
         CastingManager.onServerTick();
         DelayCastingManager.onServerTick();
         TimerCastingManager.onServerTick();
+
     }
 }

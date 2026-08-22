@@ -60,6 +60,6 @@ public class SwitchContentWidget extends AbstractContentWidget<Boolean,Button> {
 
     @Override
     protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-        //今度実装します。
+        this.contentWidget.updateWidgetNarration(narrationElementOutput);
     }
 }

@@ -71,6 +71,9 @@
   "node.reincarnated.on_attack_stronger": "on attack stronger",
   "node.reincarnated.on_overcharge": "on overcharge",
   "node.reincarnated.maso_pool": "maso pool",
+  "node.reincarnated.deposit_to_tank": "deposit to tank",
+  "node.reincarnated.with_draw_from_tank": "from tank",
+  "node.reincarnated.maso_tank": "maso tank",
   "node.reincarnated.dig": "dig",
   "node.reincarnated.dig_all": "digAll",
   "node.reincarnated.collect_items": "collect items",
@@ -137,6 +140,9 @@
   "node.reincarnated.compound": "Compound",
   "node.reincarnated.input_proxy": "input proxy",
   "node.reincarnated.output_proxy": "output proxy",
+
+  "gui.reincarnated.pooltype_player":"player",
+  "gui.reincarnated.pooltype_land": "land",
 
   "reincarnated.configuration.title": "reincarnated Configs",
   "reincarnated.configuration.section.reincarnated.common.toml": "reincarnated Configs",

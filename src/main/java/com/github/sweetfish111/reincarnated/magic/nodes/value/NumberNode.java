@@ -20,7 +20,6 @@ public class NumberNode extends AbstractMagicNode {
         super.getOutputData(portIndex, context);
         if(portIndex == 0){
             if(context.getCircuit() != null){
-                System.out.println("======" + context.getCircuit().getNodeParam(this.id, "value", 0.0) + "=====");
                 return context.getCircuit().getNodeParam(this.id, "value", 0.0);
             }
             return 0.0;

@@ -1,6 +1,7 @@
 package com.github.sweetfish111.reincarnated.magic.tank;
 
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
+import com.github.sweetfish111.reincarnated.world.LandMasoDensityData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
@@ -38,7 +39,7 @@ public class MasoTank {
 
     public void finalizeAndReturn(ServerLevel level, BlockPos pos){
         if(balance > 0){
-           // LandMasoDensityData.get(level).returnToLand(level, pos, balance)
+            LandMasoDensityData.get(level).returnToLand(level, pos, balance);
             balance = 0;
         }
     }

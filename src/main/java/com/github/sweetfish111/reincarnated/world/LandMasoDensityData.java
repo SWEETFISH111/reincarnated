@@ -9,9 +9,11 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +42,7 @@ public class LandMasoDensityData extends SavedData {
     );
 
     private final Map<Long, Float> chunkDensityCache = new HashMap<>();
+    private final Map<Long, Float> chunkCurrentCache = new HashMap<>();
     private long worldSeed;
 
     public static LandMasoDensityData get(ServerLevel level) {
@@ -79,6 +82,55 @@ public class LandMasoDensityData extends SavedData {
         chunkDensityCache.put(key, generated);
         setDirty();
         return generated;
+    }
+
+    public float getCurrentAvailable(ServerLevel level, BlockPos pos){
+        ChunkPos chunkPos = ChunkPos.containing(pos);
+        long key = chunkPos.pack();
+        Float cached = chunkCurrentCache.get(key);
+        if (cached != null) return cached;
+
+        float generated = getDensity(level, pos);
+        chunkCurrentCache.put(key, generated);
+        setDirty();
+        return generated;
+    }
+
+    public double consumeCurrent(ServerLevel level, BlockPos pos, double amount){
+        ChunkPos chunkPos = ChunkPos.containing(pos);
+        long key = chunkPos.pack();
+        float available = getCurrentAvailable(level, pos);
+        if(available >= amount){
+            float result = (float) (available - amount);
+            chunkCurrentCache.put(key, result);
+        }else {
+            chunkCurrentCache.put(key, 0.0f);
+        }
+        setDirty();
+        return Math.min(available, amount);
+    }
+
+    public void returnToLand(ServerLevel level, BlockPos pos, double amount){
+        ChunkPos chunkPos = ChunkPos.containing(pos);
+        long key = chunkPos.pack();
+        float current = getCurrentAvailable(level, pos);
+        current += amount;
+        chunkCurrentCache.put(key, current);
+        setDirty();
+        double pollutionThreshold = getDensity(level, pos) * BalanceConfig.MASO_POLLUTION_THRESHOLD_RATIO.get();
+        if(current > pollutionThreshold){
+            //todo 汚染処理
+        }
+    }
+
+    public void refillAllToMax(ServerLevel level){
+        for (Long key : chunkCurrentCache.keySet()) {
+            Float naturalMax = chunkDensityCache.get(key);
+            if (naturalMax != null) {
+                chunkCurrentCache.put(key, naturalMax);
+            }
+        }
+        setDirty();
     }
 
     private float generateDensity(ServerLevel level, ChunkPos chunkPos) {

@@ -3,7 +3,6 @@ package com.github.sweetfish111.reincarnated.client.screen;
 import com.github.sweetfish111.reincarnated.circuit.*;
 import com.github.sweetfish111.reincarnated.item.ReincarnatedItems;
 import com.github.sweetfish111.reincarnated.magic.skill.SkillAccessLevel;
-import com.github.sweetfish111.reincarnated.magic.tank.MasoPool;
 import com.github.sweetfish111.reincarnated.network.payload.ExportSpellPalyload;
 import com.github.sweetfish111.reincarnated.network.payload.SaveCircuitPayload;
 import com.github.sweetfish111.reincarnated.network.payload.ToggleMagicSlotPayload;

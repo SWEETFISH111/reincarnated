@@ -75,6 +75,9 @@
   "node.reincarnated.explosion": "爆発",
   "node.reincarnated.damage": "瞬間ダメージ",
   "node.reincarnated.maso_pool": "魔素の持ち主",
+  "node.reincarnated.maso_tank":"魔素タンク",
+  "node.reincarnated.deposit_to_tank": "タンクに魔素投入",
+  "node.reincarnated.with_draw_from_tank": "タンクから取り出し",
   "node.reincarnated.dig": "掘削",
   "node.reincarnated.dig_all": "全掘削",
   "node.reincarnated.collect_items": "アイテム回収",
@@ -114,7 +117,7 @@
   "node.reincarnated.number": "数値",
   "node.reincarnated.maso_investment": "投入魔素",
   "node.reincarnated.required_maso": "効果に必要な魔素量",
-  "node.reincarnated.get_base_cost": "アクションの基礎コスト取得",
+  "node.reincarnated.get_base_cost": "魔法基礎コスト",
   "node.reincarnated.boolean": "真偽値",
   "node.reincarnated.vector": "ベクトル",
   "node.reincarnated.null": "空っぽ（null）",
@@ -136,6 +139,9 @@
   "node.reincarnated.compound": "塊 (Compound)",
   "node.reincarnated.input_proxy": "入力プロキシ",
   "node.reincarnated.output_proxy": "出力プロキシ",
+
+  "gui.reincarnated.pooltype_player":"プレイヤー",
+  "gui.reincarnated.pooltype_land": "土地",
 
   "reincarnated.configuration.title": "reincarnated Configs",
   "reincarnated.configuration.section.reincarnated.common.toml": "reincarnated Configs",

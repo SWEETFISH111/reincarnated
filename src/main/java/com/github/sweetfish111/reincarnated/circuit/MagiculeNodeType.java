@@ -51,8 +51,26 @@ public enum MagiculeNodeType {
             new PortDataType[]{PortDataType.EXEC, PortDataType.POWERGAP}
     ),
     MASO_POOL("maso_pool", Component.translatable("node.reincarnated.maso_pool").getString(),
-            new PortDataType[]{PortDataType.NUMBER},
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.POOL},
+            ContentWidgetType.POOL,
+            null,
+            1,
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    DEPOSIT_TO_TANK("deposit_to_tank", Component.translatable("node.reincarnated.deposit_to_tank").getString(),
+            new PortDataType[]{PortDataType.EXEC, PortDataType.POOL, PortDataType.NUMBER},
             new PortDataType[]{PortDataType.EXEC},
+            List.of(EditorTab.MAGIC, EditorTab.SKILL, EditorTab.ARTS)
+    ),
+    WITH_DRAW_FROM_TANK("with_draw_from_tank", Component.translatable("node.reincarnated.with_draw_from_tank").getString(),
+            new PortDataType[]{PortDataType.NUMBER},
+            new PortDataType[]{PortDataType.MASO},
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    MASO_TANK("maso_tank", Component.translatable("node.reincarnated.maso_tank").getString(),
+            new PortDataType[]{PortDataType.MASO},
+            new PortDataType[]{PortDataType.MASO},
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     DIG("dig", Component.translatable("node.reincarnated.dig").getString(),

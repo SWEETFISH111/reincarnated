@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.github.sweetfish111.reincarnated.circuit.*;
-import com.github.sweetfish111.reincarnated.magic.tank.MasoPool;
+import com.github.sweetfish111.reincarnated.magic.PoolType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -20,10 +20,15 @@ public class DraggableNodeWidget extends AbstructDraggingNodeWidget {
     public DraggableNodeWidget(MagicEditorScreen parentScreen,UUID id, int x, int y, int width, MagiculeNodeType type){
         super(parentScreen, id, x, y, width, 0, Component.literal(type.displayName));
         this.type = type;
-        boolean savedValue = false;
-        Object param = this.parentScreen.getThisLayerManager().getWorkCircuit().getNodeParam(this.id, "value", false);
-        if (param instanceof Boolean b) {
-            savedValue = b;
+        boolean savedBoolean = false;
+        PoolType savedPoolType = PoolType.PLAYER;
+        Object param = this.parentScreen.getThisLayerManager().getWorkCircuit().getNodeParam(this.id, "value", null);
+        if(param != null) {
+            if (param instanceof Boolean b) {
+                savedBoolean = b;
+            } else if (param instanceof PoolType p) {
+                savedPoolType = p;
+            }
         }
 
         if(this.type.getContent() != ContentWidgetType.NONE){
@@ -40,8 +45,17 @@ public class DraggableNodeWidget extends AbstructDraggingNodeWidget {
                 case ContentWidgetType.SWITCH:
                     this.contentWidget = new SwitchContentWidget(
                             x + 50, y + 20, 25, 12,
-                            savedValue ? Component.literal("有効").withColor(TextColor.GREEN) : Component.literal("無効").withColor(TextColor.RED),
+                            savedBoolean ? Component.literal("有効").withColor(TextColor.GREEN) : Component.literal("無効").withColor(TextColor.RED),
                             this
+                    );
+                    break;
+                case ContentWidgetType.POOL:
+                    this.contentWidget = new CycleContentWidget<PoolType>(
+                            x + 10, y + 24, 60, 12,
+                            Component.literal(""),
+                            this,
+                            PoolType.values(),
+                            savedPoolType
                     );
                     break;
                 default:

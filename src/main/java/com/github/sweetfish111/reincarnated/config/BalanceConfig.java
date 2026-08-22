@@ -56,6 +56,14 @@ public class BalanceConfig {
     public static final ModConfigSpec.DoubleValue TANK_BASE_CAPACITY;
     public static final ModConfigSpec.DoubleValue TANK_CAPACITY_PER_COMPUTE;
 
+    //===== 詠唱時のoverload定数 ====
+    public static final ModConfigSpec.DoubleValue OVERLOAD_BASE_CHANCE;
+    public static final ModConfigSpec.DoubleValue OVERLOAD_CHANCE_DECAY_SCALE;
+    public static final ModConfigSpec.DoubleValue OVERLOAD_MIN_CHANCE;
+    public static final ModConfigSpec.DoubleValue OVERLOAD_DAMAGE_PER_OVERFLOW;
+    public static final ModConfigSpec.DoubleValue OVERLOAD_BONUS_PER_OVERFLOW;
+    public static final ModConfigSpec.DoubleValue OVERLOAD_BONUS_EXPONENT;
+
     // ===== 詠唱時間コスト（CastCostCalculator） =====
     public static final ModConfigSpec.DoubleValue BASE_CAST_TICKS;
     public static final ModConfigSpec.DoubleValue CAST_DEPTH_COEFFICIENT;
@@ -84,9 +92,10 @@ public class BalanceConfig {
     public static final ModConfigSpec.DoubleValue MASO_DENSITY_NOISE_AMPLITUDE;
     public static final ModConfigSpec.DoubleValue MASO_DENSITY_NOISE_SCALE;
     public static final ModConfigSpec.DoubleValue MASO_DENSITY_DAMPING_DISTANCE;
-
+    public static final ModConfigSpec.DoubleValue MASO_POLLUTION_THRESHOLD_RATIO;
     public static final ModConfigSpec.DoubleValue MASO_DENSITY_RING_DISTANCE;
     public static final ModConfigSpec.DoubleValue MASO_DENSITY_RING_INCREMENT;
+
     public static final ModConfigSpec.DoubleValue MASO_MOB_POWER_MIN_MULTIPLIER;
     public static final ModConfigSpec.DoubleValue MASO_MOB_POWER_MAX_MULTIPLIER;
     public static final ModConfigSpec.DoubleValue MASO_STONE_BASE_DROP_CHANCE;
@@ -226,6 +235,27 @@ public class BalanceConfig {
                 .defineInRange("tankCapacityPerCompute", 1.0, 0.0, 100.0);
         builder.pop();
 
+        builder.push("maso_overload");
+        OVERLOAD_BASE_CHANCE = builder
+                .comment("overflowAmountがごく小さい時の発動確率(0〜1)")
+                .defineInRange("overloadBaseChance", 0.5, 0.0, 1.0);
+        OVERLOAD_CHANCE_DECAY_SCALE = builder
+                .comment("確率減衰の速さを決めるスケール値。overflowAmountがこの値に達すると確率がおおむね1/e(約37%)になる")
+                .defineInRange("overloadChanceDecayScale", 20.0, 0.1, 10000.0);
+        OVERLOAD_MIN_CHANCE = builder
+                .comment("overflowAmountがどれだけ大きくても、これより低くはならない最低確率")
+                .defineInRange("overloadMinChance", 0.02, 0.0, 1.0);
+        OVERLOAD_DAMAGE_PER_OVERFLOW = builder
+                .comment("overflowAmount1あたりの自傷ダメージ係数")
+                .defineInRange("overloadDamagePerOverflow", 0.3, 0.0, 100.0);
+        OVERLOAD_BONUS_PER_OVERFLOW = builder
+                .comment("overflowAmount1あたりの効果ボーナス基礎係数")
+                .defineInRange("overloadBonusPerOverflow", 0.15, 0.0, 100.0);
+        OVERLOAD_BONUS_EXPONENT = builder
+                .comment("効果ボーナスの伸び方の指数(1.0で線形、1より大きいと大溢れ時の旨味が加速する)")
+                .defineInRange("overloadBonusExponent", 1.2, 0.1, 5.0);
+        builder.pop();
+
         builder.push("cast_cost");
         BASE_CAST_TICKS = builder
                 .comment("最低詠唱時間(tick)")
@@ -271,34 +301,37 @@ public class BalanceConfig {
         builder.push("land_maso_density");
         MASO_DENSITY_NORMAL_BASE = builder
                 .comment("タグ未指定バイオームの基礎魔素濃度")
-                .defineInRange("masoDensityNormalBase", 10.0, 0.0, 1000.0);
+                .defineInRange("masoDensityNormalBase", 240000.0, 0.0, 10000000.0);
         MASO_DENSITY_LOW_BASE = builder
                 .comment("maso_density_lowタグの基礎魔素濃度")
-                .defineInRange("masoDensityLowBase", 4.0, 0.0, 1000.0);
+                .defineInRange("masoDensityLowBase", 96000.0, 0.0, 10000000.0);
         MASO_DENSITY_VERY_LOW_BASE = builder
                 .comment("maso_density_very_lowタグの基礎魔素濃度")
-                .defineInRange("masoDensityVeryLowBase", 1.0, 0.0, 1000.0);
+                .defineInRange("masoDensityVeryLowBase", 24000.0, 0.0, 10000000.0);
         MASO_DENSITY_HIGH_BASE = builder
                 .comment("maso_density_highタグの基礎魔素濃度")
-                .defineInRange("masoDensityHighBase", 25.0, 0.0, 1000.0);
+                .defineInRange("masoDensityHighBase", 600000.0, 0.0, 10000000.0);
         MASO_DENSITY_VERY_HIGH_BASE = builder
                 .comment("maso_density_very_highタグの基礎魔素濃度")
-                .defineInRange("masoDensityVeryHighBase", 60.0, 0.0, 1000.0);
+                .defineInRange("masoDensityVeryHighBase", 1440000.0, 0.0, 10000000.0);
         MASO_DENSITY_NOISE_AMPLITUDE = builder
                 .comment("地域差ノイズの振幅（基礎値に対して±この値までブレる）")
-                .defineInRange("masoDensityNoiseAmplitude", 8.0, 0.0, 500.0);
+                .defineInRange("masoDensityNoiseAmplitude", 192000.0, 0.0, 10000000.0);
         MASO_DENSITY_NOISE_SCALE = builder
                 .comment("ノイズの空間スケール（チャンク単位。大きいほど広範囲でゆるやかに変化する）")
-                .defineInRange("masoDensityNoiseScale", 12.0, 1.0, 500.0);
+                .defineInRange("masoDensityNoiseScale", 12.0, 1.0, 500.0); // ← 空間スケールなので変更不要
         MASO_DENSITY_RING_DISTANCE = builder
                 .comment("この距離(ブロック)ごとにスポーン地点から1段階濃度が上がる")
-                .defineInRange("masoDensityRingDistance", 1000.0, 10.0, 100000.0);
+                .defineInRange("masoDensityRingDistance", 1000.0, 10.0, 100000.0); // ← 距離(ブロック数)なので変更不要
         MASO_DENSITY_RING_INCREMENT = builder
                 .comment("リング1段階ごとに加算される濃度")
-                .defineInRange("masoDensityRingIncrement", 8.0, 0.0, 1000.0);
+                .defineInRange("masoDensityRingIncrement", 192000.0, 0.0, 10000000.0);
         MASO_DENSITY_DAMPING_DISTANCE = builder
                 .comment("この距離(ブロック)でノイズ・バイオーム差分の減衰が完全に解ける(フル振幅になる)")
-                .defineInRange("masoDensityDampingDistance", 3000.0, 10.0, 100000.0);
+                .defineInRange("masoDensityDampingDistance", 3000.0, 10.0, 100000.0); // ← 距離(ブロック数)なので変更不要
+        MASO_POLLUTION_THRESHOLD_RATIO = builder
+                .comment("自然上限の何倍を超えたら汚染が発生するか")
+                .defineInRange("masoPollutionThresholdRatio", 1.5, 1.0, 10.0);
         builder.pop();
 
         builder.push("land_density_mob_scaling");

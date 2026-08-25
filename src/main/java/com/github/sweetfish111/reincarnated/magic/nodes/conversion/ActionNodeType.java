@@ -1,6 +1,8 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.conversion;
 
+import com.github.sweetfish111.reincarnated.client.screen.ICycleButtonValue;
 import com.github.sweetfish111.reincarnated.config.BalanceConfig;
+import net.minecraft.network.chat.Component;
 
 import java.util.function.Supplier;
 
@@ -11,19 +13,21 @@ import java.util.function.Supplier;
  * <p>
  * 将来アクションノードを追加する際は、ここに列挙を1つ足すだけでよい。
  */
-public enum ActionNodeType {
-    DAMAGE(0, () -> BalanceConfig.DAMAGE_BASE_COST),
-    HEALING(1, () -> BalanceConfig.HEALING_BASE_COST),
-    EXPLOSION(2, () -> BalanceConfig.EXPLOSION_BASE_COST),
-    DIG(3, () -> BalanceConfig.DIG_BASE_COST),
-    COLLECT_ITEMS(4, () -> BalanceConfig.COLLECT_ITEMS_BASE_COST),
-    SUMMON(5, () -> BalanceConfig.SUMMON_BASE_COST);
+public enum ActionNodeType implements ICycleButtonValue {
+    DAMAGE(0, "damage", () -> BalanceConfig.DAMAGE_BASE_COST),
+    HEALING(1, "healing", () -> BalanceConfig.HEALING_BASE_COST),
+    EXPLOSION(2, "explosion", () -> BalanceConfig.EXPLOSION_BASE_COST),
+    DIG(3, "dig", () -> BalanceConfig.DIG_BASE_COST),
+    COLLECT_ITEMS(4, "collect_items", () -> BalanceConfig.COLLECT_ITEMS_BASE_COST),
+    SUMMON(5, "summon", () -> BalanceConfig.SUMMON_BASE_COST);
 
     private final int id;
+    private final String displayName;
     private final Supplier<net.neoforged.neoforge.common.ModConfigSpec.DoubleValue> configValue;
 
-    ActionNodeType(int id, Supplier<net.neoforged.neoforge.common.ModConfigSpec.DoubleValue> configValue) {
+    ActionNodeType(int id, String displayName, Supplier<net.neoforged.neoforge.common.ModConfigSpec.DoubleValue> configValue) {
         this.id = id;
+        this.displayName = displayName;
         this.configValue = configValue;
     }
 
@@ -40,5 +44,11 @@ public enum ActionNodeType {
             if (type.id == id) return type;
         }
         return DAMAGE;
+    }
+
+
+    @Override
+    public Component getDisplayName() {
+        return Component.literal(this.displayName);
     }
 }

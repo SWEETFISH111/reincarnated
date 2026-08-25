@@ -22,17 +22,14 @@ public class GetBaseCostNode extends AbstractMagicNode {
     }
 
     @Override
-    public void execute(MagicContext context) {
-        //何もしない（値ノード扱い）
-    }
-
-    @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
         if (portIndex != 0) return null;
 
-        int actionIndex = (int) Math.round(pullDouble(0, context));
-        ActionNodeType type = ActionNodeType.fromId(actionIndex);
-        return (double) type.getBaseCost();
+        Object rawData = context.getCircuit().getNodeParam(this.id, "value", ActionNodeType.DAMAGE);
+        if(rawData instanceof ActionNodeType type){
+            return (double) type.getBaseCost();
+        }
+        return (double) ActionNodeType.DAMAGE.getBaseCost();
     }
 }

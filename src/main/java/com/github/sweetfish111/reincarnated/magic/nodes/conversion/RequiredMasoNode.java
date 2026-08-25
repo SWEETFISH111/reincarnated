@@ -26,22 +26,21 @@ public class RequiredMasoNode extends AbstractMagicNode {
     }
 
     @Override
-    public void execute(MagicContext context) {
-        //なにもしない（値ノード扱い）
-    }
-
-    @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
         if (portIndex != 0) return null;
 
         double desiredEffect = pullDouble(0, context);
-        double baseCostPerUnit = pullDouble(1, context);
-        float availableMaso = context.getCaster().getMasoAmount();
+        double baseCostPerUnit = 0;
+        Object rawData = context.getCircuit().getNodeParam(this.id, "value", ActionNodeType.DAMAGE);
+        if(rawData instanceof ActionNodeType type){
+            baseCostPerUnit = type.getBaseCost();
+        }
+        float availableMaso = (float) context.getMasoTank().getBalance();
 
         MasoInvestmentScaling.CostResult costResult =
                 MasoInvestmentScaling.computeCost((float) baseCostPerUnit, (float) desiredEffect, availableMaso);
 
-        return costResult.cost();
+        return (double)costResult.cost();
     }
 }

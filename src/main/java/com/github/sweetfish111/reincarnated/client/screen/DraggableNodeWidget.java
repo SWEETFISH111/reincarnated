@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.github.sweetfish111.reincarnated.circuit.*;
 import com.github.sweetfish111.reincarnated.magic.PoolType;
+import com.github.sweetfish111.reincarnated.magic.nodes.conversion.ActionNodeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -22,12 +23,15 @@ public class DraggableNodeWidget extends AbstructDraggingNodeWidget {
         this.type = type;
         boolean savedBoolean = false;
         PoolType savedPoolType = PoolType.PLAYER;
+        ActionNodeType savedActionNodeType = ActionNodeType.DAMAGE;
         Object param = this.parentScreen.getThisLayerManager().getWorkCircuit().getNodeParam(this.id, "value", null);
         if(param != null) {
             if (param instanceof Boolean b) {
                 savedBoolean = b;
             } else if (param instanceof PoolType p) {
                 savedPoolType = p;
+            }else if(param instanceof ActionNodeType a){
+                savedActionNodeType = a;
             }
         }
 
@@ -49,13 +53,22 @@ public class DraggableNodeWidget extends AbstructDraggingNodeWidget {
                             this
                     );
                     break;
-                case ContentWidgetType.POOL:
+                case ContentWidgetType.POOL_TYPE:
                     this.contentWidget = new CycleContentWidget<PoolType>(
                             x + 10, y + 24, 60, 12,
                             Component.literal(""),
                             this,
                             PoolType.values(),
                             savedPoolType
+                    );
+                    break;
+                case ContentWidgetType.ACTION_TYPE:
+                    this.contentWidget = new CycleContentWidget<ActionNodeType>(
+                            x + 10, y + 24, 60, 12,
+                            Component.literal(""),
+                            this,
+                            ActionNodeType.values(),
+                            savedActionNodeType
                     );
                     break;
                 default:

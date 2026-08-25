@@ -26,14 +26,13 @@ public class SummonNode extends AbstractMagicNode {
         context.incrementAndCheck();
 
         Vec3 position = pullVector3(1, context);
-        double investedMaso = pullDouble(2, context);
+        double investedMaso = pullMaso(2, context).amount();
+        float availableMaso = (float) context.getMasoTank().getBalance();
         double behaviorRaw = pullDouble(3, context);
 
         if (position != null) {
             ServerLevel level = context.getLevel();
             UUID ownerId = context.getCaster().getCasterId();
-
-            float availableMaso = context.getCaster().getMasoAmount();
 
             MasoInvestmentScaling.EffectResult effectResult =
                     MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);
@@ -54,13 +53,4 @@ public class SummonNode extends AbstractMagicNode {
         pushExecute(context);
     }
 
-    @Override
-    public Object getOutputData(int portIndex, MagicContext context) {
-        super.getOutputData(portIndex, context);
-        double investedMaso = pullDouble(2, context);
-        float availableMaso = context.getCaster().getMasoAmount();
-        MasoInvestmentScaling.EffectResult effectResult =
-                MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);
-        return (double) effectResult.effectAmount(); // ★出力ポートは「実際の効果量」を返す（投入魔素量の受け渡しではない）
-    }
 }

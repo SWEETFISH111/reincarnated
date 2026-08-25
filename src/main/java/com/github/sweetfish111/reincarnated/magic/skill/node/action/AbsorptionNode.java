@@ -23,7 +23,7 @@ public class AbsorptionNode extends AbstractMagicNode {
             float currentAbsorption = player.getAbsorptionAmount();
             float newAbsorption = currentAbsorption + amount;
 
-            float availableMaso = context.getCaster().getMasoAmount();
+            float availableMaso = (float) context.getMasoTank().getBalance();
 
             MasoInvestmentScaling.CostResult costResult =
                     MasoInvestmentScaling.computeCost(BASECOST, amount, availableMaso);
@@ -31,20 +31,11 @@ public class AbsorptionNode extends AbstractMagicNode {
 
             newAbsorption = costResult.grantedAmount();
 
+            super.execute(context);
+
             ensureMaxAbsorption(player, newAbsorption);
             player.setAbsorptionAmount(newAbsorption);
-
-            super.execute(context);
         }
     }
 
-    @Override
-    public Object getOutputData(int portIndex, MagicContext context) {
-        super.getOutputData(portIndex, context);
-        float amount = (float) pullDouble(1, context) * RATE;
-        float availableMaso = context.getCaster().getMasoAmount();
-        MasoInvestmentScaling.CostResult costResult =
-                MasoInvestmentScaling.computeCost(BASECOST, amount, availableMaso);
-        return costResult.cost();
-    }
 }

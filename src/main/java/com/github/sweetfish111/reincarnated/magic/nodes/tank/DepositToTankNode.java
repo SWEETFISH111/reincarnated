@@ -27,5 +27,6 @@ public class DepositToTankNode extends AbstractMagicNode {
             todo overload処理
              */
         }
+        pushExecute(context);
     }
 }

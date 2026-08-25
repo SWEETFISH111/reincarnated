@@ -80,7 +80,7 @@ public class DigAllNode extends AbstractMagicNode {
         }
 
         // ===== フェーズ2：所持魔素で賄える分だけ実際に破壊 =====
-        float currentMaso = context.getCaster().getMasoAmount();
+        float currentMaso = (float) context.getMasoTank().getBalance();
         int affordableCount = (int) Math.floor(currentMaso / COST_PER_BLOCK);
         int actualCount = Math.min(collected.size(), Math.max(0, affordableCount));
 
@@ -89,14 +89,10 @@ public class DigAllNode extends AbstractMagicNode {
         }
 
         if (actualCount > 0) {
-            consumeMaso(actualCount * COST_PER_BLOCK, context.getMasoTank());
+            consumeMaso(actualCount * COST_PER_BLOCK, context);
         }
 
         pushExecute(context);
     }
 
-    @Override
-    public Object getOutputData(int portIndex, MagicContext context) {
-        return null;
-    }
 }

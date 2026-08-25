@@ -14,7 +14,7 @@ import java.util.UUID;
  * 座標の出どころは問わない(固定VECTOR、GET_LOOK_TARGET、ChannelReceive等どれでも接続可能)。
  */
 public class TeleportNode extends AbstractMagicNode {
-    double BASECOST = 8;
+    double BASECOST = 1;
 
     public TeleportNode(UUID id) {
         super(id);
@@ -22,21 +22,18 @@ public class TeleportNode extends AbstractMagicNode {
 
     @Override
     public void execute(MagicContext context) {
-        context.incrementAndCheck();
-        Vec3 pos = pullVector3(2, context);
+        Vec3 targetPos = pullVector3(2, context);
         Object rawTarget = pullData(1, context);
         if(rawTarget instanceof LivingEntity entity){
-            if (pos != null && context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
-                entity.teleportTo(pos.x, pos.y, pos.z);
-                ReincarnatedPlaySound.playTeleportSound(context.getCaster().getCasterLevel(), pos);
+            if (targetPos != null && context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
+                double distance = entity.position().distanceTo(targetPos);
+                masoCost = (float)(BASECOST * distance);
+                super.execute(context);
+                entity.teleportTo(targetPos.x, targetPos.y, targetPos.z);
+                ReincarnatedPlaySound.playTeleportSound(context.getCaster().getCasterLevel(), targetPos);
             }
         }
         pushExecute(context);
     }
 
-    @Override
-    public Object getOutputData(int portIndex, MagicContext context) {
-        super.getOutputData(portIndex, context);
-        return BASECOST;
-    }
 }

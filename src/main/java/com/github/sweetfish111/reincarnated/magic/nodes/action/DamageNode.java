@@ -38,8 +38,8 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
 
         Object target = pullData(1, context);
         if (target instanceof Entity targetEntity) {
-            double investedMaso = pullDouble(2, context);
-            float availableMaso = context.getCaster().getMasoAmount();
+            double investedMaso = pullMaso(2, context).amount();
+            float availableMaso = (float) context.getMasoTank().getBalance();
 
             MasoInvestmentScaling.EffectResult effectResult =
                     MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);
@@ -75,16 +75,4 @@ public class DamageNode extends AbstractMagicNode implements MagicNode {
         }
     }
 
-    @Override
-    public Object getOutputData(int portIndex, MagicContext context) {
-        super.getOutputData(portIndex, context);
-
-        double investedMaso = pullDouble(2, context);
-        float availableMaso = context.getCaster().getMasoAmount();
-
-        MasoInvestmentScaling.EffectResult effectResult =
-                MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);
-
-        return (double) effectResult.effectAmount(); // ★出力ポートは「実際の効果量」を返す（投入魔素量の受け渡しではない）
-    }
 }

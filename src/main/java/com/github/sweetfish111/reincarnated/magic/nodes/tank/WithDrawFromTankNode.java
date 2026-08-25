@@ -15,8 +15,13 @@ public class WithDrawFromTankNode extends AbstractMagicNode {
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
         double request = pullDouble(0, context);
-        context.getMasoTank().withdraw(request);
-        double bonus = context.getOverLoadBuff().consumeIfAvailable();
-        return new MasoAmount(request * bonus);
+        double available = context.getMasoTank().getBalance();
+        if(available >= request){
+            double bonus = context.getOverLoadBuff().consumeIfAvailable();
+            return new MasoAmount(request * bonus);
+        }else {
+            double bonus = context.getOverLoadBuff().consumeIfAvailable();
+            return new MasoAmount(available * bonus);
+        }
     }
 }

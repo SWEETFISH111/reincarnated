@@ -15,9 +15,9 @@ public class MasoTankNode extends AbstractMagicNode {
     @Override
     public Object getOutputData(int portIndex, MagicContext context) {
         super.getOutputData(portIndex, context);
-        double amount = pullDouble(1, context);
         MasoTank masoTank = context.getMasoTank();
-        masoTank.withdraw(amount);
-        return new MasoAmount(amount);
+        double available = context.getMasoTank().getBalance();
+        double bonus = context.getOverLoadBuff().consumeIfAvailable();
+        return new MasoAmount(available * bonus);
     }
 }

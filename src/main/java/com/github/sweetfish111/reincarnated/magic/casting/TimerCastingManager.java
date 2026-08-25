@@ -7,9 +7,11 @@ import com.github.sweetfish111.reincarnated.magic.context.PassiveExecutionContex
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
 import com.github.sweetfish111.reincarnated.reincarnated;
+import net.minecraft.core.BlockPos;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Stream;
 
 public class TimerCastingManager {
     private static final List<TimerMagicTask> timerTasks = new CopyOnWriteArrayList<>();
@@ -42,8 +44,29 @@ public class TimerCastingManager {
             List<UUID> targets = new ArrayList<>(canselingTasks);
             canselingTasks.clear();
             for(UUID cancelNodeId : targets){
-                pendingTasks.removeIf(timerMagicTask -> timerMagicTask.getRepeatNodeId().equals(cancelNodeId));
-                timerTasks.removeIf(timerMagicTask -> timerMagicTask.getRepeatNodeId().equals(cancelNodeId));
+                List<TimerMagicTask> toCancelInPending = pendingTasks.stream()
+                        .filter(t -> t.getRepeatNodeId().equals(cancelNodeId))
+                        .toList(); // ★まずリスト化する（これで何度でも使い回せる）
+
+                List<TimerMagicTask> toCancelInTimer = timerTasks.stream()
+                        .filter(t -> t.getRepeatNodeId().equals(cancelNodeId))
+                        .toList();
+
+                for (TimerMagicTask t : toCancelInPending) {
+                    MagicContext c = t.getContext();
+                    if (c.getCaster().getCasterLevel() instanceof net.minecraft.server.level.ServerLevel level) {
+                        c.getMasoTank().finalizeAndReturn(level, net.minecraft.core.BlockPos.containing(c.getCaster().getCasterPosition()));
+                    }
+                }
+                for (TimerMagicTask t : toCancelInTimer) {
+                    MagicContext c = t.getContext();
+                    if (c.getCaster().getCasterLevel() instanceof net.minecraft.server.level.ServerLevel level) {
+                        c.getMasoTank().finalizeAndReturn(level, net.minecraft.core.BlockPos.containing(c.getCaster().getCasterPosition()));
+                    }
+                }
+
+                pendingTasks.removeAll(toCancelInPending);
+                timerTasks.removeAll(toCancelInTimer);
             }
         }
 
@@ -56,8 +79,12 @@ public class TimerCastingManager {
                 UUID targetId = task.getNextNodeId();
 
                 if (ctx.isStale()) {
-                    finishedTasks.add(task); // 実行せず、この世代のループはここで静かに終了
-                    reincarnated.LOGGER.debug("stale magic task discarded (repeatNode={})", task.getRepeatNodeId());
+                    finishedTasks.add(task);
+
+                    if (ctx.getCaster().getCasterLevel() instanceof net.minecraft.server.level.ServerLevel level) {
+                        ctx.getMasoTank().finalizeAndReturn(level, net.minecraft.core.BlockPos.containing(ctx.getCaster().getCasterPosition()));
+                    }
+
                     continue;
                 }
 
@@ -73,6 +100,7 @@ public class TimerCastingManager {
                     task.resetTimer();
                 } else {
                     finishedTasks.add(task);
+
                     Map<UUID, AbstractMagicNode> instancedNode = task.getContext().getRuntimeCircuit().getInstancedNodes();
                     AbstractMagicNode repeatNode = instancedNode.get(task.getRepeatNodeId());
                     if(repeatNode != null){
@@ -81,6 +109,10 @@ public class TimerCastingManager {
                             PassiveExecutionContext.runAsPassive(() -> // ★追加
                                     executeNextNode(task.getContext().getCaster(), ((AbstractMagicNode)nextNode).getId(), task.getContext()));
                         }
+                    }
+
+                    if (ctx.getCaster().getCasterLevel() instanceof net.minecraft.server.level.ServerLevel level) {
+                        ctx.getMasoTank().finalizeAndReturn(level, net.minecraft.core.BlockPos.containing(ctx.getCaster().getCasterPosition()));
                     }
                 }
             }
@@ -92,16 +124,40 @@ public class TimerCastingManager {
         }
     }
 
+    public static boolean hasActiveTaskForContext(MagicContext context) {
+        for (TimerMagicTask task : timerTasks) {
+            if (task.getContext() == context) return true;
+        }
+        for (TimerMagicTask task : pendingTasks) {
+            if (task.getContext() == context) return true;
+        }
+        return false;
+    }
+
     public static void cancelTasksForCaster(UUID casterUuid) {
         if (casterUuid == null) return;
 
-        timerTasks.removeIf(task -> {
-            IMagicCaster caster = task.getContext().getCaster();
-            return caster != null && caster.getCasterId().equals(casterUuid);
-        });
-        pendingTasks.removeIf(task -> {
-            IMagicCaster caster = task.getContext().getCaster();
-            return caster != null && caster.getCasterId().equals(casterUuid);
-        });
+        List<TimerMagicTask> toCancelInTimer = timerTasks.stream()
+                .filter(task -> {
+                    IMagicCaster caster = task.getContext().getCaster();
+                    return caster != null && caster.getCasterId().equals(casterUuid);
+                })
+                .toList();
+        List<TimerMagicTask> toCancelInPending = pendingTasks.stream()
+                .filter(task -> {
+                    IMagicCaster caster = task.getContext().getCaster();
+                    return caster != null && caster.getCasterId().equals(casterUuid);
+                })
+                .toList();
+
+        for(TimerMagicTask task : toCancelInTimer){
+            task.getContext().getMasoTank().finalizeAndReturn(task.getContext().getLevel(), BlockPos.containing(task.getContext().getCaster().getCasterPosition()));
+        }
+        for(TimerMagicTask task : toCancelInPending){
+            task.getContext().getMasoTank().finalizeAndReturn(task.getContext().getLevel(), BlockPos.containing(task.getContext().getCaster().getCasterPosition()));
+        }
+
+        timerTasks.removeAll(toCancelInTimer);
+        pendingTasks.removeAll(toCancelInPending);
     }
 }

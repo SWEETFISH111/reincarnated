@@ -52,24 +52,8 @@ public class BarrierNode extends AbstractMagicNode {
 
         if (grantedPoint > 0) {
             magicData.setBarrierPoint(currentBarrierPoint + grantedPoint);
-            consumeMaso(cost, context.getMasoTank());
+            consumeMaso(cost, context);
         }
     }
 
-    @Override
-    public Object getOutputData(int portIndex, MagicContext context) {
-        super.getOutputData(portIndex, context);
-        float desiredPoint = (float) pullDouble(1, context);
-
-        if (desiredPoint <= 0) return 0.0;
-        if (!(context.getCaster().getCasterEntity() instanceof ServerPlayer player)) return 0.0;
-
-        PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-        float maxBarrierPoint = magicData.getMaxBarrierPoint();
-        float currentBarrierPoint = magicData.getBarrierPoint();
-        float roomLeft = maxBarrierPoint - currentBarrierPoint;
-        float requestedPoint = Math.min(desiredPoint, roomLeft);
-
-        return MasoInvestmentScaling.safeCost(BASECOST, requestedPoint);
-    }
 }

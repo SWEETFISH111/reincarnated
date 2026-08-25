@@ -7,8 +7,10 @@ import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.common.conditions.ICondition;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -35,10 +37,15 @@ public class DelayCastingManager {
     public static void cancelTasksForCaster(UUID casterUuid) {
         if (casterUuid == null) return;
 
-        delayedTasks.removeIf(task -> {
-            IMagicCaster caster = task.getCaster();
-            return caster != null && caster.getCasterId().equals(casterUuid);
-        });
+        List<DelayCastingTask> cancel = delayedTasks.stream()
+                .filter(task -> task.getCaster().getCasterId().equals(casterUuid))
+                .toList();
+        for(DelayCastingTask task : cancel){
+            MagicContext context = task.getContext();
+            context.getMasoTank().finalizeAndReturn(context.getLevel(), BlockPos.containing(context.getCaster().getCasterPosition()));
+        }
+
+        delayedTasks.removeAll(cancel);
     }
 
     public static void onServerTick(){
@@ -56,10 +63,18 @@ public class DelayCastingManager {
                 // タイマーを進め、時間が来たら発動
                 if (task.tick()) {
                     if (task.getContext().isStale()) {
+                        MagicContext context = task.getContext();
+                        context.getMasoTank().finalizeAndReturn(context.getLevel(), BlockPos.containing(context.getCaster().getCasterPosition()));
                         delayIterator.remove();
                         continue; // 着弾コールバック等が「もう存在しない古い回路」に対して発火するのを防ぐ
                     }
                     executeNextNode(caster, task.getNextNodeId(), task.getContext());
+
+                    MagicContext context = task.getContext();
+                    if (context.getCaster().getCasterLevel() != null) {
+                        context.getMasoTank().finalizeAndReturn(context.getLevel(), BlockPos.containing(context.getCaster().getCasterPosition()));
+                    }
+
                     delayIterator.remove();
                 }
             }

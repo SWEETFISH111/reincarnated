@@ -23,8 +23,8 @@ public class DigNode extends AbstractMagicNode {
     // 幅・高さは形状（アスペクト比）を決める純粋なNumberNode入力のまま残し、
     // 「どれだけ深く掘れるか」だけを投入魔素量が決める。
     private int computeDepth(int width, int height, MagicContext context) {
-        double investedMaso = pullDouble(4, context);
-        float availableMaso = context.getCaster().getMasoAmount();
+        double investedMaso = pullMaso(2, context).amount();
+        float availableMaso = (float) context.getMasoTank().getBalance();
 
         MasoInvestmentScaling.EffectResult effectResult =
                 MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);
@@ -83,15 +83,4 @@ public class DigNode extends AbstractMagicNode {
         }
     }
 
-    @Override
-    public Object getOutputData(int portIndex, MagicContext context) {
-        super.getOutputData(portIndex, context);
-        int width  = Math.max(1, (int) Math.round(pullDouble(2, context)));
-        int height = Math.max(1, (int) Math.round(pullDouble(3, context)));
-        double investedMaso = pullDouble(4, context);
-        float availableMaso = context.getCaster().getMasoAmount();
-        MasoInvestmentScaling.EffectResult effectResult =
-                MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);
-        return (double) effectResult.effectAmount(); // ★出力ポートは「実際の効果量」を返す（投入魔素量の受け渡しではない）
-    }
 }

@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static com.github.sweetfish111.reincarnated.item.ReincarnatedItems.GRIMOIRE;
+import static com.github.sweetfish111.reincarnated.item.ReincarnatedItems.MAGIC_CIRCLE_ITEM;
 
 public class reincarnatedModelRegister extends ModelProvider {
 
@@ -38,5 +39,17 @@ public class reincarnatedModelRegister extends ModelProvider {
 
 
         );
+        itemModels.itemModelOutput.register(
+                MAGIC_CIRCLE_ITEM.get(),
+                new ClientItem(
+                        new CuboidItemModelWrapper.Unbaked(
+                                ModelLocationUtils.getModelLocation(MAGIC_CIRCLE_ITEM.get()),
+                                Optional.empty(),
+                                Collections.emptyList()
+                        ),
+                        new ClientItem.Properties(false, false, 1.0f)
+                )
+        );
+
     }
 }

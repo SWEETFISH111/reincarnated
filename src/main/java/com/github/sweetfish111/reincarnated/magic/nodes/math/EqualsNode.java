@@ -20,6 +20,12 @@ public class EqualsNode extends AbstractMagicNode {
         super.getOutputData(portIndex, context);
         Object data1 = pullData(0, context);
         Object data2 = pullData(1, context);
-        return data1.equals(data2);
+        if(data1 != null && data2 != null){
+            return data1.equals(data2);
+        }
+        if(data1 == null && data2 == null){
+            return true;
+        }
+        return false;
     }
 }

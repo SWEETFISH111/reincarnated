@@ -146,7 +146,7 @@ public abstract class AbstractMagicNode implements MagicNode{
 
     @Override
     public void execute(MagicContext context) {
-        consumeMaso(masoCost, context.getMasoTank());
+        consumeMaso(masoCost, context);
         context.incrementAndCheck();
     }
 
@@ -165,8 +165,22 @@ public abstract class AbstractMagicNode implements MagicNode{
         executeOutputPort(outputPortIndex, context);
     }
 
-    protected void consumeMaso(float masoCost, MasoTank tank){
-        tank.withdraw(masoCost);
+    protected void consumeMaso(float masoCost, MagicContext context){
+        MasoTank tank = context.getMasoTank();
+        double shortfall = tank.getShortfall(masoCost);
+
+        if (shortfall > 0) {
+            // 案Y：タンクが足りない分だけ、プレイヤー本人の魔素から自動補充する
+            IMagicCaster caster = context.getCaster();
+            double available = caster.getMasoAmount();
+            double autoFillAmount = Math.min(shortfall, available);
+            if (autoFillAmount > 0) {
+                caster.consumeMaso((float) autoFillAmount);
+                tank.deposit(autoFillAmount);
+            }
+        }
+
+        tank.withdraw(masoCost); // 不足していれば、ここで初めて本当のMasoShortageExceptionが飛ぶ
     }
 
     public static void ensureMaxAbsorption(ServerPlayer player, float needed) {

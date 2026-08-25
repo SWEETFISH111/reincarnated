@@ -12,7 +12,9 @@ import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
+import com.github.sweetfish111.reincarnated.magic.tank.MasoTank;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +25,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.startup.Server;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.*;
@@ -89,6 +92,13 @@ public class CastingManager {
             Objects.requireNonNull(runtimeMagicCircuit).start(task.getContext());
         }
 
+        MagicContext context = task.getContext();
+        if (!TimerCastingManager.hasActiveTaskForContext(context)) { // ★追加：Timerに委ねるべきなら還元しない
+            if (context.getCaster().getCasterLevel() instanceof ServerLevel level) {
+                context.getMasoTank().finalizeAndReturn(level, BlockPos.containing(context.getCaster().getCasterPosition()));
+            }
+        }
+
         activeCasts.remove(caster.getCasterId());
     }
 
@@ -104,6 +114,14 @@ public class CastingManager {
 
                 if (caster == null) {
                     iterator.remove();
+
+                    MagicContext context = task.getContext();
+                    if (!TimerCastingManager.hasActiveTaskForContext(context)) { // ★追加：Timerに委ねるべきなら還元しない
+                        if (context.getCaster().getCasterLevel() instanceof ServerLevel level) {
+                            context.getMasoTank().finalizeAndReturn(level, BlockPos.containing(context.getCaster().getCasterPosition()));
+                        }
+                    }
+
                     continue;
                 }
 
@@ -134,6 +152,19 @@ public class CastingManager {
     }
 
     public static void cancelCasting(UUID casterId) {
+        CastingTask task = activeCasts.get(casterId);
+        if (task == null) {
+            activeCasts.remove(casterId);
+            return;
+        }
+
+        MagicContext context = task.getContext();
+        if (!TimerCastingManager.hasActiveTaskForContext(context)) { // ★追加：Timerに委ねるべきなら還元しない
+            if (context.getCaster().getCasterLevel() instanceof ServerLevel level) {
+                context.getMasoTank().finalizeAndReturn(level, BlockPos.containing(context.getCaster().getCasterPosition()));
+            }
+        }
+
         activeCasts.remove(casterId);
     }
 

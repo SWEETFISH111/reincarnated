@@ -33,6 +33,10 @@ public class MasoTank {
         balance -= amount;
     }
 
+    public double getShortfall(double amount) {
+        return Math.max(0, amount - balance);
+    }
+
     public double getBalance(){
         return balance;
     }

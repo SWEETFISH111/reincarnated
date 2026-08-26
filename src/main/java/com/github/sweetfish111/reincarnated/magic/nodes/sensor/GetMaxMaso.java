@@ -19,7 +19,7 @@ public class GetMaxMaso extends AbstractMagicNode {
         Object rawData = pullData(0, context);
         if(rawData instanceof ServerPlayer player){
             PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
-            return magicData.getMaxMaso();
+            return (double)magicData.getMaxMaso();
         }
         return 0;
     }

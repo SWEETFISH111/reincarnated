@@ -3,6 +3,7 @@ package com.github.sweetfish111.reincarnated.magic.tank;
 import com.github.sweetfish111.reincarnated.event.MasoShortageException;
 import com.github.sweetfish111.reincarnated.world.LandMasoDensityData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 
 public class MasoTank {
@@ -41,10 +42,28 @@ public class MasoTank {
         return balance;
     }
 
+    public double getLimit(){return limit;}
+
     public void finalizeAndReturn(ServerLevel level, BlockPos pos){
         if(balance > 0){
             LandMasoDensityData.get(level).returnToLand(level, pos, balance);
             balance = 0;
+        }
+    }
+
+    public CompoundTag saveToNBT(){
+        CompoundTag rootTag = new CompoundTag();
+        rootTag.putDouble("balance", this.balance);
+        rootTag.putDouble("limit", this.limit);
+        return rootTag;
+    }
+
+    public void loadFromNBT(CompoundTag rootTag){
+        if(rootTag.contains("balance")){
+            this.balance = rootTag.getDoubleOr("balance", 0);
+        }
+        if(rootTag.contains("limit")){
+            this.limit = rootTag.getDoubleOr("limit", 0);
         }
     }
 }

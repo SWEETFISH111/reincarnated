@@ -17,11 +17,9 @@ public class WithDrawFromTankNode extends AbstractMagicNode {
         double request = pullDouble(0, context);
         double available = context.getMasoTank().getBalance();
         if(available >= request){
-            double bonus = context.getOverLoadBuff().consumeIfAvailable();
-            return new MasoAmount(request * bonus);
+            return new MasoAmount(request);
         }else {
-            double bonus = context.getOverLoadBuff().consumeIfAvailable();
-            return new MasoAmount(available * bonus);
+            return new MasoAmount(available);
         }
     }
 }

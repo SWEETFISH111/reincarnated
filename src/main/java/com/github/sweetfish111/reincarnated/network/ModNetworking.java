@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.network;
 
+import com.github.sweetfish111.reincarnated.blockentity.MagicCircleEntity;
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
@@ -16,6 +17,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -76,6 +78,7 @@ public class ModNetworking {
             });
         });
 
+
         //サーバーからSyncCircuitPayload（プレイヤーに保存された魔法データを実際のUIに反映させる時の手紙）を送るときのレジスタと処理
         registrar.playToClient(SyncCircuitPayload.TYPE, SyncCircuitPayload.CODEC, ((payload, context) -> {
             context.enqueueWork(() -> {
@@ -84,6 +87,8 @@ public class ModNetworking {
                 }
             });
         }));
+
+
 
         //ステータス画面
         registrar.playToServer(RequestStatusPayload.TYPE, RequestStatusPayload.CODEC, (payload, context) -> {

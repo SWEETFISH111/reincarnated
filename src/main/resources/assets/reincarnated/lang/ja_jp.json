@@ -7,6 +7,8 @@
   "message.reincarnated.compound_accessDenied": "《告》。より上位の権限レベルを検出。この回路を解析できません。",
   "message.reincarnated.compute_capacity_exceeded": "《告》演算能力の上限を超過。一部の常駐術式は起動できませんでした。",
 
+  "gui.reincarnated.magic_circle": "魔法陣",
+
   "name.reincarnated.uniqueSkill.greedy": "貪欲者",
   "name.reincarnated.uniqueSkill.predator": "捕食者",
   "name.reincarnated.uniqueSkill.scavenger": "飢餓者",

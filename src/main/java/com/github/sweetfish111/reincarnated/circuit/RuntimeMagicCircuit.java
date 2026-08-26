@@ -5,6 +5,7 @@ import com.github.sweetfish111.reincarnated.event.MasoShortageException;
 import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
+import com.github.sweetfish111.reincarnated.reincarnated;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -41,10 +42,14 @@ public class RuntimeMagicCircuit {
             if (caster.getCasterEntity() instanceof ServerPlayer player) {
                 player.sendSystemMessage(Component.literal("《告》個体名" + player.getName() + "の演算容量が限界を超過。術式暴走が発生"));
             }
-            caster.getCasterEntity().level().explode(caster.getCasterEntity(), caster.getCasterEntity().getX(), caster.getCasterEntity().getY(), caster.getCasterEntity().getZ(), 10.0f, Level.ExplosionInteraction.TNT);
+            caster.getCasterLevel().explode(null, caster.getCasterPosition().x, caster.getCasterPosition().y, caster.getCasterPosition().z, 10.0f, Level.ExplosionInteraction.TNT);
         } catch (MasoShortageException m) {
             if (caster.getCasterEntity() instanceof ServerPlayer player) {
                 player.sendSystemMessage(Component.literal("《告》個体名" + player.getName().getString() + "の魔素残量が低下。術式を維持できません"));
+            }
+        }catch (NullPointerException n){
+            if(caster.getCasterEntity() == null){
+                reincarnated.LOGGER.info("ブロックエンティティに視線や目の位置を要求したためエラーが発生しました。術式は不発に終わります");
             }
         }
     }

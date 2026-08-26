@@ -211,4 +211,12 @@ public class LandMasoDensityData extends SavedData {
         float ix1 = lerp(v01, v11, tx);
         return lerp(ix0, ix1, tz);
     }
+
+    public int resetAll() {
+        int count = chunkDensityCache.size();
+        chunkDensityCache.clear();
+        chunkCurrentCache.clear();
+        setDirty();
+        return count;
+    }
 }

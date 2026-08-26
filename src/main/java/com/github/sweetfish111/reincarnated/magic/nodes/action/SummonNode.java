@@ -27,7 +27,7 @@ public class SummonNode extends AbstractMagicNode {
 
         Vec3 position = pullVector3(1, context);
         double investedMaso = pullMaso(2, context).amount();
-        float availableMaso = (float) context.getMasoTank().getBalance();
+        float availableMaso = (float) (context.getMasoTank().getBalance() + context.getCaster().getMasoAmount());
         double behaviorRaw = pullDouble(3, context);
 
         if (position != null) {

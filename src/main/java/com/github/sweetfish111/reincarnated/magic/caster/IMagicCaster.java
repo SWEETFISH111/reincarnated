@@ -2,6 +2,7 @@ package com.github.sweetfish111.reincarnated.magic.caster;
 
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
@@ -21,4 +22,5 @@ public interface IMagicCaster {
         void addTotalRegeneratedMaso(float amount);
         boolean ownsCircuit(MagiculeCircuit circuit);
         double getMasoTankCapacity();
+        Container getInventoryContainer();
 }

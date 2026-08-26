@@ -1,6 +1,8 @@
 package com.github.sweetfish111.reincarnated;
 
 import com.github.sweetfish111.reincarnated.block.ReincarnatedBlocks;
+import com.github.sweetfish111.reincarnated.blockentity.ReincarnatedBlockEntities;
+import com.github.sweetfish111.reincarnated.blockentity.ReincarnatedMenus;
 import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import com.github.sweetfish111.reincarnated.effect.ReincarnatedEffects;
 import com.github.sweetfish111.reincarnated.entity.reincarnatedEntityTypes;
@@ -87,6 +89,10 @@ public class reincarnated {
         ReincarnatedEffects.register(modEventBus);
         //追加ブロックのレジストリ
         ReincarnatedBlocks.register(modEventBus);
+        //追加ブロックエンティティのレジストリ
+        ReincarnatedBlockEntities.register(modEventBus);
+        //追加インベントリメニューのレジストリ
+        ReincarnatedMenus.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (reincarnated) to respond directly to events.

@@ -26,7 +26,7 @@ public class ExplosionNode extends AbstractMagicNode {
     @Override
     public void execute(MagicContext context) {
         double investedMaso = pullMaso(2, context).amount();
-        float availableMaso = (float) context.getMasoTank().getBalance();
+        float availableMaso = (float) (context.getMasoTank().getBalance() + context.getCaster().getMasoAmount());
 
         MasoInvestmentScaling.EffectResult effectResult =
                 MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);

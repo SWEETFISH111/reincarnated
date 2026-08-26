@@ -28,7 +28,7 @@ public class CollectItemsNode extends AbstractMagicNode {
     public void execute(MagicContext context) {
         Vec3 center = pullVector3(1, context);
         double investedMaso = pullMaso(2, context).amount();
-        float availableMaso = (float) context.getMasoTank().getBalance();
+        float availableMaso = (float) (context.getMasoTank().getBalance() + context.getCaster().getMasoAmount());
 
         MasoInvestmentScaling.EffectResult effectResult =
                 MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);

@@ -8,6 +8,8 @@
   "message.reincarnated.compound_accessDenied": "Report. Higher authority level detected. Unable to analyze this circuit.",
   "message.reincarnated.compute_capacity_exceeded": "《Notice》Compute capacity exceeded. Some resident spells could not activate.",
 
+  "gui.reincarnated.magic_circle": "Magic Circle",
+
   "name.reincarnated.uniqueSkill.greedy": "greedy",
   "name.reincarnated.uniqueSkill.predator": "predator",
   "name.reincarnated.uniqueSkill.scavenger": "scavenger",

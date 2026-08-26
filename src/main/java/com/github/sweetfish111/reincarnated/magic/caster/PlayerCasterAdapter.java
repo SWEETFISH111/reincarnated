@@ -8,6 +8,7 @@ import com.github.sweetfish111.reincarnated.magic.tank.MasoTankLimiter;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.common.Mod;
@@ -108,5 +109,10 @@ public class PlayerCasterAdapter implements IMagicCaster{
     public double getMasoTankCapacity() {
         PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
         return MasoTankLimiter.getMasoTankCapacity(magicData);
+    }
+
+    @Override
+    public Container getInventoryContainer() {
+        return player.getInventory();
     }
 }

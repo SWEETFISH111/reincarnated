@@ -23,7 +23,7 @@ public class AbsorptionNode extends AbstractMagicNode {
             float currentAbsorption = player.getAbsorptionAmount();
             float newAbsorption = currentAbsorption + amount;
 
-            float availableMaso = (float) context.getMasoTank().getBalance();
+            float availableMaso = (float) (context.getMasoTank().getBalance() + context.getCaster().getMasoAmount());
 
             MasoInvestmentScaling.CostResult costResult =
                     MasoInvestmentScaling.computeCost(BASECOST, amount, availableMaso);

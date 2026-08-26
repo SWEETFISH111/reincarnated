@@ -24,7 +24,7 @@ public class DigNode extends AbstractMagicNode {
     // 「どれだけ深く掘れるか」だけを投入魔素量が決める。
     private int computeDepth(int width, int height, MagicContext context) {
         double investedMaso = pullMaso(2, context).amount();
-        float availableMaso = (float) context.getMasoTank().getBalance();
+        float availableMaso = (float) (context.getMasoTank().getBalance() + context.getCaster().getMasoAmount());
 
         MasoInvestmentScaling.EffectResult effectResult =
                 MasoInvestmentScaling.computeEffect(baseCost(), (float) investedMaso, availableMaso);

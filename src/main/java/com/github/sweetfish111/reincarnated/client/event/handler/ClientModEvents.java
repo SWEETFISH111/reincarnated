@@ -1,5 +1,7 @@
-package com.github.sweetfish111.reincarnated.client.event;
+package com.github.sweetfish111.reincarnated.client.event.handler;
 
+import com.github.sweetfish111.reincarnated.blockentity.MagicCircleScreen;
+import com.github.sweetfish111.reincarnated.blockentity.ReincarnatedMenus;
 import com.github.sweetfish111.reincarnated.client.ReincarnatedKeyMapping;
 import com.github.sweetfish111.reincarnated.network.payload.CastMagicOnePayload;
 import com.github.sweetfish111.reincarnated.network.payload.RequestCircuitPayload;
@@ -8,6 +10,7 @@ import com.github.sweetfish111.reincarnated.network.payload.StopCastPayload;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
@@ -16,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 
@@ -123,4 +127,5 @@ public class ClientModEvents {
             }
         }
     }
+
 }

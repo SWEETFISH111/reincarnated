@@ -10,9 +10,9 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class MagicCircleMenu extends AbstractContainerMenu {
-    private final SimpleContainer blockInventory;
+    private final Container blockInventory;
 
-    public MagicCircleMenu(int containerId, Inventory playerInventory, SimpleContainer blockInventory){
+    public MagicCircleMenu(int containerId, Inventory playerInventory, Container blockInventory){
         super(ReincarnatedMenus.MAGIC_CIRCLE_MENU.get(), containerId);
         this.blockInventory = blockInventory;
 

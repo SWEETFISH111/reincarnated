@@ -63,7 +63,7 @@ public class MagicCircleCasterAdapter implements IMagicCaster{
 
     @Override
     public Container getInventoryContainer() {
-        return entity.getInventory();
+        return entity;
     }
 
     @Override

@@ -2,16 +2,13 @@ package com.github.sweetfish111.reincarnated.block;
 
 import com.github.sweetfish111.reincarnated.blockentity.MagicCircleEntity;
 import com.github.sweetfish111.reincarnated.blockentity.MagicCircleMenu;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -45,7 +42,7 @@ public class MagicCircle extends TransparentBlock implements EntityBlock {
     public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         if (level.getBlockEntity(pos) instanceof MagicCircleEntity entity) {
             return new SimpleMenuProvider(
-                    (containerId, playerInventory, player) -> new MagicCircleMenu(containerId, playerInventory, entity.getInventory()),
+                    (containerId, playerInventory, player) -> new MagicCircleMenu(containerId, playerInventory, entity),
                     Component.literal("魔法陣")
             );
         }

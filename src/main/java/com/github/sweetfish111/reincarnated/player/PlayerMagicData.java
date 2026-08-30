@@ -21,7 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.*;
 
 public class PlayerMagicData {
-    private static final int CURRENT_DATA_VERSION = 5;
+    private static final int CURRENT_DATA_VERSION = 6;
 
     private final Map<EditorTab, MagiculeCircuit> circuits = new EnumMap<>(EditorTab.class);
     private final boolean[] magicSlotEnabled = new boolean[MAGIC_SLOT_COUNT];
@@ -512,5 +512,11 @@ public class PlayerMagicData {
                 magicSlots[0] = migrated;
             });
         }
+    }
+    private void migrateV5toV6(){
+        nodeUnlocks.clearAllNodeTypes();
+        nodeUnlocks.addDefaultUnlockedNodes(EditorTab.MAGIC);
+        nodeUnlocks.addDefaultUnlockedNodes(EditorTab.SKILL);
+        nodeUnlocks.addDefaultUnlockedNodes(EditorTab.ARTS);
     }
 }

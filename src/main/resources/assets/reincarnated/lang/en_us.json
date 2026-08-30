@@ -92,6 +92,7 @@
   "node.reincarnated.get_look_target": "look target",
   "node.reincarnated.get_nearest_entity_in_radius" : "nearest entity",
   "node.reincarnated.return_caster": "return caster",
+  "node.reincarnated.get_caster_pos": "caster position",
   "node.reincarnated.offset": "offset",
   "node.reincarnated.get_look_forward": "look forward",
   "node.reincarnated.get_current_maso" : "current maso",

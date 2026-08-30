@@ -15,6 +15,7 @@ import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -101,19 +102,26 @@ public class ActiveMagicManager {
      * 「編集して回路からON_TICKを消した」場合も自然に反映される。
      */
     public static void scanAndRegisterResidentNodes(ServerPlayer player) {
-        IMagicCaster caster = new PlayerCasterAdapter(player); // ★true固定
+        PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        IMagicCaster caster = new PlayerCasterAdapter(player);
+
         unregisterAllForPlayer(caster.getCasterId());
 
-        PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
         MagiculeCircuit skillCircuit = magicData.getCircuit(EditorTab.SKILL);
-        if (skillCircuit == null) return;
-
-        RuntimeMagicCircuit runtimeCircuit = MagicCompiler.compileCircuit(caster, skillCircuit);
-        if (runtimeCircuit == null) return;
-
+        MagiculeCircuit magicCircuit = magicData.getCircuit(EditorTab.MAGIC);
         double maxCapacity = magicData.getMaxComputeCapacity();
-        double usedCapacity = 0.0;
         boolean anySkipped = false;
+
+        resisterTickNodes(caster, skillCircuit, maxCapacity, anySkipped, player);
+        resisterTickNodes(caster, magicCircuit, maxCapacity, anySkipped, player);
+    }
+
+    public static void resisterTickNodes(IMagicCaster caster, MagiculeCircuit circuit, double maxCapacity, boolean anySkipped, Player player){
+        if (circuit == null) return;
+
+        RuntimeMagicCircuit runtimeCircuit = MagicCompiler.compileCircuit(caster, circuit);
+        if (runtimeCircuit == null) return;
+        double usedCapacity = 0.0;
 
         for (AbstractMagicNode node : runtimeCircuit.getInstancedNodes().values()) {
             if (node.isTrigger() && "on_tick".equals(node.getTriggerType())) {
@@ -123,7 +131,7 @@ public class ActiveMagicManager {
                     continue; // 演算能力が足りず、この常駐術式は起動できない
                 }
                 usedCapacity += load;
-                registerActiveNode(caster, node.getId(), node, skillCircuit, runtimeCircuit,
+                registerActiveNode(caster, node.getId(), node, circuit, runtimeCircuit,
                         BalanceConfig.RESIDENT_NODE_INTERVAL_TICKS.get(), load);
             }
         }

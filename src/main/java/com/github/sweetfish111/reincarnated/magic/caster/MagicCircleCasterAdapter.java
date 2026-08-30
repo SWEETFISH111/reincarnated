@@ -2,6 +2,9 @@ package com.github.sweetfish111.reincarnated.magic.caster;
 
 import com.github.sweetfish111.reincarnated.blockentity.MagicCircleEntity;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
+import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.magic.context.PassiveExecutionContext;
+import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
@@ -28,7 +31,7 @@ public class MagicCircleCasterAdapter implements IMagicCaster{
 
     @Override
     public void consumeMaso(float amount) {
-        //何もしない
+        entity.getMasoTank().withdraw(amount);
     }
 
     @Override

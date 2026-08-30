@@ -14,12 +14,12 @@ public enum MagiculeNodeType {
     ON_SLOT_ENABLE("on_slot_enable", Component.translatable("node.reincarnated.on_slot_enable").getString(),
             new PortDataType[]{},
             new PortDataType[]{PortDataType.EXEC},
-            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+            List.of(EditorTab.MAGIC)
     ),
     ON_TICK("on_tick", Component.translatable("node.reincarnated.on_tick").getString(),
             new PortDataType[]{},
             new PortDataType[]{PortDataType.EXEC},
-            List.of(EditorTab.SKILL)
+            List.of(EditorTab.MAGIC,EditorTab.SKILL)
     ),
     ON_XP_PICKUP("on_xp_pickup", Component.translatable("node.reincarnated.on_xp_pickup").getString(),
             new PortDataType[]{},
@@ -167,6 +167,11 @@ public enum MagiculeNodeType {
             ContentWidgetType.SWITCH,
             new PortDataType[]{},
             1,
+            List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
+    ),
+    GET_CASTER_POS("get_caster_pos", Component.translatable("node.reincarnated.get_caster_pos").getString(),
+            new PortDataType[]{},
+            new PortDataType[]{PortDataType.VECTORE},
             List.of(EditorTab.MAGIC,EditorTab.SKILL,EditorTab.ARTS)
     ),
     OFFSET("offset", Component.translatable("node.reincarnated.offset").getString(),

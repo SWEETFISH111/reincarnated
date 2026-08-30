@@ -102,6 +102,9 @@ public class BalanceConfig {
     public static final ModConfigSpec.DoubleValue MASO_STONE_DROP_SCALE;
     public static final ModConfigSpec.DoubleValue MASO_STONE_MAX_DROP_CHANCE;
 
+    //==== 魔石 ====
+    public static final ModConfigSpec.DoubleValue MASO_STONE_VALUE;
+
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
@@ -350,6 +353,12 @@ public class BalanceConfig {
         MASO_STONE_MAX_DROP_CHANCE = builder
                 .comment("魔石ドロップ確率の上限")
                 .defineInRange("masoStoneMaxDropChance", 0.6, 0.0, 1.0);
+        builder.pop();
+
+        builder.push("maso_stone");
+        MASO_STONE_VALUE = builder
+                .comment("魔石1個が変換される魔素量")
+                .defineInRange("masoStoneValue", 100.0, 0.0, 100000.0);
         builder.pop();
 
         SPEC = builder.build();

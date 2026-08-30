@@ -37,6 +37,15 @@ public class NodeUnlockState implements PersistentComponent {
         unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>()).addAll(nodeTypes);
     }
 
+    public void clearAllNodeTypes(){
+        unlockedNodeTypes.clear();
+    }
+
+    public void deleteNodeTypes(EditorTab tab, MagiculeNodeType nodeType){
+        Set<MagiculeNodeType> nodes = unlockedNodeTypes.get(tab);
+        nodes.remove(nodeType);
+    }
+
     public void addDefaultUnlockedNodes(EditorTab tab) {
         if (tab == EditorTab.SKILL) {
             Set<MagiculeNodeType> types = unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>());
@@ -93,9 +102,7 @@ public class NodeUnlockState implements PersistentComponent {
             types.add(MagiculeNodeType.BOOLEAN);
             types.add(MagiculeNodeType.VECTOR);
             types.add(MagiculeNodeType.NULL);
-            types.add(MagiculeNodeType.MASO_INVESTMENT);
             types.add(MagiculeNodeType.REQUIRED_MASO);
-            types.add(MagiculeNodeType.GET_BASE_COST);
             types.add(MagiculeNodeType.ADD);
             types.add(MagiculeNodeType.AND);
             types.add(MagiculeNodeType.DIVIDE);
@@ -119,6 +126,9 @@ public class NodeUnlockState implements PersistentComponent {
             types.add(MagiculeNodeType.MASO_TANK);
             types.add(MagiculeNodeType.DEPOSIT_TO_TANK);
             types.add(MagiculeNodeType.WITH_DRAW_FROM_TANK);
+            types.add(MagiculeNodeType.ON_TICK);
+            types.add(MagiculeNodeType.ON_DAMAGE);
+            types.add(MagiculeNodeType.GET_CASTER_POS);
         } else if (tab == EditorTab.ARTS) {
             Set<MagiculeNodeType> types = unlockedNodeTypes.computeIfAbsent(tab, k -> new HashSet<>());
             types.add(MagiculeNodeType.ADD);

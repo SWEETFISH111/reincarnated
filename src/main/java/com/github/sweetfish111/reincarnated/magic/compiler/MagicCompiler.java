@@ -16,6 +16,8 @@ import com.github.sweetfish111.reincarnated.magic.nodes.conversion.GetBaseCostNo
 import com.github.sweetfish111.reincarnated.magic.nodes.tank.DepositToTankNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.tank.MasoTankNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.tank.WithDrawFromTankNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.trigger.OnDamageNode;
+import com.github.sweetfish111.reincarnated.magic.nodes.trigger.OnTickNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.value.MasoPoolNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.EventKeyOneNode;
 import com.github.sweetfish111.reincarnated.magic.nodes.trigger.OnSlotEnableNode;
@@ -292,6 +294,7 @@ public class MagicCompiler {
             case "maso_tank":return new MasoTankNode(nodeId);
             case "deposit_to_tank":return new DepositToTankNode(nodeId);
             case "with_draw_from_tank":return new WithDrawFromTankNode(nodeId);
+            case "get_caster_pos":return new CasterPosNode(nodeId);
             default : return null;
         }
     }

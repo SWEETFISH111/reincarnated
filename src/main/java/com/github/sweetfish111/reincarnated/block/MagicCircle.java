@@ -2,6 +2,7 @@ package com.github.sweetfish111.reincarnated.block;
 
 import com.github.sweetfish111.reincarnated.blockentity.MagicCircleEntity;
 import com.github.sweetfish111.reincarnated.blockentity.MagicCircleMenu;
+import com.github.sweetfish111.reincarnated.blockentity.ReincarnatedBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,6 +16,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -59,4 +62,12 @@ public class MagicCircle extends TransparentBlock implements EntityBlock {
         }
         return InteractionResult.SUCCESS;
     }
+
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+        return blockEntityType == ReincarnatedBlockEntities.MAGIC_CIRCLE_ENTITY.get()
+                ? (lvl, pos, st, be) -> MagicCircleEntity.tick(lvl, pos, st, (MagicCircleEntity) be)
+                : null;
+    }
 }
+

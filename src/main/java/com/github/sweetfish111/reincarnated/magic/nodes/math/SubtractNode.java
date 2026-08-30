@@ -2,6 +2,7 @@ package com.github.sweetfish111.reincarnated.magic.nodes.math;
 
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
+import com.github.sweetfish111.reincarnated.magic.record.MasoAmount;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
@@ -26,6 +27,10 @@ public class SubtractNode extends AbstractMagicNode {
             return a.doubleValue() - b.doubleValue();
         } else if (valA instanceof Vec3 a && valB instanceof Vec3 b) {
             return a.subtract(b);
+        } else if (valA instanceof MasoAmount a && valB instanceof MasoAmount b){
+            return new MasoAmount(a.amount() - b.amount());
+        } else if (valA instanceof MasoAmount a && valB instanceof Number b){
+            return new MasoAmount(a.amount() - b.doubleValue());
         }
         return 0;
     }

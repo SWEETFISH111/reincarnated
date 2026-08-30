@@ -91,6 +91,7 @@
   "node.reincarnated.get_look_target": "視線の先の対象",
   "node.reincarnated.get_nearest_entity_in_radius": "最寄りエンティティ",
   "node.reincarnated.return_caster": "術者",
+  "node.reincarnated.get_caster_pos": "術者の位置",
   "node.reincarnated.offset": "座標オフセット",
   "node.reincarnated.get_look_forward": "視線方向ベクトル",
   "node.reincarnated.get_current_maso" : "現在の魔素量",

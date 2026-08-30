@@ -2,6 +2,7 @@ package com.github.sweetfish111.reincarnated.magic.nodes.math;
 
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
+import com.github.sweetfish111.reincarnated.magic.record.MasoAmount;
 
 import java.util.UUID;
 
@@ -28,6 +29,8 @@ public class MinNode extends AbstractMagicNode {
 
         if (valA instanceof Number a && valB instanceof Number b) {
             return Math.min(a.doubleValue(), b.doubleValue());
+        } else if(valA instanceof MasoAmount a && valB instanceof MasoAmount b){
+            return new MasoAmount(Math.min(a.amount(), b.amount()));
         }
         return 0.0;
     }

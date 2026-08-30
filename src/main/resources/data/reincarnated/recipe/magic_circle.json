@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "reincarnated:maso_stone",
+    "I": "minecraft:iron_ingot",
+    "D": "minecraft:diamond"
+  },
+  "pattern": [
+    "MIM",
+    "IDI",
+    "MIM"
+  ],
+  "result": {
+    "id": "reincarnated:magic_circle"
+  }
+}

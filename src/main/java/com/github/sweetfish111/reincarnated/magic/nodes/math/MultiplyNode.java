@@ -29,8 +29,6 @@ public class MultiplyNode extends AbstractMagicNode {
             return a.multiply(b);
         } else if (valA instanceof Vec3 a && valB instanceof Number b) {
             return a.scale(b.doubleValue());
-        } else if (valA instanceof MasoAmount a && valB instanceof Number b){
-            return new MasoAmount(a.amount() * b.doubleValue());
         }
         return 0;
     }

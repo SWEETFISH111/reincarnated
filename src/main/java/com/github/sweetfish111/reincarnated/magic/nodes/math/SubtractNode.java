@@ -23,14 +23,12 @@ public class SubtractNode extends AbstractMagicNode {
         Object valA = pullData(0, context);
         Object valB = pullData(1, context);
 
-        if (valA instanceof Number a && valB instanceof Number b) {
+        if (valA instanceof MasoAmount a && valB instanceof MasoAmount b) {
+            return new MasoAmount(a.amount() - b.amount());
+        } else if (valA instanceof Number a && valB instanceof Number b) {
             return a.doubleValue() - b.doubleValue();
         } else if (valA instanceof Vec3 a && valB instanceof Vec3 b) {
             return a.subtract(b);
-        } else if (valA instanceof MasoAmount a && valB instanceof MasoAmount b){
-            return new MasoAmount(a.amount() - b.amount());
-        } else if (valA instanceof MasoAmount a && valB instanceof Number b){
-            return new MasoAmount(a.amount() - b.doubleValue());
         }
         return 0;
     }

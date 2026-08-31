@@ -4,7 +4,12 @@ import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
+import com.github.sweetfish111.reincarnated.player.PhysicalData;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
+import com.github.sweetfish111.reincarnated.skill.IDamageDisableSkill;
+import com.github.sweetfish111.reincarnated.skill.ISkillAbility;
+import com.github.sweetfish111.reincarnated.skill.SkillAbilityRegistry;
+import com.github.sweetfish111.reincarnated.skill.SkillEffect;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,12 +31,24 @@ public class ReincarnatedDamageHandler {
     @SubscribeEvent
     public static void onDamage(LivingDamageEvent.Pre event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            // スキル処理（炎無効）
+            PhysicalData playerPhisicalData = player.getData(ReincarnatedAttachments.PHYSICAL_DATA);
+            for (SkillEffect effect : playerPhisicalData.getActiveSkillEffects()) {
+                ISkillAbility ability = SkillAbilityRegistry.get(effect);
+                if (ability instanceof IDamageDisableSkill immunity
+                        && immunity.isDisable(player, event.getSource())) {
+                    event.setNewDamage(0);
+                    return; // バリア処理より前にreturnして二重処理を防ぐ
+                }
+            }
+
+            //バリア処理
+            PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
             Map<String, Object> data = Map.of("damageAmount", event.getOriginalDamage());
             ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_damage", data);
 
             if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
 
-            PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
             float barrierPoint = magicData.getBarrierPoint();
             if (barrierPoint <= 0) return;
 

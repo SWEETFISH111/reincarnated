@@ -19,10 +19,12 @@
   "message.reincarnated.unique_skill_acquired": "Report. Factor of %2$s detected in individual %1$s. Acquisition of unique skill 'Greed'—successful.",
 
   "message.reincarnated.voice_of_world.greedy_Establishment": "《Notice》The unique skill Greedy has been fully established for individual named %1$s. Access to its internal circuitry is now possible.",
-  "message.reincarnated.voice_of_world.glitch_evolution_stage_1": "<Notice> Individual [%2$s]: Physical composition altered due to the influence of %1$s... Potential unleashed.",
+  "message.reincarnated.voice_of_world.glitch_evolution_stage_1": "《Notice》 Individual [%2$s]: Physical composition altered due to the influence of %1$s... Potential unleashed.",
   "message.reincarnated.voice_of_world.greedy_factor_analyzed": "《Notice》 Analysis of partial capabilities of 'Greedy' is complete. Higher factor possessed by Individual '%1$s' has been identified.",
-  "message.reincarnated.voice_of_world.greedy_evolution_available": "Unique Skill 'Greedy' can now evolve into Unique Skill '%1$s'.",
-  "message.reincarnated.voice_of_world.evolution_hermit": "<Notice> Adaptation to the High-grade Factor significantly increased the existence value of Individual [%s]. Evolved into the higher race [hermit].",
+  "message.reincarnated.voice_of_world.greedy_evolution_available": "《Notice》Unique Skill 'Greedy' can now evolve into Unique Skill '%1$s'.",
+  "message.reincarnated.voice_of_world.evolution_hermit": "《Notice》 Adaptation to the High-grade Factor significantly increased the existence value of Individual [%s]. Evolved into the higher race [hermit].",
+  "message.reincarnated.voice_of_world.get_new_skills": "《Notice》Individual %s has acquired the new skill %s.",
+
 
   "screen.reincarnated.status.title": "Status",
   "screen.reincarnated.status.maso_economy": "Maso Economy",

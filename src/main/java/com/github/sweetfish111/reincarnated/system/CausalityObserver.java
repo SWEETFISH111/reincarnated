@@ -4,8 +4,10 @@ import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
+import com.github.sweetfish111.reincarnated.player.PhysicalData;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.reincarnated;
+import com.github.sweetfish111.reincarnated.skill.*;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -49,12 +51,21 @@ public class CausalityObserver {
     public static void onLivingDeath(LivingDeathEvent event) {
         if (event.getSource().getEntity() instanceof ServerPlayer player) {
             LivingEntity target = event.getEntity();
+            PhysicalData playerPhsicalData = player.getData(ReincarnatedAttachments.PHYSICAL_DATA);
+
+            for (SkillEffect effect : playerPhsicalData.getActiveSkillEffects()) {
+                ISkillAbility ability = SkillAbilityRegistry.get(effect);
+                if (ability instanceof IKillEffectSkill killEffect) {
+                    killEffect.onKill(player, target);
+                }
+            }
+
+            PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
             double killScore = target.getMaxHealth();
 
             Map<String, Object> data = Map.of("killScore", killScore);
             ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_kill", data);
 
-            PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
             // 例：「捕食者」ルートのスコアを加算
             magicData.addPredatorScore(0.2, player);
         }

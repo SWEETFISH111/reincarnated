@@ -4,20 +4,21 @@ import net.minecraft.util.StringRepresentable;
 import com.mojang.serialization.Codec;
 
 public enum SkillEffect implements StringRepresentable {
-    SLOW_FALL("slow_fall", 1, SkillCategory.MOVEMENT),
-    UNDERWATER_BREATHING("underwater_breathing", 1, SkillCategory.UTILITY),
-    FLAME_RESISTANCE("underwater_resistance", 1, SkillCategory.RESISTANCE),
-    FLIGHT("flight", 1, SkillCategory.MOVEMENT),
-    GRAVITY_MANIPULATION("gravity_manipulation", 1, SkillCategory.MANIPULATION)
+    SLOW_FALL("slow_fall", 1, SkillDomain.PHYSICAL),
+    UNDERWATER_BREATHING("underwater_breathing", 1, SkillDomain.PHYSICAL),
+    FLAME_RESISTANCE("flame_resistance", 1, SkillDomain.PHYSICAL),
+    FLIGHT("flight", 1, SkillDomain.PHYSICAL),
+    GRAVITY_MANIPULATION("gravity_manipulation", 1, SkillDomain.SOUL),
+    SOUL_EATER("soul_eater", 1, SkillDomain.SOUL)
     ;
 
     public static final Codec<SkillEffect> CODEC = StringRepresentable.fromEnum(SkillEffect::values);
 
     private final String id;
     private final int boxCost;
-    private final SkillCategory category;
+    private final SkillDomain category;
 
-    SkillEffect(String id, int boxCost, SkillCategory category) {
+    SkillEffect(String id, int boxCost, SkillDomain category) {
         this.id = id;
         this.boxCost = boxCost;
         this.category = category;
@@ -32,7 +33,7 @@ public enum SkillEffect implements StringRepresentable {
         return boxCost;
     }
 
-    public SkillCategory category() {
+    public SkillDomain category() {
         return category;
     }
 }

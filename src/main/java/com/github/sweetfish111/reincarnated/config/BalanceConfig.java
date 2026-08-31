@@ -105,6 +105,9 @@ public class BalanceConfig {
     //==== 魔石 ====
     public static final ModConfigSpec.DoubleValue MASO_STONE_VALUE;
 
+    //==== skill ====
+    public static final ModConfigSpec.DoubleValue SOULEATER_PROBABILITY;
+
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
@@ -359,6 +362,12 @@ public class BalanceConfig {
         MASO_STONE_VALUE = builder
                 .comment("魔石1個が変換される魔素量")
                 .defineInRange("masoStoneValue", 100.0, 0.0, 100000.0);
+        builder.pop();
+
+        builder.push("skill");
+        SOULEATER_PROBABILITY = builder
+                .comment("Souleaterが発動する確率")
+                .defineInRange("souleaterProbability", 5.0, 0.0, 100.0);
         builder.pop();
 
         SPEC = builder.build();

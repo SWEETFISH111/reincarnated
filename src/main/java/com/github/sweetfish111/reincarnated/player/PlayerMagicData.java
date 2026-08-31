@@ -9,6 +9,7 @@ import com.github.sweetfish111.reincarnated.magic.skill.unique.Hoarder;
 import com.github.sweetfish111.reincarnated.magic.skill.unique.Predator;
 import com.github.sweetfish111.reincarnated.magic.skill.unique.Scavenger;
 import com.github.sweetfish111.reincarnated.magic.skill.unique.Usurper;
+import com.github.sweetfish111.reincarnated.skill.SkillEffect;
 import com.github.sweetfish111.reincarnated.system.MessageScheduler;
 import com.github.sweetfish111.reincarnated.system.ReincarnatedPlaySound;
 import com.github.sweetfish111.reincarnated.system.VoiceOfWorld;
@@ -40,6 +41,10 @@ public class PlayerMagicData {
     public boolean hasUnlocked(String key){
         return this.unlockedConditionKeys.contains(key);
     }
+
+
+
+
     public void unlock(String key){
         if (key != null && !key.isEmpty()) {
             this.unlockedConditionKeys.add(key);
@@ -356,6 +361,8 @@ public class PlayerMagicData {
         }
         this.circuits.put(tab, circuit);
     }
+
+
 
     // ===== NBT =====
     public CompoundTag saveToNBT(){

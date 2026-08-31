@@ -16,12 +16,12 @@ public enum SkillEffect implements StringRepresentable {
 
     private final String id;
     private final int boxCost;
-    private final SkillDomain category;
+    private final SkillDomain domain;
 
     SkillEffect(String id, int boxCost, SkillDomain category) {
         this.id = id;
         this.boxCost = boxCost;
-        this.category = category;
+        this.domain = category;
     }
 
     @Override
@@ -29,11 +29,13 @@ public enum SkillEffect implements StringRepresentable {
         return id;
     }
 
+    public SkillDomain getDomain(){return this.domain;};
+
     public int boxCost() {
         return boxCost;
     }
 
     public SkillDomain category() {
-        return category;
+        return domain;
     }
 }

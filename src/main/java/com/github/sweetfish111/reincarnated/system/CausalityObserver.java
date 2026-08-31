@@ -51,9 +51,8 @@ public class CausalityObserver {
     public static void onLivingDeath(LivingDeathEvent event) {
         if (event.getSource().getEntity() instanceof ServerPlayer player) {
             LivingEntity target = event.getEntity();
-            PhysicalData playerPhsicalData = player.getData(ReincarnatedAttachments.PHYSICAL_DATA);
 
-            for (SkillEffect effect : playerPhsicalData.getActiveSkillEffects()) {
+            for (SkillEffect effect : SkillHolderResolver.getAllActiveSkillEffects(player)) {
                 ISkillAbility ability = SkillAbilityRegistry.get(effect);
                 if (ability instanceof IKillEffectSkill killEffect) {
                     killEffect.onKill(player, target);

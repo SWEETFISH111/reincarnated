@@ -6,10 +6,7 @@ import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
 import com.github.sweetfish111.reincarnated.player.PhysicalData;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
-import com.github.sweetfish111.reincarnated.skill.IDamageDisableSkill;
-import com.github.sweetfish111.reincarnated.skill.ISkillAbility;
-import com.github.sweetfish111.reincarnated.skill.SkillAbilityRegistry;
-import com.github.sweetfish111.reincarnated.skill.SkillEffect;
+import com.github.sweetfish111.reincarnated.skill.*;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,13 +29,12 @@ public class ReincarnatedDamageHandler {
     public static void onDamage(LivingDamageEvent.Pre event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             // スキル処理（炎無効）
-            PhysicalData playerPhisicalData = player.getData(ReincarnatedAttachments.PHYSICAL_DATA);
-            for (SkillEffect effect : playerPhisicalData.getActiveSkillEffects()) {
+            for (SkillEffect effect : SkillHolderResolver.getAllActiveSkillEffects(player)) {
                 ISkillAbility ability = SkillAbilityRegistry.get(effect);
                 if (ability instanceof IDamageDisableSkill immunity
                         && immunity.isDisable(player, event.getSource())) {
                     event.setNewDamage(0);
-                    return; // バリア処理より前にreturnして二重処理を防ぐ
+                    return;
                 }
             }
 

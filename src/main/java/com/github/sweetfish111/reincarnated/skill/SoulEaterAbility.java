@@ -4,6 +4,7 @@ import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import com.github.sweetfish111.reincarnated.datamap.InnateSkills;
 import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import com.github.sweetfish111.reincarnated.init.ReincarnatedDataMaps;
+import com.github.sweetfish111.reincarnated.player.AbstractSkillHolder;
 import com.github.sweetfish111.reincarnated.player.PhysicalData;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.core.Holder;
@@ -25,10 +26,10 @@ public class SoulEaterAbility implements ISkillAbility, IKillEffectSkill{
         if (innateSkills == null) return; // target側がnullでのアーリーリターン
 
         if (source instanceof ServerPlayer player) {
-            PhysicalData playerPhysicalData = player.getData(ReincarnatedAttachments.PHYSICAL_DATA);
             for (SkillEffect skill : innateSkills.skills()) {
-                if (!playerPhysicalData.hasOwnedSkillEffect(skill) && Math.ceil(Math.random() * 100) <= BalanceConfig.SOULEATER_PROBABILITY.getAsDouble()) {
-                    playerPhysicalData.addOwnedSkillEffect(skill);
+                AbstractSkillHolder holder = SkillHolderResolver.resolve(player, skill.getDomain());
+                if (!holder.hasOwnedSkillEffect(skill) && Math.ceil(Math.random() * 100) <= BalanceConfig.SOULEATER_PROBABILITY.getAsDouble()) {
+                    holder.addOwnedSkillEffect(skill);
                     player.sendSystemMessage(Component.translatable(
                             "message.reincarnated.voice_of_world.get_new_skills",
                             player.getName().getString(), skill.getSerializedName()));

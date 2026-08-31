@@ -39,8 +39,7 @@ public class SkillAbilityRegistry {
     public static void onFall(LivingFallEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
-        PhysicalData playerPhsycaldata = player.getData(ReincarnatedAttachments.PHYSICAL_DATA);
-        for (SkillEffect effect : playerPhsycaldata.getActiveSkillEffects()) {
+        for (SkillEffect effect : SkillHolderResolver.getAllActiveSkillEffects(player)) {
             ISkillAbility ability = REGISTRY.get(effect);
             if (ability instanceof IFallEffectSkill fallSkill && fallSkill.cancelFall(player)) {
                 event.setCanceled(true);

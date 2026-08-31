@@ -235,7 +235,7 @@ public class BalanceConfig {
                 .defineInRange("tankBaseCapacity", 20.0, 0.0, 1000.0);
         TANK_CAPACITY_PER_COMPUTE = builder
                 .comment("演算能力1につき、タンク容量がどれだけ増えるか")
-                .defineInRange("tankCapacityPerCompute", 1.0, 0.0, 100.0);
+                .defineInRange("tankCapacityPerCompute", 100.0, 0.0, 1000.0);
         builder.pop();
 
         builder.push("maso_overload");

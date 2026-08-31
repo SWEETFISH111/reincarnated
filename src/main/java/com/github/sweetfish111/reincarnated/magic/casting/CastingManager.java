@@ -1,32 +1,17 @@
 package com.github.sweetfish111.reincarnated.magic.casting;
 
-import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.config.BalanceConfig;
-import com.github.sweetfish111.reincarnated.event.CalculationCapacityOverException;
-import com.github.sweetfish111.reincarnated.event.MasoShortageException;
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
-import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
-import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
-import com.github.sweetfish111.reincarnated.magic.tank.MasoTank;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.startup.Server;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,7 +29,7 @@ public class CastingManager {
         int totalCalcCost = baseCastTimeTicks;
 
         if (context.getCaster().getCasterEntity() instanceof ServerPlayer player) {
-            PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+            PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
             double computeCapacity = magicData.getMaxComputeCapacity();
             double speedMultiplier = computeCastSpeedMultiplier(computeCapacity);
             totalCalcCost = (int) Math.ceil(baseCastTimeTicks * speedMultiplier);

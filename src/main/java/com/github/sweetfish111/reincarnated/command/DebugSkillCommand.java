@@ -1,7 +1,7 @@
 package com.github.sweetfish111.reincarnated.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -44,7 +44,7 @@ public class DebugSkillCommand {
     }
 
     private static int showSkillDebug(CommandSourceStack source, ServerPlayer player) {
-        PlayerMagicData data = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        PlayerMagicData data = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
 
         StringBuilder sb = new StringBuilder();
         sb.append("=== ").append(player.getName().getString()).append(" のユニークスキル状態 ===\n");

@@ -1,16 +1,11 @@
 package com.github.sweetfish111.reincarnated.event.handler;
 
 import com.github.sweetfish111.reincarnated.event.PlayerUniqueSkillAcquiredEvent;
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
-import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-
-import java.util.List;
 
 @EventBusSubscriber(modid = "reincarnated")
 public class UniqueSkillEventHandlers {

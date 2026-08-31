@@ -1,7 +1,7 @@
 package com.github.sweetfish111.reincarnated.event.handler;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
@@ -31,7 +31,7 @@ public class ReincarnatedDamageHandler {
 
             if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
 
-            PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+            PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
             float barrierPoint = magicData.getBarrierPoint();
             if (barrierPoint <= 0) return;
 

@@ -3,7 +3,7 @@ package com.github.sweetfish111.reincarnated.magic.casting;
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import com.github.sweetfish111.reincarnated.magic.caster.IMagicCaster;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
@@ -102,7 +102,7 @@ public class ActiveMagicManager {
      * 「編集して回路からON_TICKを消した」場合も自然に反映される。
      */
     public static void scanAndRegisterResidentNodes(ServerPlayer player) {
-        PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
         IMagicCaster caster = new PlayerCasterAdapter(player);
 
         unregisterAllForPlayer(caster.getCasterId());
@@ -158,7 +158,7 @@ public class ActiveMagicManager {
     public static void executeEventTrigger(IMagicCaster caster, EditorTab tab, String triggerNodeType, Map<String, Object> eventData) {
         if (caster instanceof PlayerCasterAdapter p) {
             ServerPlayer player = (ServerPlayer) p.getCasterEntity();
-            MagiculeCircuit circuit = player.getData(ModAttachments.PLAYER_MAGIC_DATA).getCircuit(tab);
+            MagiculeCircuit circuit = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA).getCircuit(tab);
             if (circuit == null) return;
 
             RuntimeMagicCircuit runtimeCircuit = MagicCompiler.compileCircuit(caster, circuit);

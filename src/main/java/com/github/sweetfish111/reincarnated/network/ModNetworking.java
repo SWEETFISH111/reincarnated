@@ -1,6 +1,5 @@
 package com.github.sweetfish111.reincarnated.network;
 
-import com.github.sweetfish111.reincarnated.blockentity.MagicCircleEntity;
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
@@ -12,12 +11,10 @@ import com.github.sweetfish111.reincarnated.magic.compiler.MagicCompiler;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.network.payload.*;
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
-import net.minecraft.core.component.DataComponentType;
+import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -52,7 +49,7 @@ public class ModNetworking {
 
                             PlayerMagicData magicData = new PlayerMagicData();
                             magicData.loadFromNBT(payload.magicDataTag());
-                            player.setData(ModAttachments.PLAYER_MAGIC_DATA, magicData);
+                            player.setData(ReincarnatedAttachments.PLAYER_MAGIC_DATA, magicData);
 
                             for (int i = 0; i < PlayerMagicData.MAGIC_SLOT_COUNT; i++) {
                                 if (magicData.isMagicSlotEnabled(i)) {
@@ -72,7 +69,7 @@ public class ModNetworking {
         registrar.playToServer(RequestCircuitPayload.TYPE, RequestCircuitPayload.CODEC, (payload, context) -> {
             context.enqueueWork(() -> {
                 if(context.player() instanceof ServerPlayer player){
-                    PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+                    PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
                     context.reply(new SyncCircuitPayload(magicData.saveToNBT()));
                 }
             });
@@ -94,7 +91,7 @@ public class ModNetworking {
         registrar.playToServer(RequestStatusPayload.TYPE, RequestStatusPayload.CODEC, (payload, context) -> {
             context.enqueueWork(() -> {
                 if (context.player() instanceof ServerPlayer player) {
-                    PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+                    PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
 
                     SyncStatusPayload status = new SyncStatusPayload(
                             magicData.getMasoStage().name(),
@@ -135,7 +132,7 @@ public class ModNetworking {
         registrar.playToServer(CastMagicOnePayload.TYPE, CastMagicOnePayload.CODEC,((payload, context) -> {
             context.enqueueWork(() -> {
                 if(context.player() instanceof ServerPlayer player){
-                    PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+                    PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
                     MagiculeCircuit circuit = magicData.getCircuit(EditorTab.MAGIC);
                     if(circuit != null){
                         System.out.println(player.getName().getString() + "is press magic_key_1. compiling magic circuit");
@@ -173,7 +170,7 @@ public class ModNetworking {
         registrar.playToServer(EvolveSkillPayload.TYPE, EvolveSkillPayload.CODEC, (payload, context) -> {
             context.enqueueWork(() -> {
                 if (context.player() instanceof ServerPlayer player) {
-                    PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+                    PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
 
                     boolean success = magicData.performEvolution(payload.skillId(), player);
                     if (success) {
@@ -217,7 +214,7 @@ public class ModNetworking {
         registrar.playToServer(SelectMagicSlotPayload.TYPE, SelectMagicSlotPayload.CODEC, ((payload, context) -> {
             context.enqueueWork(() -> {
                 if (context.player() instanceof ServerPlayer player) {
-                    PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+                    PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
                     magicData.setActiveMagicSlot(payload.slotIndex());
                 }
             });
@@ -226,7 +223,7 @@ public class ModNetworking {
         registrar.playToServer(ToggleMagicSlotPayload.TYPE, ToggleMagicSlotPayload.CODEC, ((payload, context) -> {
             context.enqueueWork(() -> {
                 if (context.player() instanceof ServerPlayer player) {
-                    PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+                    PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
                     boolean wasEnabled = magicData.isMagicSlotEnabled(payload.slotIndex());
                     if (wasEnabled == payload.enabled()) return; // 変化なし
 

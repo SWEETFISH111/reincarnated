@@ -2,7 +2,7 @@ package com.github.sweetfish111.reincarnated.magic.caster;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import com.github.sweetfish111.reincarnated.magic.context.PassiveExecutionContext;
 import com.github.sweetfish111.reincarnated.magic.tank.MasoTankLimiter;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
@@ -11,7 +11,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.fml.common.Mod;
 
 import java.util.UUID;
 
@@ -29,7 +28,7 @@ public class PlayerCasterAdapter implements IMagicCaster{
 
     @Override
     public MagiculeCircuit getCircuit() {
-        return player.getData(ModAttachments.PLAYER_MAGIC_DATA).getCircuit(EditorTab.MAGIC);
+        return player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA).getCircuit(EditorTab.MAGIC);
     }
 
     @Override
@@ -59,19 +58,19 @@ public class PlayerCasterAdapter implements IMagicCaster{
 
     @Override
     public float getMasoAmount() {
-        PlayerMagicData data = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        PlayerMagicData data = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
         return data.getCurrentMaso();
     }
 
     @Override
     public void addMaso(float amount) {
-        PlayerMagicData data = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        PlayerMagicData data = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
         data.addMasoAmount(amount);
     }
 
     @Override
     public void consumeMaso(float amount) {
-        PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
         if (PassiveExecutionContext.isPassive()) {
             magicData.consumeMasoAmountPassive(amount);
         } else {
@@ -82,13 +81,13 @@ public class PlayerCasterAdapter implements IMagicCaster{
 
     @Override
     public void addTotalRegeneratedMaso(float amount) {
-        PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
         magicData.addTotalRegeneratedMaso(amount);
     }
 
     @Override
     public boolean ownsCircuit(MagiculeCircuit circuit) {
-        PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
         for(EditorTab tab : EditorTab.values()){
             if(tab == EditorTab.MAGIC){
                 for(int i = 0; i < PlayerMagicData.MAGIC_SLOT_COUNT; i++){
@@ -107,7 +106,7 @@ public class PlayerCasterAdapter implements IMagicCaster{
 
     @Override
     public double getMasoTankCapacity() {
-        PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
         return MasoTankLimiter.getMasoTankCapacity(magicData);
     }
 

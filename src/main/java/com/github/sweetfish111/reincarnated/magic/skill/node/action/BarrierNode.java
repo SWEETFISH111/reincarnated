@@ -1,15 +1,12 @@
 package com.github.sweetfish111.reincarnated.magic.skill.node.action;
 
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import com.github.sweetfish111.reincarnated.magic.casting.MasoInvestmentScaling;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.magic.nodes.AbstractMagicNode;
-import com.github.sweetfish111.reincarnated.magic.nodes.MagicNode;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import net.minecraft.server.level.ServerPlayer;
 
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class BarrierNode extends AbstractMagicNode {
@@ -27,7 +24,7 @@ public class BarrierNode extends AbstractMagicNode {
         if (desiredPoint <= 0) return;
 
         if (!(context.getCaster().getCasterEntity() instanceof ServerPlayer player)) return;
-        PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+        PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
 
         float maxBarrierPoint = magicData.getMaxBarrierPoint();
         float currentBarrierPoint = magicData.getBarrierPoint();

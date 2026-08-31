@@ -1,7 +1,7 @@
 package com.github.sweetfish111.reincarnated.system;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
@@ -35,7 +35,7 @@ public class CausalityObserver {
             ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_xp_pickup", data);
 
             // プレイヤーの魂データを取り出して「貪欲者」としての理を進行させる
-            PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+            PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
             double score = (double) xpAmount * 0.2;
             reincarnated.LOGGER.info("CausalityObserver" + String.valueOf(score));
             magicData.addGreedyScore((double) xpAmount * 0.06, player);
@@ -54,7 +54,7 @@ public class CausalityObserver {
             Map<String, Object> data = Map.of("killScore", killScore);
             ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_kill", data);
 
-            PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+            PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
             // 例：「捕食者」ルートのスコアを加算
             magicData.addPredatorScore(0.2, player);
         }
@@ -69,7 +69,7 @@ public class CausalityObserver {
                 Map<String, Object>data = Map.of("satietyLevel", food.saturation());
                 ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_eat", data);
 
-                PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+                PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
                 magicData.addScavengerScore(0.5, player);
             }
         }
@@ -77,7 +77,7 @@ public class CausalityObserver {
     }
 
     public static void onOverCharge(ServerPlayer player){
-        player.getData(ModAttachments.PLAYER_MAGIC_DATA).addhoarderScore(0.2, player);
+        player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA).addhoarderScore(0.2, player);
         Map<String, Object>data = null;
         ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_overcharge", data);
     }
@@ -95,7 +95,7 @@ public class CausalityObserver {
                     Map<String, Object> data = Map.of("power_gap", targetAtk - atackerAtk);
                     ActiveMagicManager.executeEventTrigger(new PlayerCasterAdapter(player), EditorTab.SKILL, "on_attack_stronger", data);
 
-                    PlayerMagicData magicData = player.getData(ModAttachments.PLAYER_MAGIC_DATA);
+                    PlayerMagicData magicData = player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
                     magicData.addUsurperScore(0.5, player);
                 }
             }

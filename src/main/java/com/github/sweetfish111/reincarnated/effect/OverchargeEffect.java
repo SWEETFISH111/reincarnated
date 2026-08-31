@@ -1,6 +1,6 @@
 package com.github.sweetfish111.reincarnated.effect;
 
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import com.github.sweetfish111.reincarnated.system.CausalityObserver;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,7 +29,7 @@ public class OverchargeEffect extends MobEffect {
             float healAmount = 1.0f * (amplification + 1);
             if (player.getHealth() < player.getMaxHealth()) {
                 player.heal(healAmount);
-                player.getData(ModAttachments.PLAYER_MAGIC_DATA).addMasoAmount(-healAmount * 0.5f);
+                player.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA).addMasoAmount(-healAmount * 0.5f);
             }
 
             CausalityObserver.onOverCharge((ServerPlayer) player);

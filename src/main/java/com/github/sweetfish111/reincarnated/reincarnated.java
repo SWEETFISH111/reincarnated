@@ -6,7 +6,8 @@ import com.github.sweetfish111.reincarnated.blockentity.ReincarnatedMenus;
 import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import com.github.sweetfish111.reincarnated.effect.ReincarnatedEffects;
 import com.github.sweetfish111.reincarnated.entity.reincarnatedEntityTypes;
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
+import com.github.sweetfish111.reincarnated.init.ReincarnatedDataMaps;
 import com.github.sweetfish111.reincarnated.item.ReincarnatedItems;
 import org.slf4j.Logger;
 
@@ -108,7 +109,7 @@ public class reincarnated {
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
-        ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
+        ReincarnatedAttachments.ATTACHMENT_TYPES.register(modEventBus);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

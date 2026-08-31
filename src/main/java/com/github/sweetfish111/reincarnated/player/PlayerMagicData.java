@@ -484,6 +484,7 @@ public class PlayerMagicData {
         if(version < 3){ migrateV2toV3(); }
         if(version < 4){ migratev3tov4(); }
         if(version < 5){ migrateV4toV5(rootTag); }
+        if(version < 6){ migrateV5toV6();}
     }
 
     private void migrateV0toV1(){

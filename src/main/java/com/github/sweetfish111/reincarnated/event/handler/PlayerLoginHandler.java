@@ -2,7 +2,7 @@ package com.github.sweetfish111.reincarnated.event.handler;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.event.PlayerUniqueSkillAcquiredEvent;
-import com.github.sweetfish111.reincarnated.init.ModAttachments;
+import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
 import com.github.sweetfish111.reincarnated.magic.casting.PassiveSlotManager;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
@@ -18,7 +18,7 @@ class PlayerLoginHandler {
     @SubscribeEvent
     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            PlayerMagicData magicData = serverPlayer.getData(ModAttachments.PLAYER_MAGIC_DATA);
+            PlayerMagicData magicData = serverPlayer.getData(ReincarnatedAttachments.PLAYER_MAGIC_DATA);
             magicData.addDefaultUnlockedNodes(EditorTab.MAGIC);
             magicData.addDefaultUnlockedNodes(EditorTab.SKILL);
             magicData.addDefaultUnlockedNodes(EditorTab.ARTS);

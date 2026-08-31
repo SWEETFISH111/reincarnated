@@ -3,25 +3,25 @@ package com.github.sweetfish111.reincarnated.common;
 import net.minecraft.nbt.CompoundTag;
 
 public class CommonData {
-    private final int CURRENT_DATA_VERSION = 1;
+    private String boxName;
 
-
-    public CompoundTag saveToNBT(){
-        CompoundTag rootTag = new CompoundTag();
-        rootTag.putInt("data_version", CURRENT_DATA_VERSION);
-        return rootTag;
+    public boolean hasNamedBox() {
+        return boxName != null && !boxName.isEmpty();
     }
 
-    public void loadFromNBT(CompoundTag rootTag){
-        if(rootTag == null || rootTag.isEmpty()) return;
+    public String getBoxName() { return boxName; }
+    public void setBoxName(String name) { this.boxName = name; }
 
-        int version = rootTag.getIntOr("data_version", 0);
-
-
-        if(version < 1) migrateV0toV1();
+    public CompoundTag saveToNBT() {
+        CompoundTag tag = new CompoundTag();
+        if (boxName != null) tag.putString("box_name", boxName);
+        return tag;
     }
 
-    private void migrateV0toV1(){
-        //何もしない
+    public void loadFromNBT(CompoundTag tag) {
+        if (tag == null || tag.isEmpty()) return;
+        if (tag.contains("box_name")) {
+            boxName = tag.getStringOr("box_name", "");
+        }
     }
 }

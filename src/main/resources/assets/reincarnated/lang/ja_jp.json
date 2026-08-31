@@ -23,6 +23,7 @@
   "message.reincarnated.voice_of_world.greedy_evolution_available": "ユニークスキル貪欲者をユニークスキル %1$s に進化可能です",
   "message.reincarnated.voice_of_world.evolution_hermit": "《告》上位因子への適合により個体名[%s]の存在値が大きく上昇。上位種族[仙人]へと進化しました。",
   "message.reincarnated.voice_of_world.get_new_skills": "《告》個体名%sが新スキル%sを取得しました。",
+  "message.reincarnated.voice_of_world.skill_became_soulbound": "《告》個体名%s：スキル%sが魂に定着し、失われることはなくなりました。",
 
   "screen.reincarnated.status.title": "ステータス",
   "screen.reincarnated.status.maso_economy": "魔素経済",

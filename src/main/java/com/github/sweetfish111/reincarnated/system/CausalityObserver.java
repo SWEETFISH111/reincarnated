@@ -56,6 +56,7 @@ public class CausalityObserver {
                 ISkillAbility ability = SkillAbilityRegistry.get(effect);
                 if (ability instanceof IKillEffectSkill killEffect) {
                     killEffect.onKill(player, target);
+                    SkillMasteryManager.recordUsageAndCheckMigration(player, effect);
                 }
             }
 

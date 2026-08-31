@@ -1,9 +1,9 @@
 package com.github.sweetfish111.reincarnated.skill;
 
-import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
-import com.github.sweetfish111.reincarnated.player.PhysicalData;
-import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.reincarnated;
+import com.github.sweetfish111.reincarnated.skill.ability.FireDisableAbility;
+import com.github.sweetfish111.reincarnated.skill.ability.SlowFallAbility;
+import com.github.sweetfish111.reincarnated.skill.ability.SoulEaterAbility;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -20,7 +20,8 @@ public class SkillAbilityRegistry {
     static {
         List<ISkillAbility> abilities = List.of(
                 new SlowFallAbility(),
-                new FireDisableAbility()
+                new FireDisableAbility(),
+                new SoulEaterAbility()
         );
 
         for (ISkillAbility ability : abilities) {
@@ -43,6 +44,7 @@ public class SkillAbilityRegistry {
             ISkillAbility ability = REGISTRY.get(effect);
             if (ability instanceof IFallEffectSkill fallSkill && fallSkill.cancelFall(player)) {
                 event.setCanceled(true);
+                SkillMasteryManager.recordUsageAndCheckMigration(player, effect);
                 return;
             }
         }

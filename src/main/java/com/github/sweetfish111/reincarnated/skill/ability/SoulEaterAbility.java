@@ -1,19 +1,20 @@
-package com.github.sweetfish111.reincarnated.skill;
+package com.github.sweetfish111.reincarnated.skill.ability;
 
 import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import com.github.sweetfish111.reincarnated.datamap.InnateSkills;
-import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import com.github.sweetfish111.reincarnated.init.ReincarnatedDataMaps;
 import com.github.sweetfish111.reincarnated.player.AbstractSkillHolder;
-import com.github.sweetfish111.reincarnated.player.PhysicalData;
-import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
+import com.github.sweetfish111.reincarnated.skill.IKillEffectSkill;
+import com.github.sweetfish111.reincarnated.skill.ISkillAbility;
+import com.github.sweetfish111.reincarnated.skill.SkillEffect;
+import com.github.sweetfish111.reincarnated.skill.SkillHolderResolver;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 
-public class SoulEaterAbility implements ISkillAbility, IKillEffectSkill{
+public class SoulEaterAbility implements ISkillAbility, IKillEffectSkill {
     @Override
     public SkillEffect getAssociatedAbility() {
         return SkillEffect.SOUL_EATER;

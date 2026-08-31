@@ -3,6 +3,8 @@ package com.github.sweetfish111.reincarnated.config;
 import com.github.sweetfish111.reincarnated.world.LandMasoDensityData;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
+import static com.github.sweetfish111.reincarnated.Config.BUILDER;
+
 public class BalanceConfig {
     public static final ModConfigSpec SPEC;
 
@@ -107,6 +109,8 @@ public class BalanceConfig {
 
     //==== skill ====
     public static final ModConfigSpec.DoubleValue SOULEATER_PROBABILITY;
+
+    public static final ModConfigSpec.IntValue MASTERY_THRESHOLD;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -368,7 +372,13 @@ public class BalanceConfig {
         SOULEATER_PROBABILITY = builder
                 .comment("Souleaterが発動する確率")
                 .defineInRange("souleaterProbability", 5.0, 0.0, 100.0);
+
+        MASTERY_THRESHOLD = builder
+                .comment("PHYSICAL由来スキルがSOULへ定着するまでに必要な発動回数")
+                .defineInRange("masteryThreshold", 50, 1, Integer.MAX_VALUE);
         builder.pop();
+
+
 
         SPEC = builder.build();
     }

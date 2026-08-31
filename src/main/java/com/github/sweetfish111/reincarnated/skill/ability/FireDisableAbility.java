@@ -1,5 +1,8 @@
-package com.github.sweetfish111.reincarnated.skill;
+package com.github.sweetfish111.reincarnated.skill.ability;
 
+import com.github.sweetfish111.reincarnated.skill.IDamageDisableSkill;
+import com.github.sweetfish111.reincarnated.skill.ISkillAbility;
+import com.github.sweetfish111.reincarnated.skill.SkillEffect;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;

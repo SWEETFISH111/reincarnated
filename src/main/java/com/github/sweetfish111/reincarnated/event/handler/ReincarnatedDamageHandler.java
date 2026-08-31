@@ -34,6 +34,7 @@ public class ReincarnatedDamageHandler {
                 if (ability instanceof IDamageDisableSkill immunity
                         && immunity.isDisable(player, event.getSource())) {
                     event.setNewDamage(0);
+                    SkillMasteryManager.recordUsageAndCheckMigration(player, effect);
                     return;
                 }
             }

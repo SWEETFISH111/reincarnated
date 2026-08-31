@@ -24,6 +24,7 @@
   "message.reincarnated.voice_of_world.greedy_evolution_available": "《Notice》Unique Skill 'Greedy' can now evolve into Unique Skill '%1$s'.",
   "message.reincarnated.voice_of_world.evolution_hermit": "《Notice》 Adaptation to the High-grade Factor significantly increased the existence value of Individual [%s]. Evolved into the higher race [hermit].",
   "message.reincarnated.voice_of_world.get_new_skills": "《Notice》Individual %s has acquired the new skill %s.",
+  "message.reincarnated.voice_of_world.skill_became_soulbound": "《Notice》Individual %s: the skill %s has taken root in the soul and can no longer be lost.",
 
 
   "screen.reincarnated.status.title": "Status",

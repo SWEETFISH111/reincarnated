@@ -1,6 +1,6 @@
 package com.github.sweetfish111.reincarnated.magic.nodes.conversion;
 
-import com.github.sweetfish111.reincarnated.client.screen.ICycleButtonValue;
+import com.github.sweetfish111.reincarnated.client.screen.magic.ICycleButtonValue;
 import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import net.minecraft.network.chat.Component;
 

@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.client.screen;
+package com.github.sweetfish111.reincarnated.client.screen.magic;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
@@ -60,11 +60,7 @@ public class ScreenLayerManager {
         this.currentTab = tab;
         this.layerStack.clear();
 
-        for (int i  = 0; i < EditorTab.values().length; i++){
-            if(i < this.tabBtns.size()){
-                this.tabBtns.get(i).active = (EditorTab.values()[i] != this.currentTab);
-            }
-        }
+
         this.loadTabCircuit(this.currentTab);
         this.updateBackButtonVisibility();
     }

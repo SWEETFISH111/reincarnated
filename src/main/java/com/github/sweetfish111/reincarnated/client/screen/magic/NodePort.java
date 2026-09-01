@@ -1,13 +1,8 @@
-package com.github.sweetfish111.reincarnated.client.screen;
+package com.github.sweetfish111.reincarnated.client.screen.magic;
 
 import com.github.sweetfish111.reincarnated.circuit.PortDataType;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.fml.common.Mod;
 import com.github.sweetfish111.reincarnated.circuit.PortType;
-
-import javax.sound.sampled.Port;
 
 
 public class NodePort {

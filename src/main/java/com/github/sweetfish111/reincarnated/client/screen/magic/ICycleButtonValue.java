@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.client.screen;
+package com.github.sweetfish111.reincarnated.client.screen.magic;
 
 import net.minecraft.network.chat.Component;
 

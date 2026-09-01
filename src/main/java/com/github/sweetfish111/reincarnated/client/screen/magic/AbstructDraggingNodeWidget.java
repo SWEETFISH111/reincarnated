@@ -1,19 +1,14 @@
-package com.github.sweetfish111.reincarnated.client.screen;
+package com.github.sweetfish111.reincarnated.client.screen.magic;
 
 import com.github.sweetfish111.reincarnated.circuit.PortDataType;
 import com.github.sweetfish111.reincarnated.circuit.PortType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.fml.common.Mod;
-import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;

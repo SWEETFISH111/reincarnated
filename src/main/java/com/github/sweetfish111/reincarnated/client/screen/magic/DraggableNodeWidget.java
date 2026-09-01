@@ -1,4 +1,4 @@
-package com.github.sweetfish111.reincarnated.client.screen;
+package com.github.sweetfish111.reincarnated.client.screen.magic;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +18,7 @@ public class DraggableNodeWidget extends AbstructDraggingNodeWidget {
     private final MagiculeNodeType type;
 
     //コンストラクタ
-    public DraggableNodeWidget(MagicEditorScreen parentScreen,UUID id, int x, int y, int width, MagiculeNodeType type){
+    public DraggableNodeWidget(MagicEditorScreen parentScreen, UUID id, int x, int y, int width, MagiculeNodeType type){
         super(parentScreen, id, x, y, width, 0, Component.literal(type.displayName));
         this.type = type;
         boolean savedBoolean = false;

@@ -1,5 +1,6 @@
 package com.github.sweetfish111.reincarnated.player;
 
+import com.github.sweetfish111.reincarnated.skill.SkillDomain;
 import com.github.sweetfish111.reincarnated.skill.SkillEffect;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -30,6 +31,11 @@ public abstract class AbstractSkillHolder {
         if (!ownedSkillEffects.contains(effect)) return false;
         activeSkillEffects.add(effect);
         return true;
+    }
+
+    public void removeOwnedSkillEffect(SkillEffect effect){
+        ownedSkillEffects.remove(effect);
+        activeSkillEffects.remove(effect);
     }
 
     public void deactivateSkillEffect(SkillEffect effect) {

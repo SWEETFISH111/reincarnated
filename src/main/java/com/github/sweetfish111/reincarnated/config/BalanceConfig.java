@@ -3,7 +3,6 @@ package com.github.sweetfish111.reincarnated.config;
 import com.github.sweetfish111.reincarnated.world.LandMasoDensityData;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-import static com.github.sweetfish111.reincarnated.Config.BUILDER;
 
 public class BalanceConfig {
     public static final ModConfigSpec SPEC;

@@ -1,9 +1,7 @@
 package com.github.sweetfish111.reincarnated.magic;
 
-import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
-import com.github.sweetfish111.reincarnated.client.screen.ICycleButtonValue;
+import com.github.sweetfish111.reincarnated.client.screen.magic.ICycleButtonValue;
 import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
-import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.world.LandMasoDensityData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

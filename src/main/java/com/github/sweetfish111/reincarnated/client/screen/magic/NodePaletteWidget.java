@@ -1,21 +1,13 @@
-package com.github.sweetfish111.reincarnated.client.screen;
+package com.github.sweetfish111.reincarnated.client.screen.magic;
 
 import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeNodeType;
-import com.github.sweetfish111.reincarnated.magic.skill.SkillAccessLevel;
-import com.github.sweetfish111.reincarnated.magic.skill.unique.Hoarder;
-import com.github.sweetfish111.reincarnated.magic.skill.unique.Predator;
-import com.github.sweetfish111.reincarnated.magic.skill.unique.Scavenger;
-import com.github.sweetfish111.reincarnated.magic.skill.unique.Usurper;
 import com.github.sweetfish111.reincarnated.network.payload.EvolveSkillPayload;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
-import com.github.sweetfish111.reincarnated.system.ReincarnatedPlaySound;
-import com.github.sweetfish111.reincarnated.system.VoiceOfWorld;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.*;
 

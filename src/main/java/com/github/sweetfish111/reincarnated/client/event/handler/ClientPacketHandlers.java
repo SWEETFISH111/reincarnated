@@ -1,7 +1,7 @@
 package com.github.sweetfish111.reincarnated.client.event.handler;
 
 import com.github.sweetfish111.reincarnated.client.MagiculeHUDOverlay;
-import com.github.sweetfish111.reincarnated.client.screen.MagicEditorScreen;
+import com.github.sweetfish111.reincarnated.client.screen.magic.MagicEditorScreen;
 import com.github.sweetfish111.reincarnated.client.screen.StatusScreen;
 import com.github.sweetfish111.reincarnated.network.payload.SyncStatusPayload;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;

@@ -1,6 +1,7 @@
-package com.github.sweetfish111.reincarnated.client.screen;
+package com.github.sweetfish111.reincarnated.client.screen.magic;
 
 import com.github.sweetfish111.reincarnated.circuit.*;
+import com.github.sweetfish111.reincarnated.client.screen.WorkspaceCamera;
 import com.github.sweetfish111.reincarnated.item.ReincarnatedItems;
 import com.github.sweetfish111.reincarnated.magic.skill.SkillAccessLevel;
 import com.github.sweetfish111.reincarnated.network.payload.ExportSpellPalyload;
@@ -12,7 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -29,7 +30,7 @@ import org.slf4j.Logger;
 import java.util.*;
 
 
-public class MagicEditorScreen extends Screen {
+public class MagicEditorScreen extends AbstractEditorScreen {
     private ScreenLayerManager thisLayerManager = new ScreenLayerManager();
     private final List<AbstructDraggingNodeWidget> nodeWidgets = new ArrayList<>();
 
@@ -71,19 +72,9 @@ public class MagicEditorScreen extends Screen {
     protected void init(){
         super.init();
         thisLayerManager.init(this.magicData);
-        int startX = 10;
-        for (EditorTab tab : EditorTab.values()) {
-            Button tabBtn = Button.builder(
-                    Component.literal(tab.getDisplayName()),
-                    button -> switchTab(tab)
-            ).bounds(startX, 5, 60, 20).build();
 
-            startX += 60;
+        super.initTabBtns(EditorTab.MAGIC);
 
-            tabBtn.active = (tab != thisLayerManager.getCurrentTab());
-            thisLayerManager.getTabBtns().add(tabBtn);
-            addRenderableWidget(tabBtn);
-        }
         Button backBtn = Button.builder(
                 Component.literal("<- 戻る"),
                 button -> goBackLayer()
@@ -134,6 +125,16 @@ public class MagicEditorScreen extends Screen {
         rebuildMagicSlotButtons();
 
         rebuildNodeWidgets();
+    }
+
+    @Override
+    protected void onTabSelected(EditorTab tab) {
+        switchTab(tab);
+        for (int i  = 0; i < EditorTab.values().length; i++){
+            if(i < this.tabBtns.size()){
+                this.tabBtns.get(i).active = (EditorTab.values()[i] != tab);
+            }
+        }
     }
 
     private void rebuildMagicSlotButtons() {
@@ -226,10 +227,6 @@ public class MagicEditorScreen extends Screen {
                     nodeData.type
             );
             this.nodeWidgets.add(nodeWidget);
-            this.addRenderableWidget(nodeWidget);
-            if(nodeWidget.getContentWidget() != null){
-                this.addRenderableWidget(nodeWidget.getContentWidget().getContentWidget());
-            }
         }
         for(MagiculeCircuit.CompoundNodeData compoundNodeData : thisLayerManager.getWorkCircuit().getCompoundNodes()){
             CompoundNodeWidget compoundWidget = new CompoundNodeWidget(
@@ -241,9 +238,7 @@ public class MagicEditorScreen extends Screen {
                     compoundNodeData.customName
             );
             this.nodeWidgets.add(compoundWidget);
-            this.addRenderableWidget(compoundWidget);
         }
-        System.out.println("MagicEditorScreen_rebuild_End" + thisLayerManager.getWorkCircuit());
     }
 
     //ポートにつながって存在が確定したワイヤーを記録する
@@ -326,28 +321,12 @@ public class MagicEditorScreen extends Screen {
         }
 
         //ボタン描画
-        if(exportBtn != null){
-            exportBtn.extractRenderState(guiGraphicsExtractor, mouseX, mouseY, partialTick);
-        }
-        if(importBtn != null){
-            importBtn.extractRenderState(guiGraphicsExtractor, mouseX, mouseY, partialTick);
-        }
-        for(Button btn : thisLayerManager.getTabBtns()){
-            btn.extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseY, partialTick);
-        }
-        if(thisLayerManager.getBackBtn() != null){
-            thisLayerManager.getBackBtn().extractRenderState(guiGraphicsExtractor, (int) canvasMouseX, (int) canvasMouseY, partialTick);
-        }
         this.palette.render(guiGraphicsExtractor, mouseX, mouseY);
-        for(Button btn : magicSlotBtns){
-            btn.extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseY, partialTick);
-        }
-        for(Button btn : magicSlotToggleBtns){
-            btn.extractRenderState(guiGraphicsExtractor, (int)canvasMouseX, (int)canvasMouseX, partialTick);
-        }
         if(this.isNamingCompound && this.popupBox != null){
             this.popupBox.extractRenderState(guiGraphicsExtractor, mouseX, mouseY, partialTick);
         }
+
+        super.extractRenderState(guiGraphicsExtractor, mouseX, mouseY, partialTick);
     }
 
     @Override
@@ -364,12 +343,7 @@ public class MagicEditorScreen extends Screen {
             return true;
         }
 
-        //タブボタンのクリック判定
-        for(Button btn : thisLayerManager.getTabBtns()){
-            if(btn.mouseClicked(event,doubleClick)){
-                return true;
-            }
-        }
+        super.clickTabButton(event, doubleClick);
 
         if(thisLayerManager.getBackBtn().mouseClicked(event, doubleClick)){
             return true;
@@ -676,10 +650,6 @@ public class MagicEditorScreen extends Screen {
 
         DraggableNodeWidget newNode = new DraggableNodeWidget(this, newId, (int) canvasX, (int) canvasY, 80, type);
         this.nodeWidgets.add(newNode);
-        addRenderableWidget(newNode);
-        if(newNode.getContentWidget() != null){
-            addRenderableWidget(newNode.getContentWidget());
-        }
     }
 
     //画面上のノードリストからid指定に合致するものを返す

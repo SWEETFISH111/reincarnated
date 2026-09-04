@@ -35,7 +35,4 @@ public enum SkillEffect implements StringRepresentable {
         return boxCost;
     }
 
-    public SkillDomain category() {
-        return domain;
-    }
 }

@@ -23,8 +23,8 @@ public class NumberInputContentWidget extends AbstractContentWidget<Double, Edit
         );
 
         this.isUpdating = true;
-        if(this.parentNode.getParentScreen() != null && this.parentNode.getParentScreen().getThisLayerManager().getWorkCircuit() != null){
-            Object savedValue = this.parentNode.getParentScreen().getThisLayerManager().getWorkCircuit().getNodeParam(this.parentNode.getId(), "value", 0.0);
+        if(this.parentNode.getParentScreen() != null && this.parentNode.getParentScreen().getWorkCircuit() != null){
+            Object savedValue = this.parentNode.getParentScreen().getWorkCircuit().getNodeParam(this.parentNode.getId(), "value", 0.0);
             if(savedValue instanceof Double doubleValue){
                 this.currentValue = doubleValue;
             }
@@ -36,7 +36,7 @@ public class NumberInputContentWidget extends AbstractContentWidget<Double, Edit
             if(val.isEmpty() || val.equals("-") || val.equals(".")) return;
             try{
                 this.currentValue = Double.parseDouble(val);
-                this.parentNode.getParentScreen().getThisLayerManager().getWorkCircuit().setNodeParam(this.parentNode.getId(), "value", this.currentValue);
+                this.parentNode.getParentScreen().getWorkCircuit().setNodeParam(this.parentNode.getId(), "value", this.currentValue);
             }catch(NumberFormatException e){
 
             }

@@ -1,9 +1,9 @@
 package com.github.sweetfish111.reincarnated.init;
 
-import com.github.sweetfish111.reincarnated.common.CommonData;
-import com.github.sweetfish111.reincarnated.player.PhysicalData;
+import com.github.sweetfish111.reincarnated.commondata.CommonData;
+import com.github.sweetfish111.reincarnated.commondata.PhysicalData;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
-import com.github.sweetfish111.reincarnated.player.SoulData;
+import com.github.sweetfish111.reincarnated.commondata.SoulData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;

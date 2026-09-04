@@ -1,6 +1,5 @@
-package com.github.sweetfish111.reincarnated.player;
+package com.github.sweetfish111.reincarnated.commondata;
 
-import com.github.sweetfish111.reincarnated.skill.SkillDomain;
 import com.github.sweetfish111.reincarnated.skill.SkillEffect;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;

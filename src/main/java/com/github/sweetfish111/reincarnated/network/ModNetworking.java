@@ -4,6 +4,10 @@ import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.client.event.handler.ClientPacketHandlers;
+import com.github.sweetfish111.reincarnated.client.screen.skill.SkillEditorScreen;
+import com.github.sweetfish111.reincarnated.commondata.CommonData;
+import com.github.sweetfish111.reincarnated.commondata.PhysicalData;
+import com.github.sweetfish111.reincarnated.commondata.SoulData;
 import com.github.sweetfish111.reincarnated.item.ReincarnatedItems;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.casting.*;
@@ -12,6 +16,7 @@ import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.network.payload.*;
 import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -235,6 +240,21 @@ public class ModNetworking {
                     } else {
                         PassiveSlotManager.stopSlot(player, slotCircuit);
                     }
+                }
+            });
+        }));
+
+        registrar.playToServer(SwitchTabToSkillPayload.TYPE, SwitchTabToSkillPayload.CODEC, ((payload, context)-> {
+            context.enqueueWork(() -> {
+                if(context.player() instanceof ServerPlayer player){
+                    PhysicalData physicalData = player.getData(ReincarnatedAttachments.PHYSICAL_DATA);
+                    SoulData soulData = player.getData(ReincarnatedAttachments.SOUL_DATA);
+                    CommonData commonData = player.getData(ReincarnatedAttachments.COMMON_DATA);
+                    Minecraft.getInstance().setScreenAndShow(new SkillEditorScreen(
+                            physicalData.getOwnedSkillEffects(),
+                            soulData.getOwnedSkillEffects(),
+                            commonData.getSkillRank())
+                    );
                 }
             });
         }));

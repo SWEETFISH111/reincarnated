@@ -24,7 +24,7 @@ public class DraggableNodeWidget extends AbstructDraggingNodeWidget {
         boolean savedBoolean = false;
         PoolType savedPoolType = PoolType.PLAYER;
         ActionNodeType savedActionNodeType = ActionNodeType.DAMAGE;
-        Object param = this.parentScreen.getThisLayerManager().getWorkCircuit().getNodeParam(this.id, "value", null);
+        Object param = this.parentScreen.getWorkCircuit().getNodeParam(this.id, "value", null);
         if(param != null) {
             if (param instanceof Boolean b) {
                 savedBoolean = b;
@@ -102,9 +102,9 @@ public class DraggableNodeWidget extends AbstructDraggingNodeWidget {
                     this.draggingPort = null;
                     boolean currentState = switchWidget.getCurrentValue();
 
-                    this.parentScreen.getThisLayerManager().getWorkCircuit().setNodeParam(this.getId(), "value", currentState);
+                    this.parentScreen.getWorkCircuit().setNodeParam(this.getId(), "value", currentState);
 
-                    this.parentScreen.getThisLayerManager().getWorkCircuit().removeWiresByNode(this.getId());
+                    this.parentScreen.getWorkCircuit().removeWiresByNode(this.getId());
                     List<PortDataType> targetInputPorts = Arrays.asList(type.inputs);
                     List<PortDataType> targetOutputPorts = Arrays.asList(type.outputs);
                     if(type.anotherInputs != null){

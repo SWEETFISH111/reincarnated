@@ -14,7 +14,7 @@ public class CycleContentWidget<T extends ICycleButtonValue> extends AbstractCon
                 .withValues(values)
                 .create(x, y, width, height, message, (button, value) ->{
                     currentValue = value;
-                    parentNode.getParentScreen().getThisLayerManager().getWorkCircuit().setNodeParam(this.parentNode.getId(), "value", currentValue);
+                    parentNode.getParentScreen().getWorkCircuit().setNodeParam(this.parentNode.getId(), "value", currentValue);
                 });
     }
 

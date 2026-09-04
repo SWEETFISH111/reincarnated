@@ -2,8 +2,8 @@ package com.github.sweetfish111.reincarnated.skill;
 
 import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
-import com.github.sweetfish111.reincarnated.player.PhysicalData;
-import com.github.sweetfish111.reincarnated.player.SoulData;
+import com.github.sweetfish111.reincarnated.commondata.PhysicalData;
+import com.github.sweetfish111.reincarnated.commondata.SoulData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 

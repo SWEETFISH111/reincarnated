@@ -4,7 +4,6 @@ import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
 import com.github.sweetfish111.reincarnated.magic.caster.PlayerCasterAdapter;
 import com.github.sweetfish111.reincarnated.magic.casting.ActiveMagicManager;
-import com.github.sweetfish111.reincarnated.player.PhysicalData;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.reincarnated;
 import com.github.sweetfish111.reincarnated.skill.*;

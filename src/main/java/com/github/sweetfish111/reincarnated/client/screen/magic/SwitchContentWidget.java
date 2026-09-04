@@ -16,8 +16,8 @@ public class SwitchContentWidget extends AbstractContentWidget<Boolean,Button> {
         this.currentValue = false;
 
         // 2. セーブデータ（回路データ）があれば前回のパラメータを復元
-        if (this.parentNode != null && this.parentNode.getParentScreen() != null && this.parentNode.getParentScreen().getThisLayerManager().getWorkCircuit() != null) {
-            Object saved = this.parentNode.getParentScreen().getThisLayerManager().getWorkCircuit().getNodeParam(this.parentNode.getId(), "value", false);
+        if (this.parentNode != null && this.parentNode.getParentScreen() != null && this.parentNode.getParentScreen().getWorkCircuit() != null) {
+            Object saved = this.parentNode.getParentScreen().getWorkCircuit().getNodeParam(this.parentNode.getId(), "value", false);
             if (saved instanceof Boolean b) {
                 this.currentValue = b;
             } else if (saved instanceof Number n) { // ByteTag(1/0)やDouble(0.0)対策
@@ -43,7 +43,7 @@ public class SwitchContentWidget extends AbstractContentWidget<Boolean,Button> {
             currentValue = true;
             contentWidget.setMessage(Component.literal("有効").withColor(TextColor.GREEN));
         }
-        parentNode.getParentScreen().getThisLayerManager().getWorkCircuit().setNodeParam(this.parentNode.getId(), "value", currentValue);
+        parentNode.getParentScreen().getWorkCircuit().setNodeParam(this.parentNode.getId(), "value", currentValue);
     }
 
     @Override

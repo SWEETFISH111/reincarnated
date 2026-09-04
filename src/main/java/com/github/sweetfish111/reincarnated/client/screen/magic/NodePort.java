@@ -55,6 +55,6 @@ public class NodePort {
     }
 
     public void rightClicked(AbstructDraggingNodeWidget node, NodePort port){
-        parentNode.getParentScreen().getThisLayerManager().getWorkCircuit().removeWiresByPort(node.getId(), port.getType(), port.getIndex());
+        parentNode.getParentScreen().getWorkCircuit().removeWiresByPort(node.getId(), port.getType(), port.getIndex());
     }
 }

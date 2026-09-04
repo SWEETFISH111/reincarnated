@@ -3,7 +3,7 @@ package com.github.sweetfish111.reincarnated.skill.ability;
 import com.github.sweetfish111.reincarnated.config.BalanceConfig;
 import com.github.sweetfish111.reincarnated.datamap.InnateSkills;
 import com.github.sweetfish111.reincarnated.init.ReincarnatedDataMaps;
-import com.github.sweetfish111.reincarnated.player.AbstractSkillHolder;
+import com.github.sweetfish111.reincarnated.commondata.AbstractSkillHolder;
 import com.github.sweetfish111.reincarnated.skill.IKillEffectSkill;
 import com.github.sweetfish111.reincarnated.skill.ISkillAbility;
 import com.github.sweetfish111.reincarnated.skill.SkillEffect;

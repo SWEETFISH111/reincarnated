@@ -4,9 +4,7 @@ import com.github.sweetfish111.reincarnated.circuit.*;
 import com.github.sweetfish111.reincarnated.client.screen.WorkspaceCamera;
 import com.github.sweetfish111.reincarnated.item.ReincarnatedItems;
 import com.github.sweetfish111.reincarnated.magic.skill.SkillAccessLevel;
-import com.github.sweetfish111.reincarnated.network.payload.ExportSpellPalyload;
-import com.github.sweetfish111.reincarnated.network.payload.SaveCircuitPayload;
-import com.github.sweetfish111.reincarnated.network.payload.ToggleMagicSlotPayload;
+import com.github.sweetfish111.reincarnated.network.payload.*;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
@@ -20,6 +18,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -31,7 +30,14 @@ import java.util.*;
 
 
 public class MagicEditorScreen extends AbstractEditorScreen {
-    private ScreenLayerManager thisLayerManager = new ScreenLayerManager();
+    private final Deque<CircuitLayer> layerStack = new ArrayDeque<>();
+    private int editingMagicSlot = 0;
+    private MagiculeCircuit workCircuit = new MagiculeCircuit();
+    private String errorMessage = null;
+    private int errorTimer = 0;
+    private Button backBtn;
+    private EditorTab currentTab = EditorTab.MAGIC;
+
     private final List<AbstructDraggingNodeWidget> nodeWidgets = new ArrayList<>();
 
     private EditBox popupBox;
@@ -61,7 +67,15 @@ public class MagicEditorScreen extends AbstractEditorScreen {
     }
 
     public PlayerMagicData getMagicData(){return this.magicData;}
-    public ScreenLayerManager getThisLayerManager(){return this.thisLayerManager;}
+    public int getEditingMagicSlot(){ return editingMagicSlot; }
+    public String getErrorMessage(){return this.errorMessage;}
+    public Button getBackBtn(){return this.backBtn;}
+    public MagiculeCircuit getWorkCircuit(){return this.workCircuit;}
+    public Deque<CircuitLayer> getLayerStack(){return this.layerStack;}
+    public EditorTab getCurrentTab(){return this.currentTab;}
+    public void setBackBtn(Button backBtn) {this.backBtn = backBtn;}
+
+
     public void setCollapseTargets(List<UUID> collapseTargets){
         this.collapseTargets.clear();
         this.collapseTargets.addAll(collapseTargets);
@@ -71,7 +85,9 @@ public class MagicEditorScreen extends AbstractEditorScreen {
     @Override
     protected void init(){
         super.init();
-        thisLayerManager.init(this.magicData);
+        this.layerStack.clear();
+        this.workCircuit = this.magicData.getMagicSlot(this.editingMagicSlot);
+
 
         super.initTabBtns(EditorTab.MAGIC);
 
@@ -79,11 +95,10 @@ public class MagicEditorScreen extends AbstractEditorScreen {
                 Component.literal("<- 戻る"),
                 button -> goBackLayer()
         ).bounds(this.width - 60 -20 -60, 5, 60, 20).build();
-        thisLayerManager.setBackBtn(backBtn);
+        setBackBtn(backBtn);
         addRenderableWidget(backBtn);
 
-        thisLayerManager.updateBackButtonVisibility();
-        this.addRenderableWidget(thisLayerManager.getBackBtn());
+        updateBackButtonVisibility();
 
         // 画面の右上座標を計算 (例: 画面右端から少し内側、上部から少し下)
         int buttonWidth = 60;
@@ -100,7 +115,7 @@ public class MagicEditorScreen extends AbstractEditorScreen {
                 // 右上に「エクスポート」ボタンを追加
                 exportBtn = Button.builder(Component.literal("💾 焼き付け"), button -> {
                     // 現在のワークスペースの回路をNBT化
-                    CompoundTag circuitTag = this.thisLayerManager.getWorkCircuit().saveToNBT();
+                    CompoundTag circuitTag = this.getWorkCircuit().saveToNBT();
 
                     // サーバーへパケット送信
                     ExportSpellPalyload payload = new ExportSpellPalyload(circuitTag);
@@ -111,10 +126,10 @@ public class MagicEditorScreen extends AbstractEditorScreen {
 
                 this.addRenderableWidget(exportBtn);
             }else if(heldItem.is(ReincarnatedItems.GRIMOIRE)){
-                  CustomData data = heldItem.get(DataComponents.CUSTOM_DATA);
+                CustomData data = heldItem.get(DataComponents.CUSTOM_DATA);
                 CompoundTag circuitTag = data.copyTag();
                 importBtn = Button.builder(Component.literal("魔道書から学ぶ"), button -> {
-                    MagiculeCircuit currentCircuit = this.thisLayerManager.getWorkCircuit();
+                    MagiculeCircuit currentCircuit = this.getWorkCircuit();
                     currentCircuit.loadFromNBT(circuitTag);
                     rebuildNodeWidgets();
                 }).bounds(posX, posY, buttonWidth, buttonHeight).build();
@@ -137,6 +152,11 @@ public class MagicEditorScreen extends AbstractEditorScreen {
         }
     }
 
+    public void triggerError(MutableComponent message){
+        this.errorMessage = message.getString();
+        this.errorTimer = 60;
+    }
+
     private void rebuildMagicSlotButtons() {
         for (Button btn : magicSlotBtns) {
             this.removeWidget(btn);
@@ -148,7 +168,7 @@ public class MagicEditorScreen extends AbstractEditorScreen {
         }
         magicSlotToggleBtns.clear();
 
-        if (thisLayerManager.getCurrentTab() != EditorTab.MAGIC) return;
+        if (currentTab != EditorTab.MAGIC) return;
 
         int startX = 10;
         int y = 28;
@@ -159,14 +179,14 @@ public class MagicEditorScreen extends AbstractEditorScreen {
             Button slotBtn = Button.builder(
                     Component.literal(String.valueOf(i + 1)),
                     button -> {
-                        thisLayerManager.switchMagicSlot(slotIndex, this.nodeWidgets);
+                        switchMagicSlot(slotIndex, this.nodeWidgets);
                         clearCanvasWidgets();
                         rebuildNodeWidgets();
                         rebuildMagicSlotButtons();
                     }
             ).bounds(startX, y, 30, 20).build();
 
-            slotBtn.active = (slotIndex != thisLayerManager.getEditingMagicSlot());
+            slotBtn.active = (slotIndex != getEditingMagicSlot());
             this.magicSlotBtns.add(slotBtn);
             this.addRenderableWidget(slotBtn);
 
@@ -196,11 +216,40 @@ public class MagicEditorScreen extends AbstractEditorScreen {
     }
 
     public void switchTab(EditorTab tab){
-        thisLayerManager.saveCurrentTabCircuit(this.nodeWidgets);
-        thisLayerManager.switchTab(tab);
+        saveCurrentTabCircuit(this.nodeWidgets);
+        if(this.currentTab == tab)return;
+
+        this.currentTab = tab;
+        this.layerStack.clear();
+
+        this.updateBackButtonVisibility();
         clearCanvasWidgets();
         rebuildNodeWidgets();
         rebuildMagicSlotButtons();
+
+        if(Minecraft.getInstance().getConnection() != null){
+            Minecraft.getInstance().getConnection().send(new SwitchTabToSkillPayload());
+        }
+
+    }
+
+    public void loadTabCircuit(EditorTab tab){
+        if (tab == EditorTab.MAGIC) {
+            this.workCircuit = this.magicData.getMagicSlot(this.editingMagicSlot);
+        } else {
+            this.workCircuit = this.magicData.getCircuit(tab);
+        }
+    }
+
+    public void switchMagicSlot(int slotIndex, List<AbstructDraggingNodeWidget> nodeWidgets){
+        if (slotIndex < 0 || slotIndex >= PlayerMagicData.MAGIC_SLOT_COUNT) return;
+        if (slotIndex == editingMagicSlot) return;
+
+        saveCurrentTabCircuit(nodeWidgets); // 今のスロットの編集内容を保存
+        this.editingMagicSlot = slotIndex;
+        this.layerStack.clear();
+        loadTabCircuit(EditorTab.MAGIC);
+        updateBackButtonVisibility();
     }
 
     private void clearCanvasWidgets(){
@@ -214,10 +263,10 @@ public class MagicEditorScreen extends AbstractEditorScreen {
     }
 
     public void rebuildNodeWidgets(){
-        System.out.println("MagicEditorScreen_rebuild_start : " + thisLayerManager.getWorkCircuit());
+        System.out.println("MagicEditorScreen_rebuild_start : " + getWorkCircuit());
         clearCanvasWidgets();
         palette.close();
-        for(MagiculeCircuit.NodeData nodeData : thisLayerManager.getWorkCircuit().getNodes()){
+        for(MagiculeCircuit.NodeData nodeData : getWorkCircuit().getNodes()){
             AbstructDraggingNodeWidget nodeWidget = new DraggableNodeWidget(
                     this,
                     nodeData.id,
@@ -228,7 +277,7 @@ public class MagicEditorScreen extends AbstractEditorScreen {
             );
             this.nodeWidgets.add(nodeWidget);
         }
-        for(MagiculeCircuit.CompoundNodeData compoundNodeData : thisLayerManager.getWorkCircuit().getCompoundNodes()){
+        for(MagiculeCircuit.CompoundNodeData compoundNodeData : getWorkCircuit().getCompoundNodes()){
             CompoundNodeWidget compoundWidget = new CompoundNodeWidget(
                     this,
                     compoundNodeData.id,
@@ -253,7 +302,7 @@ public class MagicEditorScreen extends AbstractEditorScreen {
                             LOGGER.info("ポートの型が違うため接続できません");
                             return;
                         }
-                        thisLayerManager.getWorkCircuit().addWire(sourceNode.getId(), sourcePort.getIndex(), targetNode.getId(),targetPort.getIndex(), sourcePort.getDataType() != PortDataType.EXEC && targetPort.getDataType() != PortDataType.EXEC);
+                        getWorkCircuit().addWire(sourceNode.getId(), sourcePort.getIndex(), targetNode.getId(),targetPort.getIndex(), sourcePort.getDataType() != PortDataType.EXEC && targetPort.getDataType() != PortDataType.EXEC);
 
                         return;
                     }
@@ -265,7 +314,12 @@ public class MagicEditorScreen extends AbstractEditorScreen {
     @Override
     public void tick() {
         super.tick();
-        this.thisLayerManager.tick();
+        if (this.errorTimer > 0) {
+            this.errorTimer--;
+            if (this.errorTimer <= 0) {
+                this.errorMessage = null;
+            }
+        }
     }
 
     //レンダリングメソッド
@@ -280,7 +334,7 @@ public class MagicEditorScreen extends AbstractEditorScreen {
         guiGraphicsExtractor.pose().translate((float)this.camera.panX, (float)this.camera.panY);
         guiGraphicsExtractor.pose().scale(this.camera.zoom, this.camera.zoom);
         //ワイヤー描画
-        for(MagiculeCircuit.WireData wire : thisLayerManager.getWorkCircuit().getWires()){
+        for(MagiculeCircuit.WireData wire : getWorkCircuit().getWires()){
             AbstructDraggingNodeWidget source = findNodeById(wire.sourceId);
             AbstructDraggingNodeWidget target = findNodeById(wire.targetId);
             if(source != null && target != null) {
@@ -306,7 +360,7 @@ public class MagicEditorScreen extends AbstractEditorScreen {
 
 
 
-        String errorMsg = this.thisLayerManager.getErrorMessage();
+        String errorMsg = this.getErrorMessage();
         if (errorMsg != null) {
             int screenWidth = this.width;
 
@@ -345,7 +399,7 @@ public class MagicEditorScreen extends AbstractEditorScreen {
 
         super.clickTabButton(event, doubleClick);
 
-        if(thisLayerManager.getBackBtn().mouseClicked(event, doubleClick)){
+        if(getBackBtn().mouseClicked(event, doubleClick)){
             return true;
         }
 
@@ -385,7 +439,7 @@ public class MagicEditorScreen extends AbstractEditorScreen {
                 nodeWidgets.add(node);
 
                 if(doubleClick && node instanceof CompoundNodeWidget cNode){
-                    thisLayerManager.diveLayer(cNode, nodeWidgets, magicData);
+                    diveLayer(cNode, nodeWidgets, magicData);
                     rebuildNodeWidgets();
                 }
 
@@ -462,9 +516,153 @@ public class MagicEditorScreen extends AbstractEditorScreen {
     }
 
     public void goBackLayer(){
-        this.thisLayerManager.goBackLayer(this.nodeWidgets);
+        if(layerStack.isEmpty())return;
+
+        CircuitLayer parentLayer = layerStack.pop();
+        saveCurrentInnerCircuit(parentLayer, nodeWidgets);
+
+        this.workCircuit = parentLayer.parentCircuit;
+        updateBackButtonVisibility();
         rebuildNodeWidgets();
-        LOGGER.info("hitotu ue no kaisou ni modorimasita");
+    }
+
+    public void updateBackButtonVisibility(){
+        if(this.backBtn != null){
+            this.backBtn.visible = !layerStack.isEmpty();
+        }
+    }
+
+    public void saveCurrentTabCircuit(List<AbstructDraggingNodeWidget> nodeWidgets){
+        if(!this.layerStack.isEmpty())return;
+
+        this.workCircuit.getNodes().clear();
+        List<MagiculeCircuit.CompoundNodeData> updatedCompounds = new ArrayList<>();
+        for(AbstructDraggingNodeWidget widget : nodeWidgets){
+
+            if(widget instanceof CompoundNodeWidget compoundWidget){
+                if(compoundWidget != null){
+                    MagiculeCircuit.CompoundNodeData existingData = findCompoundDataById(compoundWidget.getId());
+                    if(existingData != null){
+                        existingData.x = compoundWidget.getX();
+                        existingData.y = compoundWidget.getY();
+                        updatedCompounds.add(existingData);
+                    }
+                }
+
+            }else if(widget instanceof DraggableNodeWidget draggableNodeWidget){
+                this.workCircuit.addNode(new MagiculeCircuit.NodeData(
+                        draggableNodeWidget.getId(),
+                        draggableNodeWidget.getType(),
+                        draggableNodeWidget.getX(),
+                        draggableNodeWidget.getY()
+                ));
+                Object val = draggableNodeWidget.getContentWidget() != null ? draggableNodeWidget.getContentWidget().getCurrentValue() : null;
+                if(val != null){
+                    this.workCircuit.setNodeParam(draggableNodeWidget.getId(), "value", val);
+                }
+            }
+        }
+
+        this.workCircuit.setCompoundNodes(updatedCompounds);
+
+        if (this.currentTab == EditorTab.MAGIC) {
+            this.magicData.setMagicSlot(editingMagicSlot, this.workCircuit);
+        } else {
+            this.magicData.setCircuits(this.currentTab, this.workCircuit);
+        }
+    }
+
+    public MagiculeCircuit.CompoundNodeData findCompoundDataById(UUID id){
+        for(MagiculeCircuit.CompoundNodeData data : this.workCircuit.getCompoundNodes()){
+            if(data.id.equals(id))return data;
+        }
+        return null;
+    }
+
+    public boolean diveLayer(AbstructDraggingNodeWidget node, List<AbstructDraggingNodeWidget> nodeWidgets, PlayerMagicData magicData){
+        if(node instanceof CompoundNodeWidget cNode){
+            SkillAccessLevel access = cNode.getLinkedData().getAccessLevelFor(magicData);
+            if (!access.canViewInner()) {
+                triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
+                return false;
+            }
+        }
+        MagiculeCircuit.CompoundNodeData compoundData = findCompoundDataById(node.getId());
+        if(compoundData != null){
+            saveCurrentTabCircuit(nodeWidgets);
+
+            MagiculeCircuit innerCircuit = new MagiculeCircuit();
+            for(MagiculeCircuit.NodeData nodeData : compoundData.getCompoundCircuit().getNodes()){
+                innerCircuit.addNode(nodeData);
+            }
+            for (MagiculeCircuit.CompoundNodeData innerCompound : compoundData.getCompoundCircuit().getCompoundNodes()){
+                innerCircuit.getCompoundNodes().add(innerCompound);
+            }
+            for(MagiculeCircuit.WireData wireData : compoundData.getCompoundCircuit().getWires()){
+                innerCircuit.addWire(wireData.sourceId, wireData.sourcePortIndex, wireData.targetId, wireData.targetPortIndex, wireData.isDataFlow);
+            }
+
+            for(Map.Entry<UUID, Map<String, Object>> entry : compoundData.getCompoundCircuit().getNodeParameters().entrySet()){
+                UUID nId = entry.getKey();
+                for(Map.Entry<String, Object> paramEntry : entry.getValue().entrySet()){
+                    innerCircuit.setNodeParam(nId, paramEntry.getKey(), paramEntry.getValue());
+                }
+            }
+
+            layerStack.push(new CircuitLayer(
+                    innerCircuit,
+                    compoundData.customName,
+                    compoundData.id,
+                    this.workCircuit
+            ));
+
+
+            this.workCircuit = innerCircuit;
+            updateBackButtonVisibility();
+            return true;
+        }
+        return false;
+    }
+
+    public void saveCurrentInnerCircuit(CircuitLayer currentLayer, List<AbstructDraggingNodeWidget>nodeWidgets){
+        if(currentLayer == null || currentLayer.parentCompoundId == null) return;
+
+        for(MagiculeCircuit.CompoundNodeData cNode : currentLayer.parentCircuit.getCompoundNodes()){
+            if(cNode.id.equals(currentLayer.parentCompoundId)){
+                cNode.getCompoundCircuit().getNodes().clear();
+                cNode.getCompoundCircuit().getCompoundNodes().clear();
+                cNode.getCompoundCircuit().getWires().clear();
+                cNode.getCompoundCircuit().getNodeParameters().clear();
+
+                for(AbstructDraggingNodeWidget widget : nodeWidgets){
+                    if(widget instanceof CompoundNodeWidget compoundWidget){
+                        MagiculeCircuit.CompoundNodeData existingCompound = findCompoundDataById(compoundWidget.getId());
+                        if(existingCompound != null){
+                            existingCompound.x = compoundWidget.getX();
+                            existingCompound.y = compoundWidget.getY();
+                            cNode.getCompoundCircuit().getCompoundNodes().add(existingCompound);
+                        }
+                    }else if(widget instanceof DraggableNodeWidget dWidget){
+                        cNode.getCompoundCircuit().getNodes().add(new MagiculeCircuit.NodeData(
+                                dWidget.getId(),
+                                dWidget.getType(),
+                                dWidget.getX(),
+                                dWidget.getY()));
+
+                        Object val = widget.getContentWidget() != null ? widget.getContentWidget().getCurrentValue() : null;
+                        if(val != null){
+                            cNode.getCompoundCircuit().getNodeParameters().computeIfAbsent(widget.getId(), k -> new HashMap<>()).put("value", val);
+                        }
+                    }
+                }
+
+                for(MagiculeCircuit.WireData wire : this.workCircuit.getWires()){
+                    cNode.getCompoundCircuit().getWires().add(wire);
+                }
+
+            }
+
+        }
     }
 
     public void copyNode(AbstructDraggingNodeWidget node){
@@ -478,7 +676,7 @@ public class MagicEditorScreen extends AbstractEditorScreen {
             if(cNode.getContentWidget() != null){
                 SkillAccessLevel currentAccess = cNode.getLinkedData().getAccessLevelFor(magicData);
                 if (!currentAccess.canModify()) {
-                    thisLayerManager.triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
+                    triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
                     return;
                 }
                 MagiculeCircuit.CompoundNodeData clonedData = new MagiculeCircuit.CompoundNodeData(
@@ -491,11 +689,11 @@ public class MagicEditorScreen extends AbstractEditorScreen {
                         cNode.getX() + 10,
                         cNode.getY() + 10
                 );
-                this.thisLayerManager.getWorkCircuit().addCompoundNode(clonedData);
+                this.getWorkCircuit().addCompoundNode(clonedData);
             }else{
                 SkillAccessLevel currentAccess = cNode.getLinkedData().getAccessLevelFor(magicData);
                 if (!currentAccess.canModify()) {
-                    thisLayerManager.triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
+                    triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
                     return;
                 }
                 MagiculeCircuit.CompoundNodeData clonedData = new MagiculeCircuit.CompoundNodeData(
@@ -508,7 +706,7 @@ public class MagicEditorScreen extends AbstractEditorScreen {
                         cNode.getX() + 10,
                         cNode.getY() + 10
                 );
-                this.thisLayerManager.getWorkCircuit().addCompoundNode(clonedData);
+                this.getWorkCircuit().addCompoundNode(clonedData);
             }
             rebuildNodeWidgets();
         }
@@ -560,8 +758,8 @@ public class MagicEditorScreen extends AbstractEditorScreen {
     //魔法編集画面全体を閉じたとき
     @Override
     public void onClose() {
-        thisLayerManager.saveCurrentInnerCircuit(thisLayerManager.getLayerStack().peek(), this.nodeWidgets);
-        thisLayerManager.saveCurrentTabCircuit(this.nodeWidgets);
+        saveCurrentInnerCircuit(getLayerStack().peek(), this.nodeWidgets);
+        saveCurrentTabCircuit(this.nodeWidgets);
 
         CompoundTag rootTag = this.magicData.saveToNBT();
 
@@ -590,7 +788,7 @@ public class MagicEditorScreen extends AbstractEditorScreen {
                 this.removeWidget(this.popupBox);
                 this.popupBox = null;
                 this.isNamingCompound = false;
-                this.thisLayerManager.getWorkCircuit().collapseNodes(collapseTargets, customName);
+                this.getWorkCircuit().collapseNodes(collapseTargets, customName);
                 this.rebuildNodeWidgets();
                 return true;
             }
@@ -625,13 +823,13 @@ public class MagicEditorScreen extends AbstractEditorScreen {
         if(node instanceof CompoundNodeWidget cNode){
             SkillAccessLevel access = cNode.getLinkedData().getAccessLevelFor(magicData);
             if (!access.canModify()) {
-                thisLayerManager.triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
+                triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
                 return;
             }
         }
         this.nodeWidgets.remove(node);
         this.removeWidget(node);
-        thisLayerManager.getWorkCircuit().removeNodeAndWires(node.getId());
+        getWorkCircuit().removeNodeAndWires(node.getId());
         if(node.getContentWidget() != null){
             this.removeWidget(node.getContentWidget());
         }
@@ -645,8 +843,8 @@ public class MagicEditorScreen extends AbstractEditorScreen {
     public void spawnNodeWithParam(MagiculeNodeType type, double canvasX, double canvasY, Object initialValue) {
         UUID newId = UUID.randomUUID();
 
-        thisLayerManager.getWorkCircuit().addNode(new MagiculeCircuit.NodeData(newId, type, (int) canvasX, (int) canvasY));
-        thisLayerManager.getWorkCircuit().setNodeParam(newId, "value", initialValue);
+        getWorkCircuit().addNode(new MagiculeCircuit.NodeData(newId, type, (int) canvasX, (int) canvasY));
+        getWorkCircuit().setNodeParam(newId, "value", initialValue);
 
         DraggableNodeWidget newNode = new DraggableNodeWidget(this, newId, (int) canvasX, (int) canvasY, 80, type);
         this.nodeWidgets.add(newNode);
@@ -693,5 +891,19 @@ public class MagicEditorScreen extends AbstractEditorScreen {
         this.popupBox.setFocused(true);
 
         this.addRenderableWidget(this.popupBox);
+    }
+
+    public static class CircuitLayer {
+        public final MagiculeCircuit workCircuit;
+        public final String title;
+        public final UUID parentCompoundId;
+        public final MagiculeCircuit parentCircuit;
+
+        public CircuitLayer(MagiculeCircuit circuit, String title, UUID parentCompoundId, MagiculeCircuit parentCircuit) {
+            this.workCircuit = circuit;
+            this.title = title;
+            this.parentCompoundId = parentCompoundId;
+            this.parentCircuit = parentCircuit;
+        }
     }
 }

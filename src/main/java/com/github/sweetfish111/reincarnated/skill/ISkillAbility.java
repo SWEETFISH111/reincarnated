@@ -1,7 +1,6 @@
 package com.github.sweetfish111.reincarnated.skill;
 
-import com.github.sweetfish111.reincarnated.player.AbstractSkillHolder;
-import net.minecraft.server.level.ServerPlayer;
+import com.github.sweetfish111.reincarnated.commondata.AbstractSkillHolder;
 
 public interface ISkillAbility {
     /** 所持した瞬間に一度だけ呼ばれる(取得時の一回処理があれば) */

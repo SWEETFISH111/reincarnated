@@ -25,7 +25,7 @@ public class CompoundNodeWidget extends AbstructDraggingNodeWidget {
         super(parentScreen, id, x, y, width, 0, Component.literal("compound"));
         this.customName = customName;
 
-        for(MagiculeCircuit.CompoundNodeData data : parentScreen.getThisLayerManager().getWorkCircuit().getCompoundNodes()){
+        for(MagiculeCircuit.CompoundNodeData data : parentScreen.getWorkCircuit().getCompoundNodes()){
             if(data.id.equals(this.id)){
                 nodeData = data;
             }
@@ -54,10 +54,10 @@ public class CompoundNodeWidget extends AbstructDraggingNodeWidget {
     public void openContents(){
         SkillAccessLevel access = this.getLinkedData().getAccessLevelFor(parentScreen.getMagicData());
         if (!access.canModify()) {
-            parentScreen.getThisLayerManager().triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
+            parentScreen.triggerError(Component.translatable("message.reincarnated.compound_accessDenied"));
             return;
         }
-        MagiculeCircuit parentCircuit = parentScreen.getThisLayerManager().getWorkCircuit();
+        MagiculeCircuit parentCircuit = parentScreen.getWorkCircuit();
         MagiculeCircuit contentCircuit = nodeData.getCompoundCircuit();
 
         parentCircuit.getNodes().addAll(contentCircuit.getNodes());

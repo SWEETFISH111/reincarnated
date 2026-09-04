@@ -1,11 +1,6 @@
-package com.github.sweetfish111.reincarnated.player;
+package com.github.sweetfish111.reincarnated.commondata;
 
-import com.github.sweetfish111.reincarnated.skill.SkillEffect;
 import net.minecraft.nbt.CompoundTag;
-
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Set;
 
 public class SoulData extends AbstractSkillHolder {
     private final int DATA_VERSION = 1;

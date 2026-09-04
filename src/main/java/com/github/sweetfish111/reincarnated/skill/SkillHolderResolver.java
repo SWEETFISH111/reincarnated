@@ -1,7 +1,7 @@
 package com.github.sweetfish111.reincarnated.skill;
 
 import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
-import com.github.sweetfish111.reincarnated.player.AbstractSkillHolder;
+import com.github.sweetfish111.reincarnated.commondata.AbstractSkillHolder;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.EnumSet;

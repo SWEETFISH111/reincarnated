@@ -110,7 +110,7 @@ public class NodePaletteWidget {
                 }));
             }
         } else {
-            EditorTab currentTab = parentScreen.getThisLayerManager().getCurrentTab();
+            EditorTab currentTab = parentScreen.getCurrentTab();
             PlayerMagicData magicData = parentScreen.getMagicData();
 
             for (MagiculeNodeType type : MagiculeNodeType.values()) {
@@ -131,7 +131,7 @@ public class NodePaletteWidget {
         items.clear();
 
         // スキルタブかつ対象ノードが「貪欲者(greedy)」の場合
-        if (this.parentScreen.getThisLayerManager().getCurrentTab() == EditorTab.SKILL && nodeWidget instanceof CompoundNodeWidget c && "greedy".equals(c.getLinkedData().getSkillId())) {
+        if (this.parentScreen.getCurrentTab() == EditorTab.SKILL && nodeWidget instanceof CompoundNodeWidget c && "greedy".equals(c.getLinkedData().getSkillId())) {
             PlayerMagicData magicData = this.parentScreen.getMagicData();
             Set<String> evolvables = magicData.getEvolvableUniqueSkills();
 

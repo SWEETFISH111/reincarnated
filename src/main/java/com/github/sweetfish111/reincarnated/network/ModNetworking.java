@@ -4,7 +4,9 @@ import com.github.sweetfish111.reincarnated.circuit.EditorTab;
 import com.github.sweetfish111.reincarnated.circuit.MagiculeCircuit;
 import com.github.sweetfish111.reincarnated.circuit.RuntimeMagicCircuit;
 import com.github.sweetfish111.reincarnated.client.event.handler.ClientPacketHandlers;
+import com.github.sweetfish111.reincarnated.client.screen.skill.SkillBox;
 import com.github.sweetfish111.reincarnated.client.screen.skill.SkillEditorScreen;
+import com.github.sweetfish111.reincarnated.client.screen.skill.SkillRank;
 import com.github.sweetfish111.reincarnated.commondata.CommonData;
 import com.github.sweetfish111.reincarnated.commondata.PhysicalData;
 import com.github.sweetfish111.reincarnated.commondata.SoulData;
@@ -16,6 +18,7 @@ import com.github.sweetfish111.reincarnated.magic.context.MagicContext;
 import com.github.sweetfish111.reincarnated.player.PlayerMagicData;
 import com.github.sweetfish111.reincarnated.network.payload.*;
 import com.github.sweetfish111.reincarnated.init.ReincarnatedAttachments;
+import com.github.sweetfish111.reincarnated.skill.SkillEffect;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -31,6 +34,8 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @EventBusSubscriber(modid = "reincarnated")
@@ -246,16 +251,47 @@ public class ModNetworking {
 
         registrar.playToServer(SwitchTabToSkillPayload.TYPE, SwitchTabToSkillPayload.CODEC, ((payload, context)-> {
             context.enqueueWork(() -> {
-                if(context.player() instanceof ServerPlayer player){
-                    PhysicalData physicalData = player.getData(ReincarnatedAttachments.PHYSICAL_DATA);
-                    SoulData soulData = player.getData(ReincarnatedAttachments.SOUL_DATA);
-                    CommonData commonData = player.getData(ReincarnatedAttachments.COMMON_DATA);
-                    Minecraft.getInstance().setScreenAndShow(new SkillEditorScreen(
-                            physicalData.getOwnedSkillEffects(),
-                            soulData.getOwnedSkillEffects(),
-                            commonData.getSkillRank())
-                    );
+
+                if(FMLEnvironment.getDist().isClient()) {
+                    if (context.player() instanceof ServerPlayer player) {
+                        Set<SkillEffect> p = player.getData(ReincarnatedAttachments.PHYSICAL_DATA).getOwnedSkillEffects();
+                        Set<String> physicals = new HashSet<>();
+                        for(SkillEffect skill : p){
+                            physicals.add(skill.getSerializedName());
+                        }
+
+                        Set<SkillEffect> s = player.getData(ReincarnatedAttachments.SOUL_DATA).getOwnedSkillEffects();
+                        Set<String> souls = new HashSet<>();
+                        for(SkillEffect skill : s){
+                            souls.add(skill.getSerializedName());
+                        }
+
+                        SkillBox skill = player.getData(ReincarnatedAttachments.COMMON_DATA).getSkillBox();
+
+                        context.reply(new SyncSkillPayload(physicals, souls, skill.saveToNBT()));
+                    }
                 }
+            });
+        }));
+
+        registrar.playToClient(SyncSkillPayload.TYPE, SyncSkillPayload.STREAM_CODEC,((payload, context) -> {
+            context.enqueueWork(() -> {
+                Set<SkillEffect> physicals = new HashSet<>();
+                for(String physical : payload.physicalSkills()){
+                    physicals.add(SkillEffect.byName(physical));
+                }
+
+                Set<SkillEffect> souls = new HashSet<>();
+                for(String soul : payload.soulSkills()){
+                    souls.add(SkillEffect.byName(soul));
+                }
+
+                SkillBox skillBox = new SkillBox(SkillRank.UNAWAKENED);
+                skillBox.loadFromNBT(payload.skillBox());
+
+                Minecraft.getInstance().setScreenAndShow(new SkillEditorScreen(
+                        physicals,souls,skillBox
+                ));
             });
         }));
     }

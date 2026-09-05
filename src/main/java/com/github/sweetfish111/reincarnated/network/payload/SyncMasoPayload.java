@@ -9,17 +9,17 @@ import net.minecraft.resources.Identifier;
 public record SyncMasoPayload(float maxMaso, float currentMaso, float maxBarrier, float currentBarrier) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<SyncMasoPayload> TYPE = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath("reincarnated", "maso_data"));
 
-public static final StreamCodec<ByteBuf, SyncMasoPayload> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.FLOAT,
-        SyncMasoPayload::maxMaso,
-        ByteBufCodecs.FLOAT,
-        SyncMasoPayload::currentMaso,
-        ByteBufCodecs.FLOAT,
-        SyncMasoPayload::maxBarrier,
-        ByteBufCodecs.FLOAT,
-        SyncMasoPayload::currentBarrier,
-        SyncMasoPayload::new
-);
+    public static final StreamCodec<ByteBuf, SyncMasoPayload> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.FLOAT,
+            SyncMasoPayload::maxMaso,
+            ByteBufCodecs.FLOAT,
+            SyncMasoPayload::currentMaso,
+            ByteBufCodecs.FLOAT,
+            SyncMasoPayload::maxBarrier,
+            ByteBufCodecs.FLOAT,
+            SyncMasoPayload::currentBarrier,
+            SyncMasoPayload::new
+    );
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

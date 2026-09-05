@@ -3,6 +3,10 @@ package com.github.sweetfish111.reincarnated.skill;
 import net.minecraft.util.StringRepresentable;
 import com.mojang.serialization.Codec;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public enum SkillEffect implements StringRepresentable {
     SLOW_FALL("slow_fall", 1, SkillDomain.PHYSICAL),
     UNDERWATER_BREATHING("underwater_breathing", 1, SkillDomain.PHYSICAL),
@@ -17,6 +21,8 @@ public enum SkillEffect implements StringRepresentable {
     private final String id;
     private final int boxCost;
     private final SkillDomain domain;
+    private static final Map<String, SkillEffect> BY_NAME = Arrays.stream(values())
+            .collect(Collectors.toMap(SkillEffect::getSerializedName, e -> e));
 
     SkillEffect(String id, int boxCost, SkillDomain category) {
         this.id = id;
@@ -33,6 +39,10 @@ public enum SkillEffect implements StringRepresentable {
 
     public int boxCost() {
         return boxCost;
+    }
+
+    public static SkillEffect byName(String name){
+        return BY_NAME.get(name);
     }
 
 }
